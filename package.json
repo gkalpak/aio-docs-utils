@@ -1,0 +1,34 @@
+{
+  "name": "aio-docs-utils",
+  "displayName": "Angular.io Documentation Utilities",
+  "description": "A VSCode extension providing a set of simple utilities to aid in authoring/viewing documentation for angular.io.",
+  "version": "0.0.0",
+  "publisher": "gkalpak",
+  "repository": "github:gkalpak/aio-docs-utils",
+  "license": "Unlicense",
+  "main": "./out/extension",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile"
+  },
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "engines": {
+    "vscode": "^1.26.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6",
+    "tslint": "^5.8.0",
+    "@types/node": "^7.0.43",
+    "@types/mocha": "^2.2.42"
+  },
+  "private": true
+}
