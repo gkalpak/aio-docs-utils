@@ -41,6 +41,10 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     }
 
     return this.extractDocregions(csInfo, token).then(drInfo => {
+      if (!drInfo) {
+        return null;
+      }
+
       const exampleFile = Uri.file(csInfo.file.path);
       return drInfo.ranges.map(range => new Location(exampleFile, range));
     });
@@ -53,6 +57,10 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     }
 
     return this.extractDocregions(csInfo, token).then(drInfo => {
+      if (!drInfo) {
+        return null;
+      }
+
       const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
 
       const titleStr = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
@@ -65,13 +73,13 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     });
   }
 
-  protected extractDocregions(csInfo: CodeSnippetInfoWithFilePath, token: CancellationToken): Promise<DocregionInfo> {
+  protected extractDocregions(csInfo: CodeSnippetInfoWithFilePath, token: CancellationToken): Promise<DocregionInfo | null> {
     const fileType = parse(csInfo.file.path).ext.slice(1);
     const unlessCancelled = utils.unlessCancelledFactory(token);
 
     return utils.readFile(csInfo.file.path).then(unlessCancelled(rawContents => {
-      const extractor = new DocregionExtractor(rawContents);
-      return extractor.extract(fileType, csInfo.attrs.region || undefined);
+      const extractor = DocregionExtractor.for(fileType, rawContents);
+      return extractor.extract(csInfo.attrs.region || '');
     }));
   }
 

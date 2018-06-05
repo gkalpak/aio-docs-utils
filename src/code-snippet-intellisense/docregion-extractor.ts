@@ -1,4 +1,6 @@
 import {Range} from 'vscode';
+import {LruCache} from '../shared/lru-cache';
+import {utils} from '../shared/utils';
 import {getDocregionMatcher} from './docregion-matchers';
 
 
@@ -15,14 +17,43 @@ interface ProvisionaryDocregionInfo {
 }
 
 export class DocregionExtractor {
-  private static readonly DEFAULT_PLASTER = '. . .';
-  private readonly lines: string[];
+  public static for(fileType: string, contents: string): DocregionExtractor {
+    const cache = DocregionExtractor.cache;
+    const sha = utils.hash(`${fileType}|${contents}`);
 
-  constructor(contents: string) {
-    this.lines = contents.split(/\r?\n/);
+    if (!cache.has(sha)) {
+      cache.set(sha, new DocregionExtractor(fileType, contents));
+    }
+
+    return cache.get(sha)!;
   }
 
-  public extract(fileType: string, docregion = ''): DocregionInfo {
+  private static readonly DEFAULT_PLASTER = '. . .';
+  private static readonly cache = new LruCache<string, DocregionExtractor>();
+  private readonly regions: Map<string, ProvisionaryDocregionInfo>;
+
+  constructor(private readonly fileType: string, contents: string) {
+    this.regions = this.extractProvisional(fileType, contents);
+  }
+
+  public extract(docregion?: ''): DocregionInfo;
+  public extract(docregion: string): DocregionInfo | null;
+  public extract(docregion: string = ''): DocregionInfo | null {
+    // Retrieve the specified region, post-process, and return it.
+    const region = this.regions.get(docregion);
+    if (!region) {
+      return null;
+    }
+
+    const contents = this.leftAlign(region.lines);
+    const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
+      new Range(fromLineIdx, 0, toLineIdx, 0));
+
+    return {fileType: this.fileType, contents, ranges};
+  }
+
+  private extractProvisional(fileType: string, contents: string): Map<string, ProvisionaryDocregionInfo> {
+    const rawLines = contents.split(/\r?\n/);
     const regions = new Map<string, ProvisionaryDocregionInfo>();
     const openRegions: string[] = [];
 
@@ -31,7 +62,7 @@ export class DocregionExtractor {
     let plaster = matcher.createPlasterComment(DocregionExtractor.DEFAULT_PLASTER);
 
     // Run through all lines and assign them to docregions.
-    const lines = this.lines.filter((line, lineIdx) => {
+    const lines = rawLines.filter((line, lineIdx) => {
       const startRegion = matcher.regionStartRe.exec(line);
       const endRegion = !startRegion && matcher.regionEndRe.exec(line);
       const updatePlaster = !endRegion && matcher.plasterRe.exec(line);
@@ -85,7 +116,7 @@ export class DocregionExtractor {
     openRegions.forEach(name => {
       const region = regions.get(name)!;
       region.open = false;
-      region.ranges[region.ranges.length - 1].push(this.lines.length);
+      region.ranges[region.ranges.length - 1].push(rawLines.length);
     });
 
     // If there is no explicit "default" docregion (i.e. `''`),
@@ -94,13 +125,7 @@ export class DocregionExtractor {
       regions.set('', {lines, ranges: [[0, 0]], open: false});
     }
 
-    // Retrieve the specified region, post-process, and return it.
-    const region = regions.get(docregion)!;
-    const contents = this.leftAlign(region.lines);
-    const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
-      new Range(fromLineIdx, 0, toLineIdx, 0));
-
-    return {fileType, contents, ranges};
+    return regions;
   }
 
   private getRegionNames(input: string): string[] {
