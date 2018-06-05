@@ -1,4 +1,5 @@
 import {existsSync} from 'fs';
+import {parse} from 'path';
 import {
   CancellationToken, Definition, DefinitionProvider, DocumentSelector, Hover, HoverProvider, languages, Location,
   Position, ProviderResult, Range, TextDocument, Uri,
@@ -33,62 +34,64 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
   }
 
   public provideDefinition(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Definition> {
-    const ceInfo = this.getCodeSnippetInfo(doc, pos, 'Providing definition');
-    if (!ceInfo) {
+    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing definition');
+    if (!csInfo) {
       return null;
     }
 
-    return this.extractDocregions(ceInfo, token).then(drInfo => {
-      const exampleFile = Uri.file(ceInfo.file.path);
+    return this.extractDocregions(csInfo, token).then(drInfo => {
+      const exampleFile = Uri.file(csInfo.file.path);
       return drInfo.ranges.map(range => new Location(exampleFile, range));
     });
   }
 
   public provideHover(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Hover> {
-    const ceInfo = this.getCodeSnippetInfo(doc, pos, 'Providing hover');
-    if (!ceInfo) {
+    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing hover');
+    if (!csInfo) {
       return null;
     }
 
-    return this.extractDocregions(ceInfo, token).then(drInfo => {
-      const mdTitle = !ceInfo.attrs.title ? '' : `_${ceInfo.attrs.title}_\n\n---\n`;
+    return this.extractDocregions(csInfo, token).then(drInfo => {
+      const mdTitle = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
       const mdCode = `\`\`\`\n${drInfo.contents}\n\`\`\``;
 
       const contents = `${mdTitle}${mdCode}`;
-      const range = new Range(ceInfo.html.startPos, ceInfo.html.endPos);
+      const range = new Range(csInfo.html.startPos, csInfo.html.endPos);
 
       return new Hover(contents, range);
     });
   }
 
   protected extractDocregions(csInfo: CodeSnippetInfoWithFilePath, token: CancellationToken): Promise<DocregionInfo> {
+    const fileType = parse(csInfo.file.path).ext.slice(1);
     const unlessCancelled = utils.unlessCancelledFactory(token);
+
     return utils.readFile(csInfo.file.path).then(unlessCancelled(rawContents => {
       const extractor = new DocregionExtractor(rawContents);
-      return extractor.extract(csInfo.attrs.region || undefined);
+      return extractor.extract(fileType, csInfo.attrs.region || undefined);
     }));
   }
 
   protected getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): CodeSnippetInfoWithFilePath | null {
     logger.log(`${action} for '${doc.fileName}:${pos.line}:${pos.character}'...`);
 
-    const cdInfo = codeSnippetUtils.getInfo(doc, pos);
-    if (!cdInfo) {
+    const csInfo = codeSnippetUtils.getInfo(doc, pos);
+    if (!csInfo) {
       return null;
     }
 
-    logger.log(`  Detected code snippet: ${cdInfo.html.contents}`);
+    logger.log(`  Detected code snippet: ${csInfo.html.contents}`);
 
-    if (!this.hasFilePath(cdInfo) || !existsSync(cdInfo.file.path)) {
+    if (!this.hasFilePath(csInfo) || !existsSync(csInfo.file.path)) {
       return null;
     }
 
-    logger.log(`  Located example file: ${cdInfo.file.path}`);
+    logger.log(`  Located example file: ${csInfo.file.path}`);
 
-    return cdInfo;
+    return csInfo;
   }
 
-  private hasFilePath(info: CodeSnippetInfo): info is CodeSnippetInfoWithFilePath {
-    return !!info.file.path;
+  private hasFilePath(csInfo: CodeSnippetInfo): csInfo is CodeSnippetInfoWithFilePath {
+    return !!csInfo.file.path;
   }
 }

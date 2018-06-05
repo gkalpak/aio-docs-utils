@@ -1,4 +1,5 @@
 import {Range} from 'vscode';
+import {getDocregionMatcher} from './docregion-matchers';
 
 
 export interface DocregionInfo {
@@ -6,40 +7,29 @@ export interface DocregionInfo {
   ranges: Range[];
 }
 
-interface RegionInfo {
+interface ProvisionaryDocregionInfo {
   lines: string[];
   ranges: number[][];
   open: boolean;
 }
 
-interface RegionMatcher {
-  regionStartRe: RegExp;
-  regionEndRe: RegExp;
-  plasterRe: RegExp;
-
-  createPlasterComment(plaster: string): string;
-}
-
 export class DocregionExtractor {
   private static readonly DEFAULT_PLASTER = '. . .';
-  private static readonly DEFAULT_REGION_MATCHER: RegionMatcher = {
-    regionStartRe: /^\s*\/\/\s*#docregion\s*(.*)$/,
-    regionEndRe: /^\s*\/\/\s*#enddocregion\s*(.*)$/,
-    plasterRe: /^\s*\/\/\s*#docplaster\s*(.*)$/,
-    createPlasterComment: (plaster: string) => `/* ${plaster} */`,
-  };
-
   private readonly lines: string[];
 
   constructor(contents: string) {
     this.lines = contents.split(/\r?\n/);
   }
 
-  public extract(docregion = '', matcher = DocregionExtractor.DEFAULT_REGION_MATCHER): DocregionInfo {
-    const regions = new Map<string, RegionInfo>();
+  public extract(fileType: string, docregion = ''): DocregionInfo {
+    const regions = new Map<string, ProvisionaryDocregionInfo>();
     const openRegions: string[] = [];
+
+    // Retrieve an appropriate docregion matcher for the file-type.
+    const matcher = getDocregionMatcher(fileType);
     let plaster = matcher.createPlasterComment(DocregionExtractor.DEFAULT_PLASTER);
 
+    // Run through all lines and assign them to docregions.
     const lines = this.lines.filter((line, lineIdx) => {
       const startRegion = matcher.regionStartRe.exec(line);
       const endRegion = !startRegion && matcher.regionEndRe.exec(line);
@@ -90,10 +80,20 @@ export class DocregionExtractor {
       return false;
     });
 
+    // All open docregions are implicitly closed at the EOF.
+    openRegions.forEach(name => {
+      const region = regions.get(name)!;
+      region.open = false;
+      region.ranges[region.ranges.length - 1].push(this.lines.length);
+    });
+
+    // If there is no explicit "default" docregion (i.e. `''`),
+    // then all lines (except for docregion markers) belong to the default docregion.
     if (!regions.has('')) {
       regions.set('', {lines, ranges: [[0, 0]], open: false});
     }
 
+    // Retrieve the specified region, post-process, and return it.
     const region = regions.get(docregion)!;
     const contents = this.leftAlign(region.lines).join('\n');
     const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
