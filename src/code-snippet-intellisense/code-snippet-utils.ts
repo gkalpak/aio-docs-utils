@@ -2,6 +2,7 @@ import {Position, Range, TextDocument} from 'vscode';
 
 
 export interface CodeSnippetAttrInfo {
+  linenums: 'auto' | boolean | number;
   path: string;
   region: string | null;
   title: string | null;
@@ -59,13 +60,19 @@ export class CodeSnippetUtils {
   }
 
   private getAttrInfo(contents: string): CodeSnippetAttrInfo | null {
-    const [path, region, title] = ['path', 'region', 'title']. map(attr => {
+    const [linenumsAttr, path, region, title] = ['linenums', 'path', 'region', 'title']. map(attr => {
       const re = new RegExp(`\\s${attr}="([^"]*)"`, 'i');
       const match = re.exec(contents);
       return match && match[1];
     });
 
-    return !path ? null : {path, region, title};
+    const linenums = (linenumsAttr === 'false') ?
+      false : (linenumsAttr === 'true') ?
+      true : (linenumsAttr === null) || isNaN(linenumsAttr as any) ?
+      'auto' :
+      parseInt(linenumsAttr, 10);
+
+    return !path ? null : {linenums, path, region, title};
   }
 
   private getHtmlInfo(doc: TextDocument, pos: Position): CodeSnippetHtmlInfo | null {

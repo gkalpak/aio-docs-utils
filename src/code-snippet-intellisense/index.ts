@@ -16,6 +16,7 @@ export interface CodeSnippetInfoWithFilePath extends CodeSnippetInfo {
 }
 
 export class CodeSnippetIntellisenseFeature extends BaseFeature implements DefinitionProvider, HoverProvider {
+  public static readonly AUTO_LINENUM_THRESHOLD = 10;
   private static readonly DOC_SELECTOR: DocumentSelector = {
     language: 'markdown',
     pattern: '**/aio/content/**',
@@ -52,10 +53,12 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     }
 
     return this.extractDocregions(csInfo, token).then(drInfo => {
-      const mdTitle = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
-      const mdCode = `\`\`\`${drInfo.fileType}\n${drInfo.contents}\n\`\`\``;
+      const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
 
-      const contents = `${mdTitle}${mdCode}`;
+      const titleStr = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
+      const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
+
+      const contents = `${titleStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
       const range = new Range(csInfo.html.startPos, csInfo.html.endPos);
 
       return new Hover(contents, range);
@@ -91,7 +94,30 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     return csInfo;
   }
 
+  private getFirstLinenum(linenums: 'auto' | boolean | number, lines: string[]): number {
+    switch (linenums) {
+      case 'auto': return (lines.length > CodeSnippetIntellisenseFeature.AUTO_LINENUM_THRESHOLD) ? 1 : -1;
+      case false: return -1;
+      case true: return 1;
+      default: return linenums;
+    }
+  }
+
   private hasFilePath(csInfo: CodeSnippetInfo): csInfo is CodeSnippetInfoWithFilePath {
     return !!csInfo.file.path;
+  }
+
+  private withLinenums(lines: string[], firstLinenum: number): string {
+    if (firstLinenum > -1) {
+      const maxLinenumLength = String(firstLinenum + lines.length).length;
+      let nextLinenum = firstLinenum;
+
+      lines = lines.map(line => {
+        const linenumStr = utils.padStart(String(nextLinenum++), maxLinenumLength);
+        return `${linenumStr}. ${line}`;
+      });
+    }
+
+    return lines.join('\n');
   }
 }

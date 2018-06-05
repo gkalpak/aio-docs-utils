@@ -4,7 +4,7 @@ import {getDocregionMatcher} from './docregion-matchers';
 
 export interface DocregionInfo {
   fileType: string;
-  contents: string;
+  contents: string[];
   ranges: Range[];
 }
 
@@ -96,7 +96,7 @@ export class DocregionExtractor {
 
     // Retrieve the specified region, post-process, and return it.
     const region = regions.get(docregion)!;
-    const contents = this.leftAlign(region.lines).join('\n');
+    const contents = this.leftAlign(region.lines);
     const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
       new Range(fromLineIdx, 0, toLineIdx, 0));
 

@@ -12,6 +12,11 @@ export class Utils{
     });
   }
 
+  public padStart(input: string, len: number, padStr = ' '): string {
+    const padding = padStr.repeat(Math.max(0, len - input.length));
+    return `${padding}${input}`;
+  }
+
   public readFile(fileName: string): Promise<string> {
     return this.readFileAsPromised(fileName, 'utf8');
   }
