@@ -1,12 +1,21 @@
-'use strict';
-import * as vsc from 'vscode';
-import {logger} from './logger';
+import {ExtensionContext, window} from 'vscode';
+import {logger} from './shared/logger';
+import {CodeSnippetIntellisenseFeature} from './code-snippet-intellisense';
 
 
-export const activate = (context: vsc.ExtensionContext) => {
+const {displayName} = require('../package.json');
+
+export function activate(context: ExtensionContext): void {
+  const features = [
+    CodeSnippetIntellisenseFeature,
+  ];
+
+  features.forEach(Feature => Feature.activate(context));
+  window.showInformationMessage(`${displayName} activated.`);
+
   logger.log('Activated.');
-};
+}
 
-export const deactivate = () => {
+export function deactivate(): void {
   logger.log('Deactivated.');
-};
+}

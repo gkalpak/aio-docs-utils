@@ -19,6 +19,13 @@ For example if there is an image subfolder under your extension project workspac
 See [here](https://github.com/gkalpak/aio-docs-utils/releases) for a list of releases.<br />
 See [here](https://github.com/gkalpak/aio-docs-utils/commits) a list of changes.
 
+## Known issues
+
+#### Possible inconsistency with the actual implementation
+
+The examples in the actual docs are processed via [dgeni](https://github.com/angular/dgeni) and more specifically using utilities in the [examples-package](https://github.com/angular/angular/tree/master/aio/tools/transforms/examples-package).<br />
+This extension re-implements the relevant logic, but might have slight inconsistencies compared to the actual `dgeni` implementation.
+
 ---
 ## TODO
 

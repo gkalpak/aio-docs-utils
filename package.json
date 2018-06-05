@@ -24,11 +24,10 @@
     "vscode": "^1.26.0"
   },
   "devDependencies": {
-    "typescript": "^2.6.1",
-    "vscode": "^1.1.6",
-    "tslint": "^5.8.0",
-    "@types/node": "^7.0.43",
-    "@types/mocha": "^2.2.42"
+    "@types/node": "^7.0.65",
+    "tslint": "^5.10.0",
+    "typescript": "^2.9.1",
+    "vscode": "^1.1.18"
   },
   "private": true
 }
