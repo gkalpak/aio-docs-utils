@@ -1,3 +1,4 @@
+import {createHash} from 'crypto';
 import {readFile} from 'fs';
 import {CancellationToken} from 'vscode';
 
@@ -10,6 +11,12 @@ export class Utils{
       const cb = (err: any, value: T) => err ? reject(err) : resolve(value);
       fn.apply(context, args.concat(cb));
     });
+  }
+
+  public hash(input: string, algorithm = 'sha256'): string {
+    const hash = createHash(algorithm);
+    hash.update(input);
+    return hash.digest('hex');
   }
 
   public padStart(input: string, len: number, padStr = ' '): string {
