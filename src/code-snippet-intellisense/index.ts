@@ -53,7 +53,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
 
     return this.extractDocregions(csInfo, token).then(drInfo => {
       const mdTitle = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
-      const mdCode = `\`\`\`\n${drInfo.contents}\n\`\`\``;
+      const mdCode = `\`\`\`${drInfo.fileType}\n${drInfo.contents}\n\`\`\``;
 
       const contents = `${mdTitle}${mdCode}`;
       const range = new Range(csInfo.html.startPos, csInfo.html.endPos);

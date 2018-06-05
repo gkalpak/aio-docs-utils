@@ -3,6 +3,7 @@ import {getDocregionMatcher} from './docregion-matchers';
 
 
 export interface DocregionInfo {
+  fileType: string;
   contents: string;
   ranges: Range[];
 }
@@ -99,7 +100,7 @@ export class DocregionExtractor {
     const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
       new Range(fromLineIdx, 0, toLineIdx, 0));
 
-    return {contents, ranges};
+    return {fileType, contents, ranges};
   }
 
   private getRegionNames(input: string): string[] {
