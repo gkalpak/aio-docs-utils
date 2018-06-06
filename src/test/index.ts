@@ -10,13 +10,8 @@
 // to report the results back to the caller. When the tests are finished, return
 // a possible error to the callback or null if none.
 
-import * as testRunner from 'vscode/lib/testrunner';
+import {runE2e} from './helpers/jasmine-runner';
 
-// You can directly control Mocha options by uncommenting the following lines
-// See https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically#set-options for more info
-testRunner.configure({
-    ui: 'tdd', 		// the TDD UI is being used in extension.test.ts (suite, test, etc.)
-    useColors: true // colored output from test results
-});
-
-module.exports = testRunner;
+export const run = (testDir: string, cb: (err: Error | null) => void): void => {
+  runE2e(testDir).then(() => cb(null), cb);
+};

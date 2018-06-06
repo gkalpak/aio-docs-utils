@@ -16,10 +16,18 @@
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
-      "preLaunchTask": "npm: watch"
+      "preLaunchTask": "npm: build"
     },
     {
-      "name": "Extension Tests",
+      "name": "Extension Tests (unit) - DEBUG",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/out/test/helpers/jasmine-runner",
+      "stopOnEntry": true,
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "name": "Extension Tests (e2e)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -30,7 +38,7 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "npm: watch"
+      "preLaunchTask": "npm: build"
     }
   ]
 }
