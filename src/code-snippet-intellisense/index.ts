@@ -6,7 +6,7 @@ import {
 } from 'vscode';
 import {BaseFeature} from '../shared/base-feature';
 import {logger} from '../shared/logger';
-import {utils} from '../shared/utils';
+import {padStart, readFile, unlessCancelledFactory} from '../shared/utils';
 import {codeSnippetUtils, ICodeSnippetFileInfo, ICodeSnippetInfo} from './code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
 
@@ -78,9 +78,9 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
       token: CancellationToken,
   ): Promise<IDocregionInfo | null> {
     const fileType = parse(csInfo.file.path).ext.slice(1);
-    const unlessCancelled = utils.unlessCancelledFactory(token);
+    const unlessCancelled = unlessCancelledFactory(token);
 
-    return utils.readFile(csInfo.file.path).then(unlessCancelled(rawContents => {
+    return readFile(csInfo.file.path).then(unlessCancelled(rawContents => {
       const extractor = DocregionExtractor.for(fileType, rawContents);
       return extractor.extract(csInfo.attrs.region || '');
     }));
@@ -124,7 +124,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
       let nextLinenum = firstLinenum;
 
       lines = lines.map(line => {
-        const linenumStr = utils.padStart(String(nextLinenum++), maxLinenumLength);
+        const linenumStr = padStart(String(nextLinenum++), maxLinenumLength);
         return `${linenumStr}. ${line}`;
       });
     }

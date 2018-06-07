@@ -1,42 +1,35 @@
 import {createHash} from 'crypto';
-import {readFile} from 'fs';
+import {readFile as fsReadFile} from 'fs';
 import {CancellationToken} from 'vscode';
 
 
-export class Utils {
-  private readonly readFileAsPromised = this.asPromised(readFile);
+export const asPromised = <T = any>(
+    fn: (...args: any[]) => void,
+    context: any = null): ((...args: any[]) => Promise<T>) =>
+  (...args) => new Promise((resolve, reject) => {
+    const cb = (err: any, value: T) => err ? reject(err) : resolve(value);
+    fn.apply(context, args.concat(cb));
+  });
 
-  public asPromised<T = any>(fn: (...args: any[]) => void, context: any = null): (...args: any[]) => Promise<T> {
-    return (...args) => new Promise((resolve, reject) => {
-      const cb = (err: any, value: T) => err ? reject(err) : resolve(value);
-      fn.apply(context, args.concat(cb));
-    });
-  }
+export const hash = (input: string, algorithm = 'sha256'): string => {
+  const hashInstance = createHash(algorithm);
+  hashInstance.update(input);
+  return hashInstance.digest('hex');
+};
 
-  public hash(input: string, algorithm = 'sha256'): string {
-    const hash = createHash(algorithm);
-    hash.update(input);
-    return hash.digest('hex');
-  }
+export const padStart = (input: string, len: number, padStr = ' '): string => {
+  const padding = padStr.repeat(Math.max(0, len - input.length));
+  return `${padding}${input}`;
+};
 
-  public padStart(input: string, len: number, padStr = ' '): string {
-    const padding = padStr.repeat(Math.max(0, len - input.length));
-    return `${padding}${input}`;
-  }
+export const readFile = (fileName: string): Promise<string> =>
+  asPromised(fsReadFile)(fileName, 'utf8');
 
-  public readFile(fileName: string): Promise<string> {
-    return this.readFileAsPromised(fileName, 'utf8');
-  }
-
-  public unlessCancelledFactory(token: CancellationToken) {
-    return <TInput, TOutput>(fn: (input: TInput) => TOutput | Promise<TOutput>) =>
-      (input: TInput) => {
-        if (token.isCancellationRequested) {
-          throw new Error('Cancelled.');
-        }
-        return fn(input);
-      };
-  }
-}
-
-export const utils = new Utils();
+export const unlessCancelledFactory = (token: CancellationToken) =>
+  <TInput, TOutput>(fn: (input: TInput) => TOutput | Promise<TOutput>) =>
+    (input: TInput) => {
+      if (token.isCancellationRequested) {
+        throw new Error('Cancelled.');
+      }
+      return fn(input);
+    };

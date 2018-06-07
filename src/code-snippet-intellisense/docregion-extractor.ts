@@ -1,6 +1,6 @@
 import {Range} from 'vscode';
 import {LruCache} from '../shared/lru-cache';
-import {utils} from '../shared/utils';
+import {hash} from '../shared/utils';
 import {getDocregionMatcher} from './docregion-matchers';
 
 
@@ -19,7 +19,7 @@ interface IProvisionaryDocregionInfo {
 export class DocregionExtractor {
   public static for(fileType: string, contents: string): DocregionExtractor {
     const cache = DocregionExtractor.cache;
-    const sha = utils.hash(`${fileType}|${contents}`);
+    const sha = hash(`${fileType}|${contents}`);
 
     if (!cache.has(sha)) {
       cache.set(sha, new DocregionExtractor(fileType, contents));
