@@ -3,7 +3,7 @@ import {readFile} from 'fs';
 import {CancellationToken} from 'vscode';
 
 
-export class Utils{
+export class Utils {
   private readonly readFileAsPromised = this.asPromised(readFile);
 
   public asPromised<T = any>(fn: (...args: any[]) => void, context: any = null): (...args: any[]) => Promise<T> {
@@ -39,4 +39,4 @@ export class Utils{
   }
 }
 
-export const utils = new Utils;
+export const utils = new Utils();

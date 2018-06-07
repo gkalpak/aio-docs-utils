@@ -4,13 +4,13 @@ import {utils} from '../shared/utils';
 import {getDocregionMatcher} from './docregion-matchers';
 
 
-export interface DocregionInfo {
+export interface IDocregionInfo {
   fileType: string;
   contents: string[];
   ranges: Range[];
 }
 
-interface ProvisionaryDocregionInfo {
+interface IProvisionaryDocregionInfo {
   lines: string[];
   ranges: number[][];
   open: boolean;
@@ -30,15 +30,15 @@ export class DocregionExtractor {
 
   private static readonly DEFAULT_PLASTER = '. . .';
   private static readonly cache = new LruCache<string, DocregionExtractor>();
-  private readonly regions: Map<string, ProvisionaryDocregionInfo>;
+  private readonly regions: Map<string, IProvisionaryDocregionInfo>;
 
   constructor(private readonly fileType: string, contents: string) {
     this.regions = this.extractProvisional(fileType, contents);
   }
 
-  public extract(docregion?: ''): DocregionInfo;
-  public extract(docregion: string): DocregionInfo | null;
-  public extract(docregion: string = ''): DocregionInfo | null {
+  public extract(docregion?: ''): IDocregionInfo;
+  public extract(docregion: string): IDocregionInfo | null;
+  public extract(docregion: string = ''): IDocregionInfo | null {
     // Retrieve the specified region, post-process, and return it.
     const region = this.regions.get(docregion);
     if (!region) {
@@ -52,9 +52,9 @@ export class DocregionExtractor {
     return {fileType: this.fileType, contents, ranges};
   }
 
-  private extractProvisional(fileType: string, contents: string): Map<string, ProvisionaryDocregionInfo> {
+  private extractProvisional(fileType: string, contents: string): Map<string, IProvisionaryDocregionInfo> {
     const rawLines = contents.split(/\r?\n/);
-    const regions = new Map<string, ProvisionaryDocregionInfo>();
+    const regions = new Map<string, IProvisionaryDocregionInfo>();
     const openRegions: string[] = [];
 
     // Retrieve an appropriate docregion matcher for the file-type.

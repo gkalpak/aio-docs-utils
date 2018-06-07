@@ -7,12 +7,12 @@ import {
 import {BaseFeature} from '../shared/base-feature';
 import {logger} from '../shared/logger';
 import {utils} from '../shared/utils';
-import {CodeSnippetFileInfo, CodeSnippetInfo, codeSnippetUtils} from './code-snippet-utils';
-import {DocregionExtractor, DocregionInfo} from './docregion-extractor';
+import {codeSnippetUtils, ICodeSnippetFileInfo, ICodeSnippetInfo} from './code-snippet-utils';
+import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
 
 
-export interface CodeSnippetInfoWithFilePath extends CodeSnippetInfo {
-  file: CodeSnippetFileInfo & {path: string};
+export interface ICodeSnippetInfoWithFilePath extends ICodeSnippetInfo {
+  file: ICodeSnippetFileInfo & {path: string};
 }
 
 export class CodeSnippetIntellisenseFeature extends BaseFeature implements DefinitionProvider, HoverProvider {
@@ -73,7 +73,10 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     });
   }
 
-  protected extractDocregions(csInfo: CodeSnippetInfoWithFilePath, token: CancellationToken): Promise<DocregionInfo | null> {
+  protected extractDocregions(
+      csInfo: ICodeSnippetInfoWithFilePath,
+      token: CancellationToken,
+  ): Promise<IDocregionInfo | null> {
     const fileType = parse(csInfo.file.path).ext.slice(1);
     const unlessCancelled = utils.unlessCancelledFactory(token);
 
@@ -83,7 +86,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     }));
   }
 
-  protected getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): CodeSnippetInfoWithFilePath | null {
+  protected getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): ICodeSnippetInfoWithFilePath | null {
     logger.log(`${action} for '${doc.fileName}:${pos.line}:${pos.character}'...`);
 
     const csInfo = codeSnippetUtils.getInfo(doc, pos);
@@ -111,7 +114,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
     }
   }
 
-  private hasFilePath(csInfo: CodeSnippetInfo): csInfo is CodeSnippetInfoWithFilePath {
+  private hasFilePath(csInfo: ICodeSnippetInfo): csInfo is ICodeSnippetInfoWithFilePath {
     return !!csInfo.file.path;
   }
 

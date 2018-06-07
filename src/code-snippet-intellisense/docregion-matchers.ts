@@ -1,4 +1,6 @@
-export interface DocregionMatcher {
+// tslint:disable: max-classes-per-file
+
+export interface IDocregionMatcher {
   regionStartRe: RegExp;
   regionEndRe: RegExp;
   plasterRe: RegExp;
@@ -10,7 +12,7 @@ export interface DocregionMatcher {
  * Used in languages that support block comments only.
  * E.g.: CSS
  */
-class BlockCommentDocregionMatcher implements DocregionMatcher {
+class BlockCommentDocregionMatcher implements IDocregionMatcher {
   public readonly regionStartRe = /^\s*\/\*\s*#docregion\s*(.*?)\s*\*\/\s*$/;
   public readonly regionEndRe = /^\s*\/\*\s*#enddocregion\s*(.*?)\s*\*\/\s*$/;
   public readonly plasterRe = /^\s*\/\*\s*#docplaster\s*(.*?)\s*\*\/\s*$/;
@@ -44,7 +46,7 @@ class InlineCommentDocregionMatcher extends MixedCommentDocregionMatcher {
  * Used in languages that support hash comments only.
  * E.g.: Bash, Yaml
  */
-class HashCommentDocregionMatcher implements DocregionMatcher {
+class HashCommentDocregionMatcher implements IDocregionMatcher {
   public readonly regionStartRe = /^\s*##?\s*#docregion\s*(.*)$/;
   public readonly regionEndRe = /^\s*##?\s*#enddocregion\s*(.*)$/;
   public readonly plasterRe = /^\s*##?\s*#docplaster\s*(.*)$/;
@@ -58,7 +60,7 @@ class HashCommentDocregionMatcher implements DocregionMatcher {
  * Used in languages that support HTML-like comments only.
  * E.g.: HTML
  */
-class HtmlCommentDocregionMatcher implements DocregionMatcher {
+class HtmlCommentDocregionMatcher implements IDocregionMatcher {
   public readonly regionStartRe = /^\s*<!--\s*#docregion\s*([^>]*?)\s*(?:-->\s*)?$/;
   public readonly regionEndRe = /^\s*<!--\s*#enddocregion\s*(.*?)\s*-->\s*$/;
   public readonly plasterRe = /^\s*<!--\s*#docplaster\s*(.*?)\s*-->\s*$/;
@@ -69,14 +71,14 @@ class HtmlCommentDocregionMatcher implements DocregionMatcher {
 }
 
 export const docregionMatchers = {
-  blockComment: new BlockCommentDocregionMatcher,
-  hashComment: new HashCommentDocregionMatcher,
-  htmlComment: new HtmlCommentDocregionMatcher,
-  inlineComment: new InlineCommentDocregionMatcher,
-  mixedComment: new MixedCommentDocregionMatcher,
+  blockComment: new BlockCommentDocregionMatcher(),
+  hashComment: new HashCommentDocregionMatcher(),
+  htmlComment: new HtmlCommentDocregionMatcher(),
+  inlineComment: new InlineCommentDocregionMatcher(),
+  mixedComment: new MixedCommentDocregionMatcher(),
 };
 
-export const getDocregionMatcher = (fileType: string): DocregionMatcher => {
+export const getDocregionMatcher = (fileType: string): IDocregionMatcher => {
   switch (fileType.toLowerCase()) {
     case 'css':
       return docregionMatchers.blockComment;

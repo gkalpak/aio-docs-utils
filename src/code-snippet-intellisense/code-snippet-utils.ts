@@ -1,27 +1,27 @@
 import {Position, Range, TextDocument} from 'vscode';
 
 
-export interface CodeSnippetAttrInfo {
+export interface ICodeSnippetAttrInfo {
   linenums: 'auto' | boolean | number;
   path: string;
   region: string | null;
   title: string | null;
 }
 
-export interface CodeSnippetFileInfo {
+export interface ICodeSnippetFileInfo {
   path: string | null;
 }
 
-export interface CodeSnippetHtmlInfo {
+export interface ICodeSnippetHtmlInfo {
   contents: string;
   startPos: Position;
   endPos: Position;
 }
 
-export interface CodeSnippetInfo {
-  html: CodeSnippetHtmlInfo;
-  attrs: CodeSnippetAttrInfo;
-  file: CodeSnippetFileInfo;
+export interface ICodeSnippetInfo {
+  html: ICodeSnippetHtmlInfo;
+  attrs: ICodeSnippetAttrInfo;
+  file: ICodeSnippetFileInfo;
 }
 
 export class CodeSnippetUtils {
@@ -39,7 +39,7 @@ export class CodeSnippetUtils {
   ];
   private readonly HAS_ATTR_RE = new RegExp(`(?:^| )(?:${this.ATTRS.join('|')})[=>\s]`, 'i');
 
-  public getInfo(doc: TextDocument, pos: Position): CodeSnippetInfo | null {
+  public getInfo(doc: TextDocument, pos: Position): ICodeSnippetInfo | null {
     const htmlInfo = this.getHtmlInfo(doc, pos);
     if (!htmlInfo) {
       return null;
@@ -53,13 +53,13 @@ export class CodeSnippetUtils {
     const fileInfo = this.getFileInfo(doc.fileName, attrInfo.path);
 
     return {
-      html: htmlInfo,
       attrs: attrInfo,
       file: fileInfo,
+      html: htmlInfo,
     };
   }
 
-  private getAttrInfo(contents: string): CodeSnippetAttrInfo | null {
+  private getAttrInfo(contents: string): ICodeSnippetAttrInfo | null {
     const [linenumsAttr, path, region, title] = ['linenums', 'path', 'region', 'title']. map(attr => {
       const re = new RegExp(`\\s${attr}="([^"]*)"`, 'i');
       const match = re.exec(contents);
@@ -75,7 +75,7 @@ export class CodeSnippetUtils {
     return !path ? null : {linenums, path, region, title};
   }
 
-  private getHtmlInfo(doc: TextDocument, pos: Position): CodeSnippetHtmlInfo | null {
+  private getHtmlInfo(doc: TextDocument, pos: Position): ICodeSnippetHtmlInfo | null {
     let lineIdx = pos.line;
     let charIdx = pos.character;
     let startPos!: Position;
@@ -86,8 +86,9 @@ export class CodeSnippetUtils {
     let openTag: string | null = null;
     while (lineIdx >= 0) {
       line = doc.lineAt(lineIdx).text;
+      openTag = this.isOpenLine(line, charIdx);
 
-      if ((openTag = this.isOpenLine(line, charIdx))) {
+      if (openTag) {
         const startIdx = line.lastIndexOf(openTag, charIdx);
         startPos = new Position(lineIdx, startIdx);
         lineIdx = pos.line;
@@ -105,8 +106,9 @@ export class CodeSnippetUtils {
     let closeTag: string | null = null;
     while (lineIdx < doc.lineCount) {
       line = doc.lineAt(lineIdx).text;
+      closeTag = this.isCloseLine(line, charIdx);
 
-      if ((closeTag = this.isCloseLine(line, charIdx))) {
+      if (closeTag) {
         const endIdx = this.indexOfCloseTag(line, closeTag, charIdx) + closeTag.length;
         endPos = new Position(lineIdx, endIdx);
         break;
@@ -130,7 +132,7 @@ export class CodeSnippetUtils {
     };
   }
 
-  private getFileInfo(containerPath: string, relativePath: string): CodeSnippetFileInfo {
+  private getFileInfo(containerPath: string, relativePath: string): ICodeSnippetFileInfo {
     const examplePath = containerPath.replace(/^(.*([\\/])aio\2content\2).*$/, `$1examples/${relativePath}`);
     return {
       path: !examplePath.endsWith(relativePath) ? null : examplePath,
@@ -188,4 +190,4 @@ export class CodeSnippetUtils {
   }
 }
 
-export const codeSnippetUtils = new CodeSnippetUtils;
+export const codeSnippetUtils = new CodeSnippetUtils();
