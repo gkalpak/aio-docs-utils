@@ -28,8 +28,7 @@ describe('extension', () => {
 
     it('should show a message to the user', () => {
       activate(mockContext);
-      expect(showInformationMessageSpy).
-        toHaveBeenCalledWith('Angular.io Documentation Authoring Utilities activated.');
+      expect(showInformationMessageSpy).toHaveBeenCalledWith('Angular.io Documentation Utilities activated.');
     });
 
     it('should lod a message', () => {
