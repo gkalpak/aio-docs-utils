@@ -61,9 +61,9 @@ export class CodeSnippetUtils {
 
   private getAttrInfo(contents: string): ICodeSnippetAttrInfo | null {
     const [linenumsAttr, path, region, title] = ['linenums', 'path', 'region', 'title']. map(attr => {
-      const re = new RegExp(`\\s${attr}="([^"]*)"`, 'i');
+      const re = new RegExp(`\\s${attr}=(["'])((?:(?!\\1).)*)\\1`, 'i');
       const match = re.exec(contents);
-      return match && match[1];
+      return match && match[2];
     });
 
     const linenums = (linenumsAttr === 'false') ?
