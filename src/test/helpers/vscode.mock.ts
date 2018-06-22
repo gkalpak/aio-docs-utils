@@ -91,7 +91,7 @@ export const mockVscode = {
     registerHoverProvider: noop,
   },
   window: {
-    showInformationMessage: noop,
+    setStatusBarMessage: noop,
   },
 };
 

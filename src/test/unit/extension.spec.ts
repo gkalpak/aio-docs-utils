@@ -1,4 +1,4 @@
-import {ExtensionContext, window} from 'vscode';
+import {Disposable, ExtensionContext, window} from 'vscode';
 import {CodeSnippetIntellisenseFeature} from '../../code-snippet-intellisense';
 import {activate, deactivate} from '../../extension';
 import {BaseFeature} from '../../shared/base-feature';
@@ -11,14 +11,10 @@ describe('extension', () => {
   beforeEach(() => logSpy = spyOn(logger, 'log'));
 
   describe('activate()', () => {
-    const mockContext: ExtensionContext = {} as any;
+    const mockContext: ExtensionContext = {subscriptions: []} as any;
     let activateSpy: jasmine.Spy;
-    let showInformationMessageSpy: jasmine.Spy;
 
-    beforeEach(() => {
-      activateSpy = spyOn(BaseFeature, 'activate');
-      showInformationMessageSpy = spyOn(window, 'showInformationMessage');
-    });
+    beforeEach(() => activateSpy = spyOn(BaseFeature, 'activate'));
 
     it('should activate `CodeSnippetIntellisenseFeature`', () => {
       activate(mockContext);
@@ -26,19 +22,24 @@ describe('extension', () => {
       expect(activateSpy.calls.mostRecent().object).toBe(CodeSnippetIntellisenseFeature);
     });
 
-    it('should show a message to the user', () => {
+    it('should show an ephemeral message in the status bar', () => {
+      const mockDisposable: Disposable = {} as any;
+      const setStatusBarMessageSpy = spyOn(window, 'setStatusBarMessage').and.returnValue(mockDisposable);
+
       activate(mockContext);
-      expect(showInformationMessageSpy).toHaveBeenCalledWith('Angular.io Documentation Utilities activated.');
+
+      expect(setStatusBarMessageSpy).toHaveBeenCalledWith('Angular.io Documentation Utilities activated.', 5000);
+      expect(mockContext.subscriptions).toContain(mockDisposable);
     });
 
-    it('should lod a message', () => {
+    it('should log a message', () => {
       activate(mockContext);
       expect(logSpy).toHaveBeenCalledWith('Activated.');
     });
   });
 
   describe('deactivate()', () => {
-    it('should lod a message', () => {
+    it('should log a message', () => {
       deactivate();
       expect(logSpy).toHaveBeenCalledWith('Deactivated.');
     });

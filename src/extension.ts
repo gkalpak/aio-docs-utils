@@ -13,7 +13,7 @@ export function activate(context: ExtensionContext): void {
 
   // tslint:disable-next-line: variable-name
   features.forEach(Feature => Feature.activate(context));
-  window.showInformationMessage(`${displayName} activated.`);
+  context.subscriptions.push(window.setStatusBarMessage(`${displayName} activated.`, 5000));
 
   logger.log('Activated.');
 }
