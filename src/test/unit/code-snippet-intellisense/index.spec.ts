@@ -4,7 +4,7 @@ import {CodeSnippetIntellisenseFeature, ICodeSnippetInfoWithFilePath} from '../.
 import {
   codeSnippetUtils,
   ICodeSnippetAttrInfo,
-  ICodeSnippetHtmlInfo,
+  ICodeSnippetRawInfo,
 } from '../../../code-snippet-intellisense/code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from '../../../code-snippet-intellisense/docregion-extractor';
 import {BaseFeature} from '../../../shared/base-feature';
@@ -97,7 +97,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
       mockCodeSnippetInfo = {
         attrs: {region: 'mock-region'} as ICodeSnippetAttrInfo,
         file: {path: '/examples/file/pat.h'},
-        html: {} as ICodeSnippetHtmlInfo,
+        raw: {} as ICodeSnippetRawInfo,
       };
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
 
@@ -174,7 +174,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
       existsSyncSpy = spyOn(fs, 'existsSync').and.returnValue(true);
       getInfoSpy = spyOn(codeSnippetUtils, 'getInfo').and.returnValue({
         file: {path: '/file/pat.h'},
-        html: {contents: '<code-snippet></code-snippet>'},
+        raw: {contents: '<code-snippet></code-snippet>'},
       });
     });
 
@@ -215,7 +215,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
     it('should return `null` if the example file path could not be determined', () => {
       getInfoSpy.and.returnValue({
         file: {path: null},
-        html: {contents: '<code-snippet></code-snippet>'},
+        raw: {contents: '<code-snippet></code-snippet>'},
       });
 
       const doc: TextDocument = new MockTextDocument('some text', '/foo/guide.md') as any;
@@ -365,7 +365,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
             linenums: false,
             title: null,
           },
-          html: {
+          raw: {
             endPos: new Position(3, 7),
             startPos: new Position(1, 3),
           },

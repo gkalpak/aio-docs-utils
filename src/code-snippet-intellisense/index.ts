@@ -67,7 +67,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
       const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
 
       const contents = `${titleStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
-      const range = new Range(csInfo.html.startPos, csInfo.html.endPos);
+      const range = new Range(csInfo.raw.startPos, csInfo.raw.endPos);
 
       return new Hover(contents, range);
     });
@@ -94,7 +94,7 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
       return null;
     }
 
-    logger.log(`  Detected code snippet: ${csInfo.html.contents}`);
+    logger.log(`  Detected code snippet: ${csInfo.raw.contents}`);
 
     if (!this.hasFilePath(csInfo) || !existsSync(csInfo.file.path)) {
       return null;

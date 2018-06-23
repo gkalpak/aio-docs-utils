@@ -12,14 +12,14 @@ export interface ICodeSnippetFileInfo {
   path: string | null;
 }
 
-export interface ICodeSnippetHtmlInfo {
+export interface ICodeSnippetRawInfo {
   contents: string;
   startPos: Position;
   endPos: Position;
 }
 
 export interface ICodeSnippetInfo {
-  html: ICodeSnippetHtmlInfo;
+  raw: ICodeSnippetRawInfo;
   attrs: ICodeSnippetAttrInfo;
   file: ICodeSnippetFileInfo;
 }
@@ -40,12 +40,12 @@ export class CodeSnippetUtils {
   private readonly HAS_ATTR_RE = new RegExp(`(?:^| )(?:${this.ATTRS.join('|')})[=>\s]`, 'i');
 
   public getInfo(doc: TextDocument, pos: Position): ICodeSnippetInfo | null {
-    const htmlInfo = this.getHtmlInfo(doc, pos);
-    if (!htmlInfo) {
+    const rawInfo = this.getRawInfo(doc, pos);
+    if (!rawInfo) {
       return null;
     }
 
-    const attrInfo = this.getAttrInfo(htmlInfo.contents);
+    const attrInfo = this.getAttrInfo(rawInfo.contents);
     if (!attrInfo) {
       return null;
     }
@@ -55,7 +55,7 @@ export class CodeSnippetUtils {
     return {
       attrs: attrInfo,
       file: fileInfo,
-      html: htmlInfo,
+      raw: rawInfo,
     };
   }
 
@@ -75,7 +75,14 @@ export class CodeSnippetUtils {
     return !path ? null : {linenums, path, region, title};
   }
 
-  private getHtmlInfo(doc: TextDocument, pos: Position): ICodeSnippetHtmlInfo | null {
+  private getFileInfo(containerPath: string, relativePath: string): ICodeSnippetFileInfo {
+    const examplePath = containerPath.replace(/^(.*([\\/])aio\2content\2).*$/, `$1examples/${relativePath}`);
+    return {
+      path: !examplePath.endsWith(relativePath) ? null : examplePath,
+    };
+  }
+
+  private getRawInfo(doc: TextDocument, pos: Position): ICodeSnippetRawInfo | null {
     let lineIdx = pos.line;
     let charIdx = pos.character;
     let startPos!: Position;
@@ -129,13 +136,6 @@ export class CodeSnippetUtils {
       contents: doc.getText(new Range(startPos, endPos)),
       endPos,
       startPos,
-    };
-  }
-
-  private getFileInfo(containerPath: string, relativePath: string): ICodeSnippetFileInfo {
-    const examplePath = containerPath.replace(/^(.*([\\/])aio\2content\2).*$/, `$1examples/${relativePath}`);
-    return {
-      path: !examplePath.endsWith(relativePath) ? null : examplePath,
     };
   }
 

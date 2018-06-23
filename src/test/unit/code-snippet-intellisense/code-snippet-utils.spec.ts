@@ -1,6 +1,6 @@
 import {Position, TextDocument} from 'vscode';
 import {
-  CodeSnippetUtils, codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetHtmlInfo,
+  CodeSnippetUtils, codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetRawInfo,
 } from '../../../code-snippet-intellisense/code-snippet-utils';
 import {stripIndentation} from '../../helpers/string-utils';
 import {MockTextDocument} from '../../helpers/vscode.mock';
@@ -30,7 +30,7 @@ describe('CodeSnippetUtils', () => {
       const someICodeSnippetInfoObject = jasmine.objectContaining<any>({
         attrs: jasmine.any(Object),
         file: jasmine.any(Object),
-        html: jasmine.any(Object),
+        raw: jasmine.any(Object),
       });
 
       expect(csUtils.getInfo(doc, new Position(1, 13))).toEqual(someICodeSnippetInfoObject);
@@ -40,7 +40,7 @@ describe('CodeSnippetUtils', () => {
       expect(csUtils.getInfo(doc, new Position(1, 51))).toEqual(someICodeSnippetInfoObject);
     });
 
-    // `getHtmlInfo()`
+    // `getRawInfo()`
 
     it('should return `null` if not inside a code snippet', () => {
       const doc = createTextDocument(`
@@ -154,7 +154,7 @@ describe('CodeSnippetUtils', () => {
       expect(csUtils.getInfo(doc, new Position(1, 10))).toBeNull();
     });
 
-    it('should extract HTML info from single-line code snippets', () => {
+    it('should extract raw info from single-line code snippets', () => {
       const doc = createTextDocument(`
         line before
         text before <code-example path="foo"></code-example> text after
@@ -163,18 +163,18 @@ describe('CodeSnippetUtils', () => {
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
-      const expectedHtmlInfo: ICodeSnippetHtmlInfo = {
+      const expectedRawInfo: ICodeSnippetRawInfo = {
         contents: '<code-example path="foo"></code-example>',
         endPos: new Position(1, 52),
         startPos: new Position(1, 12),
       };
 
-      expect(csUtils.getInfo(doc, new Position(1, 17))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(1, 37))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(1, 44))!.html).toEqual(expectedHtmlInfo);
+      expect(csUtils.getInfo(doc, new Position(1, 17))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(1, 37))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(1, 44))!.raw).toEqual(expectedRawInfo);
     });
 
-    it('should extract HTML info from multi-line code snippets', () => {
+    it('should extract raw info from multi-line code snippets', () => {
       const doc = createTextDocument(`
         line before
         text before <code-example
@@ -185,17 +185,17 @@ describe('CodeSnippetUtils', () => {
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
-      const expectedHtmlInfo: ICodeSnippetHtmlInfo = {
+      const expectedRawInfo: ICodeSnippetRawInfo = {
         contents: '<code-example\n                path="foo">\n            </code-example>',
         endPos: new Position(3, 27),
         startPos: new Position(1, 12),
       };
 
-      expect(csUtils.getInfo(doc, new Position(1, 17))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(2,  5))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(2, 22))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(3,  5))!.html).toEqual(expectedHtmlInfo);
-      expect(csUtils.getInfo(doc, new Position(3, 22))!.html).toEqual(expectedHtmlInfo);
+      expect(csUtils.getInfo(doc, new Position(1, 17))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(2,  5))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(2, 22))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(3,  5))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(3, 22))!.raw).toEqual(expectedRawInfo);
     });
 
     // `getAttrInfo()`
