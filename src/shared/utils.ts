@@ -11,6 +11,9 @@ export const asPromised = <T = any>(
     fn.apply(context, args.concat(cb));
   });
 
+export const kebabToCamelCase = (input: string): string =>
+  input.replace(/-([a-z])/g, (_, g1) => g1.toUpperCase());
+
 export const hash = (input: string, algorithm = 'sha256'): string => {
   const hashInstance = createHash(algorithm);
   hashInstance.update(input);

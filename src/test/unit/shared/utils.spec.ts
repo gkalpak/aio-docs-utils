@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import {CancellationToken} from 'vscode';
-import {asPromised, hash, padStart, readFile, unlessCancelledFactory} from '../../../shared/utils';
+import {asPromised, hash, kebabToCamelCase, padStart, readFile, unlessCancelledFactory} from '../../../shared/utils';
 import {reversePromise} from '../../helpers/test-utils';
 
 
@@ -54,6 +54,18 @@ describe('utils', () => {
 
         expect(await reversePromise(newFn())).toBe('foo');
       });
+    });
+  });
+
+  describe('kebabToCamelCase()', () => {
+    it('should convert kebab-case to camelCase', () => {
+      expect(kebabToCamelCase('foo-bar')).toBe('fooBar');
+      expect(kebabToCamelCase('-foo-bar')).toBe('FooBar');
+    });
+
+    it('should leave non-kebab-cased parts unchanged', () => {
+      expect(kebabToCamelCase('FOO_BAR')).toBe('FOO_BAR');
+      expect(kebabToCamelCase('foo-barBaz_qux')).toBe('fooBarBaz_qux');
     });
   });
 
