@@ -1,8 +1,17 @@
 import {Position, Range, TextDocument} from 'vscode';
+import {logger} from '../shared/logger';
+import {kebabToCamelCase} from '../shared/utils';
 
+
+export enum CodeSnippetType {
+  HtmlTag,
+  NgdocTag,
+}
+
+export type ILinenums = 'auto' | boolean | number;
 
 export interface ICodeSnippetAttrInfo {
-  linenums: 'auto' | boolean | number;
+  linenums: ILinenums;
   path: string;
   region: string | null;
   title: string | null;
@@ -12,21 +21,32 @@ export interface ICodeSnippetFileInfo {
   path: string | null;
 }
 
-export interface ICodeSnippetRawInfo {
+export interface ICodeSnippetRawInfo<T extends CodeSnippetType = CodeSnippetType> {
+  type: T;
   contents: string;
   startPos: Position;
   endPos: Position;
 }
 
-export interface ICodeSnippetInfo {
-  raw: ICodeSnippetRawInfo;
+export interface ICodeSnippetInfo<T extends CodeSnippetType = CodeSnippetType> {
+  raw: ICodeSnippetRawInfo<T>;
   attrs: ICodeSnippetAttrInfo;
   file: ICodeSnippetFileInfo;
 }
 
+export interface IParsedNgdocAttrs {
+  unnamed: string[];
+  named: {[key: string]: string};
+}
+
 export class CodeSnippetUtils {
-  private readonly TAGS = new Map<string, string>(['code-example', 'code-pane'].
-    map<[string, string]>(tag => ([`<${tag}`, `</${tag}>`])));
+  private readonly HTML_TAG_PAIRS = ['code-example', 'code-pane'].
+    map<[string, string]>(tag => ([`<${tag}`, `</${tag}>`]));
+  private readonly NGDOC_TAG_PAIRS = ['example'].map<[string, string]>(tag => ([`{@${tag}`, '}']));
+  private readonly TAGS = new Map<string, string>([
+    ...this.HTML_TAG_PAIRS,
+    ...this.NGDOC_TAG_PAIRS,
+  ]);
   private readonly ATTRS = [
     'class',
     'hide-copy',
@@ -37,7 +57,9 @@ export class CodeSnippetUtils {
     'region',
     'title',
   ];
-  private readonly HAS_ATTR_RE = new RegExp(`(?:^| )(?:${this.ATTRS.join('|')})[=>\s]`, 'i');
+  private readonly HAS_ATTR_RE = new RegExp(`(?:^|\\s)(?:${this.ATTRS.join('|')})(?:[=\\s>]|$)`, 'i');
+  private readonly NAMED_NGDOC_ATTRS_RE = /[a-z-]+=(["'])(?:(?!\1).)*\1/gi;
+  private readonly UNNAMED_NGDOC_ATTRS_RE = /(?:^|\s)[^=\s]+(?=\s|$)/g;
 
   public getInfo(doc: TextDocument, pos: Position): ICodeSnippetInfo | null {
     const rawInfo = this.getRawInfo(doc, pos);
@@ -45,7 +67,7 @@ export class CodeSnippetUtils {
       return null;
     }
 
-    const attrInfo = this.getAttrInfo(rawInfo.contents);
+    const attrInfo = this.getAttrInfo(rawInfo.type, rawInfo.contents);
     if (!attrInfo) {
       return null;
     }
@@ -59,18 +81,38 @@ export class CodeSnippetUtils {
     };
   }
 
-  private getAttrInfo(contents: string): ICodeSnippetAttrInfo | null {
+  private getAttrInfo(type: CodeSnippetType, contents: string): ICodeSnippetAttrInfo | null {
+    switch (type) {
+      case CodeSnippetType.HtmlTag:
+        return this.getAttrInfoHtml(contents);
+      case CodeSnippetType.NgdocTag:
+        return this.getAttrInfoNgdoc(contents);
+      default:
+        logger.error(`Unknown \`CodeSnippetType\`: ${type} (${CodeSnippetType[type]})`);
+        return null;
+    }
+  }
+
+  private getAttrInfoHtml(contents: string): ICodeSnippetAttrInfo | null {
     const [linenumsAttr, path, region, title] = ['linenums', 'path', 'region', 'title']. map(attr => {
       const re = new RegExp(`\\s${attr}=(["'])((?:(?!\\1).)*)\\1`, 'i');
       const match = re.exec(contents);
       return match && match[2];
     });
 
-    const linenums = (linenumsAttr === 'false') ?
-      false : (linenumsAttr === 'true') ?
-      true : (linenumsAttr === null) || isNaN(linenumsAttr as any) ?
-      'auto' :
-      parseInt(linenumsAttr, 10);
+    const linenums = this.normalizeLinenums(linenumsAttr);
+
+    return !path ? null : {linenums, path, region, title};
+  }
+
+  private getAttrInfoNgdoc(contents: string): ICodeSnippetAttrInfo | null {
+    const attrsStr = contents.slice('{@example'.length, -1 * '}'.length);
+    const parsedAttrs = this.parseNgdocAttrs(attrsStr);
+
+    const linenums = this.normalizeLinenums(parsedAttrs.named.linenums || null);
+    const path = parsedAttrs.unnamed[0];
+    const region = parsedAttrs.named.region || parsedAttrs.unnamed[1] || null;
+    const title = parsedAttrs.named.title || parsedAttrs.unnamed.slice(2).join(' ') || null;
 
     return !path ? null : {linenums, path, region, title};
   }
@@ -136,7 +178,21 @@ export class CodeSnippetUtils {
       contents: doc.getText(new Range(startPos, endPos)),
       endPos,
       startPos,
+      type: this.getType(openTag!),
     };
+  }
+
+  private getType(openTag: string): CodeSnippetType {
+    if (this.HTML_TAG_PAIRS.some(([ot]) => ot === openTag)) {
+      return CodeSnippetType.HtmlTag;
+    }
+
+    if (this.NGDOC_TAG_PAIRS.some(([ot]) => ot === openTag)) {
+      return CodeSnippetType.NgdocTag;
+    }
+
+    // (Should never happen.)
+    throw new Error(`Unable to infer \`CodeSnippetType\` for opening tag \`${openTag}\`.`);
   }
 
   private indexOfCloseTag(line: string, closeTag: string, afterIdx: number): number {
@@ -187,6 +243,28 @@ export class CodeSnippetUtils {
   private lastIndexOfCloseTag(line: string, closeTag: string, beforeIdx: number): number {
     const adjustedBeforeIdx = Math.max(0, beforeIdx - closeTag.length);
     return line.lastIndexOf(closeTag, adjustedBeforeIdx);
+  }
+
+  private normalizeLinenums(rawAttrValue: string | null): ILinenums {
+    return (rawAttrValue === 'false') ?
+      false : (rawAttrValue === 'true') ?
+      true : (rawAttrValue === null) || isNaN(rawAttrValue as any) ?
+      'auto' :
+      parseInt(rawAttrValue, 10);
+  }
+
+  private parseNgdocAttrs(attrsStr: string): IParsedNgdocAttrs {
+    const unnamed = (attrsStr.match(this.UNNAMED_NGDOC_ATTRS_RE) || []).map(m => m.trim());
+    const named = (attrsStr.match(this.NAMED_NGDOC_ATTRS_RE) || []).
+      reduce((aggr, keyValuePair) => {
+        const equalSignIndex = keyValuePair.indexOf('=');
+        const key = kebabToCamelCase(keyValuePair.slice(0, equalSignIndex));
+        const value = keyValuePair.slice(equalSignIndex + 2, -1);  // Ignore quotes.
+        aggr[key] = value;
+        return aggr;
+      }, {} as {[key: string]: string});
+
+    return {unnamed, named};
   }
 }
 

@@ -26,6 +26,35 @@ See [here](https://github.com/gkalpak/aio-docs-utils/commits) a list of changes.
 The examples in the actual docs are processed via [dgeni](https://github.com/angular/dgeni) and more specifically using utilities in the [examples-package](https://github.com/angular/angular/tree/master/aio/tools/transforms/examples-package).<br />
 This extension re-implements the relevant logic, but might have slight inconsistencies compared to the actual `dgeni` implementation.
 
+#### Multi-line `{@example ...}` tags not fully supported
+
+`{@example ...}` tags spreading across multi lines, will not be recognized if there are lines that contain only unnamed attributes (such as the path or title). For example:
+
+```
+// Not recognized.
+{@example
+  path/to/examp.le
+  region="foo"
+}
+
+{@example path/to/examp.le region="foo"
+  This is the title
+}
+
+// Recognized.
+{@example
+  path/to/examp.le region="foo"
+}
+
+{@example path/to/examp.le region="foo"
+  title="This is the title"
+}
+
+{@example path/to/examp.le
+  region="foo" This is the title
+}
+```
+
 ---
 ## TODO
 
@@ -53,3 +82,4 @@ Things I want to (but won't necessarily) do:
     - Add marketplace link in repo description/`README.md`.
     - Add latest (published) version badge in `README.md`, e.g.:
       [![Latest version](https://vsmarketplacebadge.apphb.com/version-short/gkalpak.aio-docs-utils.svg?color=blue&label=Latest+version&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=gkalpak.aio-docs-utils)
+- Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.
