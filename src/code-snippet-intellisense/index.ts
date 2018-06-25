@@ -7,12 +7,12 @@ import {
 import {BaseFeature} from '../shared/base-feature';
 import {logger} from '../shared/logger';
 import {padStart, readFile, unlessCancelledFactory} from '../shared/utils';
-import {codeSnippetUtils, ICodeSnippetFileInfo, ICodeSnippetInfo} from './code-snippet-utils';
+import {codeSnippetUtils, ICodeSnippetInfo} from './code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
 
 
 export interface ICodeSnippetInfoWithFilePath extends ICodeSnippetInfo {
-  file: ICodeSnippetFileInfo & {path: string};
+  file: {path: string};
 }
 
 export class CodeSnippetIntellisenseFeature extends BaseFeature implements DefinitionProvider, HoverProvider {
@@ -96,13 +96,22 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
 
     logger.log(`  Detected code snippet: ${csInfo.raw.contents}`);
 
-    if (!this.hasFilePath(csInfo) || !existsSync(csInfo.file.path)) {
+    const examplePath = this.getExamplePath(doc.fileName, csInfo.attrs.path);
+    if (!examplePath) {
       return null;
     }
 
-    logger.log(`  Located example file: ${csInfo.file.path}`);
+    logger.log(`  Located example file: ${examplePath}`);
 
-    return csInfo;
+    return {
+      ...csInfo,
+      file: {path: examplePath},
+    };
+  }
+
+  private getExamplePath(containerDocPath: string, relativeExamplePath: string): string | null {
+    const examplePath = containerDocPath.replace(/^(.*([\\/])aio\2content\2).*$/, `$1examples/${relativeExamplePath}`);
+    return (!examplePath.endsWith(relativeExamplePath) || !existsSync(examplePath)) ? null : examplePath;
   }
 
   private getFirstLinenum(linenums: 'auto' | boolean | number, lines: string[]): number {
@@ -112,10 +121,6 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature implements Defin
       case true: return 1;
       default: return linenums;
     }
-  }
-
-  private hasFilePath(csInfo: ICodeSnippetInfo): csInfo is ICodeSnippetInfoWithFilePath {
-    return !!csInfo.file.path;
   }
 
   private withLinenums(lines: string[], firstLinenum: number): string {

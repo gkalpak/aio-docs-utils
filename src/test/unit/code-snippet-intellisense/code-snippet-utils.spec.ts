@@ -30,7 +30,6 @@ describe('CodeSnippetUtils', () => {
       `);
       const someICodeSnippetInfoObject = jasmine.objectContaining<any>({
         attrs: jasmine.any(Object),
-        file: jasmine.any(Object),
         raw: jasmine.any(Object),
       });
 
@@ -541,59 +540,6 @@ describe('CodeSnippetUtils', () => {
 
       expect(csUtils.getInfo(doc, new Position(2, 23))!.attrs).toEqual(expectedAttrInfo);
       expect(csUtils.getInfo(doc, new Position(3, 13))!.attrs).toEqual(expectedAttrInfo);
-    });
-
-    // `getFileInfo()`
-
-    it('should extract file info from code snippets', () => {
-      const doc = createTextDocument(`
-        <code-example path="bar/baz"></code-example>
-        {@example baz/qux}
-        ${EOF_MARKER}
-        0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
-                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-      `, '/foo/aio/content/bar');
-
-      expect(csUtils.getInfo(doc, new Position(0, 22))!.file).toEqual({
-        path: '/foo/aio/content/examples/bar/baz',
-      });
-      expect(csUtils.getInfo(doc, new Position(1, 12))!.file).toEqual({
-        path: '/foo/aio/content/examples/baz/qux',
-      });
-    });
-
-    it('should support Windows-style path separators', () => {
-      const doc = createTextDocument(`
-        <code-example path="bar/baz"></code-example>
-        {@example baz/qux}
-        ${EOF_MARKER}
-        0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
-                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-      `, 'C:\\foo\\aio\\content\\bar');
-
-      expect(csUtils.getInfo(doc, new Position(0, 22))!.file).toEqual({
-        path: 'C:\\foo\\aio\\content\\examples/bar/baz',
-      });
-      expect(csUtils.getInfo(doc, new Position(1, 12))!.file).toEqual({
-        path: 'C:\\foo\\aio\\content\\examples/baz/qux',
-      });
-    });
-
-    it('should set `file.path` to `null` if the containing document is not inside `aio/content/`', () => {
-      const doc = createTextDocument(`
-        <code-example path="bar/baz"></code-example>
-        {@example baz/qux}
-        ${EOF_MARKER}
-        0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
-                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-      `, '/foo/not-aio/content/bar');
-
-      expect(csUtils.getInfo(doc, new Position(0, 22))!.file).toEqual({
-        path: null,
-      });
-      expect(csUtils.getInfo(doc, new Position(1, 12))!.file).toEqual({
-        path: null,
-      });
     });
   });
 });

@@ -17,10 +17,6 @@ export interface ICodeSnippetAttrInfo {
   title: string | null;
 }
 
-export interface ICodeSnippetFileInfo {
-  path: string | null;
-}
-
 export interface ICodeSnippetRawInfo<T extends CodeSnippetType = CodeSnippetType> {
   type: T;
   contents: string;
@@ -31,7 +27,6 @@ export interface ICodeSnippetRawInfo<T extends CodeSnippetType = CodeSnippetType
 export interface ICodeSnippetInfo<T extends CodeSnippetType = CodeSnippetType> {
   raw: ICodeSnippetRawInfo<T>;
   attrs: ICodeSnippetAttrInfo;
-  file: ICodeSnippetFileInfo;
 }
 
 export interface IParsedNgdocAttrs {
@@ -72,11 +67,8 @@ export class CodeSnippetUtils {
       return null;
     }
 
-    const fileInfo = this.getFileInfo(doc.fileName, attrInfo.path);
-
     return {
       attrs: attrInfo,
-      file: fileInfo,
       raw: rawInfo,
     };
   }
@@ -115,13 +107,6 @@ export class CodeSnippetUtils {
     const title = parsedAttrs.named.title || parsedAttrs.unnamed.slice(2).join(' ') || null;
 
     return !path ? null : {linenums, path, region, title};
-  }
-
-  private getFileInfo(containerPath: string, relativePath: string): ICodeSnippetFileInfo {
-    const examplePath = containerPath.replace(/^(.*([\\/])aio\2content\2).*$/, `$1examples/${relativePath}`);
-    return {
-      path: !examplePath.endsWith(relativePath) ? null : examplePath,
-    };
   }
 
   private getRawInfo(doc: TextDocument, pos: Position): ICodeSnippetRawInfo | null {

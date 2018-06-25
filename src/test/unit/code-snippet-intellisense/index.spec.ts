@@ -173,58 +173,64 @@ describe('CodeSnippetIntellisenseFeature', () => {
     beforeEach(() => {
       existsSyncSpy = spyOn(fs, 'existsSync').and.returnValue(true);
       getInfoSpy = spyOn(codeSnippetUtils, 'getInfo').and.returnValue({
-        file: {path: '/file/pat.h'},
+        attrs: {path: 'file/pat.h'},
         raw: {contents: '<code-snippet></code-snippet>'},
       });
     });
 
-    it('should delegate to `CodeSnippetUtils.getInfo()` (and return the result)', () => {
+    it('should delegate to `CodeSnippetUtils.getInfo()`', () => {
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(0, 0);
       const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const getInfoResult = getInfoSpy.calls.mostRecent().returnValue;
 
       expect(getInfoSpy).toHaveBeenCalledWith(doc, pos);
-      expect(result).toBe(getInfoSpy.calls.mostRecent().returnValue);
+      expect(result).toEqual(jasmine.objectContaining(getInfoResult));
+    });
+
+    it('should augment the `CodeSnippetUtils.getInfo()` result with file info', () => {
+      const doc: TextDocument = new MockTextDocument('some text') as any;
+      const pos = new Position(0, 0);
+      const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const expectedPath = '/angular/aio/content/examples/file/pat.h';
+
+      expect(existsSyncSpy).toHaveBeenCalledWith(expectedPath);
+      expect(result!.file).toEqual({path: expectedPath});
     });
 
     it('should log its progress', () => {
-      const doc: TextDocument = new MockTextDocument('some text', '/foo/guide.md') as any;
+      const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
       csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(logSpy.calls.allArgs()).toEqual([
-        ['Doing stuff for \'/foo/guide.md:4:2\'...'],
+        ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
         ['  Detected code snippet: <code-snippet></code-snippet>'],
-        ['  Located example file: /file/pat.h'],
+        ['  Located example file: /angular/aio/content/examples/file/pat.h'],
       ]);
     });
 
     it('should return `null` if `CodeSnippetUtils.getInfo()` returns `null`', () => {
       getInfoSpy.and.returnValue(null);
 
-      const doc: TextDocument = new MockTextDocument('some text', '/foo/guide.md') as any;
+      const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
       const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
       expect(logSpy.calls.allArgs()).toEqual([
-        ['Doing stuff for \'/foo/guide.md:4:2\'...'],
+        ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
       ]);
     });
 
-    it('should return `null` if the example file path could not be determined', () => {
-      getInfoSpy.and.returnValue({
-        file: {path: null},
-        raw: {contents: '<code-snippet></code-snippet>'},
-      });
-
-      const doc: TextDocument = new MockTextDocument('some text', '/foo/guide.md') as any;
+    it('should return `null` if the example file path is not inside `aio/content/`', () => {
+      const doc: TextDocument = new MockTextDocument('some text', '/foo/not-aio/content/bar') as any;
       const pos = new Position(4, 2);
       const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
       expect(logSpy.calls.allArgs()).toEqual([
-        ['Doing stuff for \'/foo/guide.md:4:2\'...'],
+        ['Doing stuff for \'/foo/not-aio/content/bar:4:2\'...'],
         ['  Detected code snippet: <code-snippet></code-snippet>'],
       ]);
     });
@@ -232,15 +238,28 @@ describe('CodeSnippetIntellisenseFeature', () => {
     it('should return `null` if the example file path does not exist', () => {
       existsSyncSpy.and.returnValue(false);
 
-      const doc: TextDocument = new MockTextDocument('some text', '/foo/guide.md') as any;
+      const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
       const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
-      expect(existsSyncSpy).toHaveBeenCalledWith('/file/pat.h');
+      expect(existsSyncSpy).toHaveBeenCalledWith('/angular/aio/content/examples/file/pat.h');
       expect(logSpy.calls.allArgs()).toEqual([
-        ['Doing stuff for \'/foo/guide.md:4:2\'...'],
+        ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
         ['  Detected code snippet: <code-snippet></code-snippet>'],
+      ]);
+    });
+
+    it('should correctly handle Windows-style path separators', () => {
+      const doc: TextDocument = new MockTextDocument('some text', 'C:\\foo\\aio\\content\\bar') as any;
+      const pos = new Position(4, 2);
+      const result = csie.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+
+      expect(result!.file.path).toBe('C:\\foo\\aio\\content\\examples/file/pat.h');
+      expect(logSpy.calls.allArgs()).toEqual([
+        ['Doing stuff for \'C:\\foo\\aio\\content\\bar:4:2\'...'],
+        ['  Detected code snippet: <code-snippet></code-snippet>'],
+        ['  Located example file: C:\\foo\\aio\\content\\examples/file/pat.h'],
       ]);
     });
   });
