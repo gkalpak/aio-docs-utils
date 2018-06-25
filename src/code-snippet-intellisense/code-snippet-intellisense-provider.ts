@@ -26,7 +26,7 @@ export class CodeSnippetIntellisenseProvider implements DefinitionProvider, Hove
       return null;
     }
 
-    return this.extractDocregions(csInfo, token).then(drInfo => {
+    return this.extractDocregionInfo(csInfo, token).then(drInfo => {
       if (!drInfo) {
         return null;
       }
@@ -42,7 +42,7 @@ export class CodeSnippetIntellisenseProvider implements DefinitionProvider, Hove
       return null;
     }
 
-    return this.extractDocregions(csInfo, token).then(drInfo => {
+    return this.extractDocregionInfo(csInfo, token).then(drInfo => {
       if (!drInfo) {
         return null;
       }
@@ -59,7 +59,7 @@ export class CodeSnippetIntellisenseProvider implements DefinitionProvider, Hove
     });
   }
 
-  protected extractDocregions(
+  protected extractDocregionInfo(
       csInfo: ICodeSnippetInfoWithFilePath,
       token: CancellationToken,
   ): Promise<IDocregionInfo | null> {

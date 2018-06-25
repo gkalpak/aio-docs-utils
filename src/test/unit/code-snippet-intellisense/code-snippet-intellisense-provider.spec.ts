@@ -32,7 +32,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
     });
   });
 
-  describe('extractDocregions()', () => {
+  describe('extractDocregionInfo()', () => {
     let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
     let mockCancellationToken: CancellationToken;
     let deExtractSpy: jasmine.Spy;
@@ -40,8 +40,8 @@ describe('CodeSnippetIntellisenseProvider', () => {
     let readFileSpy: jasmine.Spy;
 
     // Helpers
-    const extractDocregions = (csInfo = mockCodeSnippetInfo, token = mockCancellationToken) =>
-      csip.extractDocregions(csInfo, token);
+    const extractDocregionInfo = (csInfo = mockCodeSnippetInfo, token = mockCancellationToken) =>
+      csip.extractDocregionInfo(csInfo, token);
 
     beforeEach(() => {
       mockCodeSnippetInfo = {
@@ -57,29 +57,29 @@ describe('CodeSnippetIntellisenseProvider', () => {
     });
 
     it('should retrieve the example file\'s contents', async () => {
-      await extractDocregions();
+      await extractDocregionInfo();
       expect(readFileSpy).toHaveBeenCalledWith('/examples/file/pat.h');
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
-      await extractDocregions();
+      await extractDocregionInfo();
       expect(deForSpy).toHaveBeenCalledWith('h', 'example code');
     });
 
     it('should extract the docregions from the example file', async () => {
-      await extractDocregions();
+      await extractDocregionInfo();
       expect(deExtractSpy).toHaveBeenCalledWith('mock-region');
     });
 
     it('should extract the default docregion if none is specified', async () => {
       mockCodeSnippetInfo.attrs.region = null;
-      await extractDocregions();
+      await extractDocregionInfo();
 
       expect(deExtractSpy).toHaveBeenCalledWith('');
     });
 
     it('should return a promise', async () => {
-      const promise = extractDocregions();
+      const promise = extractDocregionInfo();
       expect(promise).toEqual(jasmine.any(Promise));
 
       // Wait for all operations to be completed, before releasing spies, etc.
@@ -91,14 +91,14 @@ describe('CodeSnippetIntellisenseProvider', () => {
         const mockDocregionInfo = {} as IDocregionInfo;
         deExtractSpy.and.returnValues(mockDocregionInfo, null);
 
-        expect(await extractDocregions()).toBe(mockDocregionInfo);
-        expect(await extractDocregions()).toBeNull();
+        expect(await extractDocregionInfo()).toBe(mockDocregionInfo);
+        expect(await extractDocregionInfo()).toBeNull();
       });
 
       it('should be rejected if retrieving the example file\'s contents fails', async () => {
         readFileSpy.and.callFake(() => Promise.reject('Test'));
 
-        expect(await reversePromise(extractDocregions())).toBe('Test');
+        expect(await reversePromise(extractDocregionInfo())).toBe('Test');
         expect(deForSpy).not.toHaveBeenCalled();
         expect(deExtractSpy).not.toHaveBeenCalled();
       });
@@ -109,7 +109,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
           return Promise.resolve('example code');
         });
 
-        expect(await reversePromise(extractDocregions())).toEqual(new Error('Cancelled.'));
+        expect(await reversePromise(extractDocregionInfo())).toEqual(new Error('Cancelled.'));
         expect(deForSpy).not.toHaveBeenCalled();
         expect(deExtractSpy).not.toHaveBeenCalled();
       });
@@ -204,7 +204,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   describe('provideDefinition()', () => {
     let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
     let getCodeSnippetInfoSpy: jasmine.Spy;
-    let extractDocregionsSpy: jasmine.Spy;
+    let extractDocregionInfoSpy: jasmine.Spy;
 
     // Helpers
     const provideDefinition =
@@ -215,7 +215,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
-      extractDocregionsSpy = spyOn(csip, 'extractDocregions').and.returnValue(Promise.resolve(null));
+      extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
     });
 
     it('should get the code snippet info', async () => {
@@ -236,12 +236,12 @@ describe('CodeSnippetIntellisenseProvider', () => {
       const mockToken = {} as CancellationToken;
       await provideDefinition(undefined, undefined, mockToken);
 
-      expect(extractDocregionsSpy).toHaveBeenCalledWith(mockCodeSnippetInfo, mockToken);
+      expect(extractDocregionInfoSpy).toHaveBeenCalledWith(mockCodeSnippetInfo, mockToken);
     });
 
     it('should resolve to `null` if no docregion info extracted', async () => {
-      extractDocregionsSpy.and.returnValue(Promise.resolve(null));
-      expect(await provideDefinition()).toBe(null);
+      extractDocregionInfoSpy.and.returnValue(Promise.resolve(null));
+      expect(await provideDefinition()).toBeNull();
     });
 
     it('should resolve to a list of `Location`s, based on the docregion info ranges', async () => {
@@ -254,7 +254,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       const mockUri = {} as Uri;
 
       mockCodeSnippetInfo.file = {path: mockPath};
-      extractDocregionsSpy.and.returnValue(Promise.resolve({ranges: mockRanges}));
+      extractDocregionInfoSpy.and.returnValue(Promise.resolve({ranges: mockRanges}));
       const uriFileSpy = spyOn(Uri, 'file').and.returnValue(mockUri);
 
       const result = await provideDefinition();
@@ -272,7 +272,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   describe('provideHover()', () => {
     let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
     let getCodeSnippetInfoSpy: jasmine.Spy;
-    let extractDocregionsSpy: jasmine.Spy;
+    let extractDocregionInfoSpy: jasmine.Spy;
 
     // Helpers
     const provideHover =
@@ -283,7 +283,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
-      extractDocregionsSpy = spyOn(csip, 'extractDocregions').and.returnValue(Promise.resolve(null));
+      extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
     });
 
     it('should get the code snippet info', async () => {
@@ -304,12 +304,12 @@ describe('CodeSnippetIntellisenseProvider', () => {
       const mockToken = {} as CancellationToken;
       await provideHover(undefined, undefined, mockToken);
 
-      expect(extractDocregionsSpy).toHaveBeenCalledWith(mockCodeSnippetInfo, mockToken);
+      expect(extractDocregionInfoSpy).toHaveBeenCalledWith(mockCodeSnippetInfo, mockToken);
     });
 
     it('should resolve to `null` if no docregion info extracted', async () => {
-      extractDocregionsSpy.and.returnValue(Promise.resolve(null));
-      expect(await provideHover()).toBe(null);
+      extractDocregionInfoSpy.and.returnValue(Promise.resolve(null));
+      expect(await provideHover()).toBeNull();
     });
 
     describe('(with extracted docregion info)', () => {
@@ -331,7 +331,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
           fileType: 'qux',
         } as IDocregionInfo;
 
-        extractDocregionsSpy.and.returnValue(Promise.resolve(mockDocregionInfo));
+        extractDocregionInfoSpy.and.returnValue(Promise.resolve(mockDocregionInfo));
       });
 
       it('should resolve to a `Hover` with the appropriate contents and range', async () => {
@@ -510,11 +510,11 @@ describe('CodeSnippetIntellisenseProvider', () => {
       super(extractPathPrefixRe);
     }
 
-    public extractDocregions(
+    public extractDocregionInfo(
         csInfo: ICodeSnippetInfoWithFilePath,
         token: CancellationToken,
     ): Promise<IDocregionInfo | null> {
-      return super.extractDocregions(csInfo, token);
+      return super.extractDocregionInfo(csInfo, token);
     }
 
     public getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): ICodeSnippetInfoWithFilePath | null {
