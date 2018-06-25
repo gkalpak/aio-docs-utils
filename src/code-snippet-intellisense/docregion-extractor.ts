@@ -30,17 +30,17 @@ export class DocregionExtractor {
 
   private static readonly DEFAULT_PLASTER = '. . .';
   private static readonly cache = new LruCache<string, DocregionExtractor>();
-  private readonly regions: Map<string, IProvisionaryDocregionInfo>;
+  private regions: Map<string, IProvisionaryDocregionInfo> | null = null;
 
-  constructor(private readonly fileType: string, contents: string) {
-    this.regions = this.extractProvisional(fileType, contents);
+  constructor(private readonly fileType: string, private contents: string) {
   }
 
   public extract(docregion?: ''): IDocregionInfo;
   public extract(docregion: string): IDocregionInfo | null;
   public extract(docregion: string = ''): IDocregionInfo | null {
     // Retrieve the specified region, post-process, and return it.
-    const region = this.regions.get(docregion);
+    const regions = this.getRegions();
+    const region = regions.get(docregion);
     if (!region) {
       return null;
     }
@@ -131,6 +131,15 @@ export class DocregionExtractor {
   private getRegionNames(input: string): string[] {
     input = input.trim();
     return !input ? [] : input.split(',').map(name => name.trim());
+  }
+
+  private getRegions(): Map<string, IProvisionaryDocregionInfo> {
+    if (!this.regions) {
+      this.regions = this.extractProvisional(this.fileType, this.contents);
+      this.contents = '';
+    }
+
+    return this.regions;
   }
 
   private leftAlign(lines: string[]): string[] {
