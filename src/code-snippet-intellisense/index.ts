@@ -14,6 +14,13 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature {
       pattern: '**/aio/content/**',
       scheme: 'file',
     });
+
+    // Register `CodeSnippetIntellisenseProvider` for API docs.
+    this.registerIntellisenseProvider(/^.*([\\/])packages\1/i, {
+      language: 'typescript',
+      pattern: '**/packages/**',
+      scheme: 'file',
+    });
   }
 
   private registerIntellisenseProvider(extractPathPrefixRe: RegExp, docSelector: DocumentSelector): void {

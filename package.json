@@ -31,7 +31,8 @@
     "~~test-unit": "node out/test/helpers/jasmine-runner"
   },
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onLanguage:typescript"
   ],
   "categories": [
     "Other"
