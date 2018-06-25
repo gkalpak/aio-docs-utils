@@ -10,7 +10,7 @@ export interface IDocregionInfo {
   ranges: Range[];
 }
 
-interface IProvisionalDocregionInfo {
+export interface IProvisionalDocregionInfo {
   rawContents: string[];
   rawRanges: number[][];
 }
@@ -55,6 +55,20 @@ export class DocregionExtractor {
     }
 
     return regionInfo;
+  }
+
+  public getAvailableNames(): string[] {
+    const regions = this.getRegions();
+    return Array.from(regions.keys());
+  }
+
+  protected getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
+    if (!this.regions) {
+      this.regions = this.extractProvisional(this.fileType, this.contents);
+      this.contents = '';
+    }
+
+    return this.regions;
   }
 
   private extractProvisional(fileType: string, contents: string): Map<string, IProvisionalDocregionInfo> {
@@ -134,15 +148,6 @@ export class DocregionExtractor {
   private getRegionNames(input: string): string[] {
     input = input.trim();
     return !input ? [] : input.split(',').map(name => name.trim());
-  }
-
-  private getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
-    if (!this.regions) {
-      this.regions = this.extractProvisional(this.fileType, this.contents);
-      this.contents = '';
-    }
-
-    return this.regions;
   }
 
   private isProvisional(info: IProvisionalDocregionInfo | IDocregionInfo): info is IProvisionalDocregionInfo {

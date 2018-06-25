@@ -1,5 +1,7 @@
 import {Range} from 'vscode';
-import {DocregionExtractor, IDocregionInfo} from '../../../code-snippet-intellisense/docregion-extractor';
+import {
+  DocregionExtractor, IDocregionInfo, IProvisionalDocregionInfo,
+} from '../../../code-snippet-intellisense/docregion-extractor';
 import * as matchers from '../../../code-snippet-intellisense/docregion-matchers';
 import {stripIndentation} from '../../helpers/string-utils';
 import {MockRange} from '../../helpers/vscode.mock';
@@ -15,8 +17,8 @@ describe('DocregionExtractor', () => {
   let getDocregionMatcherSpy: jasmine.Spy;
 
   // Helpers
-  const createDocregionExtractor = (fileType: string, contents: string): DocregionExtractor =>
-    new DocregionExtractor(fileType, contents);
+  const createDocregionExtractor = (fileType: string, contents: string): TestDocregionExtractor =>
+    new TestDocregionExtractor(fileType, contents);
   const createDocregionRange = (startLine: number, endLine: number): Range =>
     new MockRange(startLine, 0, endLine, 0) as Range;
 
@@ -53,53 +55,15 @@ describe('DocregionExtractor', () => {
   });
 
   describe('extract()', () => {
-    describe('(on the first call)', () => {
-      it('should retrieve the appropriate `IDocregionMatcher`', () => {
-        const extractor = createDocregionExtractor('foo', 'bar');
-        expect(getDocregionMatcherSpy).not.toHaveBeenCalled();
+    it('should get the regions', () => {
+      const extractor = createDocregionExtractor('foo', 'bar');
+      const getRegionsSpy = spyOn(extractor, 'getRegions').and.callThrough();
 
-        extractor.extract('baz');
-        expect(getDocregionMatcherSpy).toHaveBeenCalledWith('foo');
+      extractor.extract('baz');
+      expect(getRegionsSpy).toHaveBeenCalledTimes(1);
 
-        getDocregionMatcherSpy.calls.reset();
-        extractor.extract('qux');
-        expect(getDocregionMatcherSpy).not.toHaveBeenCalled();
-      });
-
-      it('should pre-process the contents', () => {
-        const spies: jasmine.Spy[] = [];
-        const createPlasterCommentSpy = spies[0] = spyOn(mockMatcher, 'createPlasterComment').and.callThrough();
-        const regionStartReExecSpy = spies[1] = spyOn(mockMatcher.regionStartRe, 'exec').and.callThrough();
-        const regionEndReExecSpy = spies[2] = spyOn(mockMatcher.regionEndRe, 'exec').and.callThrough();
-        const plasterReExecSpy = spies[3] = spyOn(mockMatcher.plasterRe, 'exec').and.callThrough();
-
-        // Create `DocregionExtractor`.
-        const extractor = createDocregionExtractor('foo', 'bar\nbaz\nqux');
-        spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
-
-        // First `extract()` call.
-        extractor.extract('quxx');
-
-        expect(createPlasterCommentSpy).toHaveBeenCalledWith('. . .');
-
-        expect(regionStartReExecSpy).toHaveBeenCalledWith('bar');
-        expect(regionStartReExecSpy).toHaveBeenCalledWith('baz');
-        expect(regionStartReExecSpy).toHaveBeenCalledWith('qux');
-
-        expect(regionEndReExecSpy).toHaveBeenCalledWith('bar');
-        expect(regionEndReExecSpy).toHaveBeenCalledWith('baz');
-        expect(regionEndReExecSpy).toHaveBeenCalledWith('qux');
-
-        expect(plasterReExecSpy).toHaveBeenCalledWith('bar');
-        expect(plasterReExecSpy).toHaveBeenCalledWith('baz');
-        expect(plasterReExecSpy).toHaveBeenCalledWith('qux');
-
-        spies.forEach(spy => spy.calls.reset());
-
-        // Second `extract()` call.
-        extractor.extract('quuux');
-        spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
-      });
+      extractor.extract('qux');
+      expect(getRegionsSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should return `null` if the specified docregion does not exist', () => {
@@ -382,4 +346,73 @@ describe('DocregionExtractor', () => {
       }));
     });
   });
+
+  describe('getAvailableNames()', () => {
+    it('should return the names of extracted regions', () => {
+      const extractor = createDocregionExtractor('foo', 'bar');
+      const mockRegions = new Map<string, any>([['baz', {}], ['qux', {}]]);
+      spyOn(extractor, 'getRegions').and.returnValue(mockRegions);
+
+      expect(extractor.getAvailableNames()).toEqual(['baz', 'qux']);
+    });
+  });
+
+  describe('getRegions()', () => {
+    it('should retrieve the appropriate `IDocregionMatcher` (on first call only)', () => {
+      const extractor = createDocregionExtractor('foo', 'bar');
+      expect(getDocregionMatcherSpy).not.toHaveBeenCalled();
+
+      const regions1 = extractor.getRegions();
+      expect(getDocregionMatcherSpy).toHaveBeenCalledWith('foo');
+
+      getDocregionMatcherSpy.calls.reset();
+      const regions2 = extractor.getRegions();
+      expect(getDocregionMatcherSpy).not.toHaveBeenCalled();
+
+      expect(regions2).toBe(regions1);
+    });
+
+    it('should pre-process the contents (on first call only)', () => {
+      const spies: jasmine.Spy[] = [];
+      const createPlasterCommentSpy = spies[0] = spyOn(mockMatcher, 'createPlasterComment').and.callThrough();
+      const regionStartReExecSpy = spies[1] = spyOn(mockMatcher.regionStartRe, 'exec').and.callThrough();
+      const regionEndReExecSpy = spies[2] = spyOn(mockMatcher.regionEndRe, 'exec').and.callThrough();
+      const plasterReExecSpy = spies[3] = spyOn(mockMatcher.plasterRe, 'exec').and.callThrough();
+
+      // Create `DocregionExtractor`.
+      const extractor = createDocregionExtractor('foo', 'bar\nbaz\nqux');
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+
+      // First call.
+      extractor.getRegions();
+
+      expect(createPlasterCommentSpy).toHaveBeenCalledWith('. . .');
+
+      expect(regionStartReExecSpy).toHaveBeenCalledWith('bar');
+      expect(regionStartReExecSpy).toHaveBeenCalledWith('baz');
+      expect(regionStartReExecSpy).toHaveBeenCalledWith('qux');
+
+      expect(regionEndReExecSpy).toHaveBeenCalledWith('bar');
+      expect(regionEndReExecSpy).toHaveBeenCalledWith('baz');
+      expect(regionEndReExecSpy).toHaveBeenCalledWith('qux');
+
+      expect(plasterReExecSpy).toHaveBeenCalledWith('bar');
+      expect(plasterReExecSpy).toHaveBeenCalledWith('baz');
+      expect(plasterReExecSpy).toHaveBeenCalledWith('qux');
+
+      spies.forEach(spy => spy.calls.reset());
+
+      // Subsequent calls.
+      extractor.getRegions();
+      extractor.getRegions();
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+    });
+  });
+
+  // Helpers
+  class TestDocregionExtractor extends DocregionExtractor {
+    public getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
+      return super.getRegions();
+    }
+  }
 });
