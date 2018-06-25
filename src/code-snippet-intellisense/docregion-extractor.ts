@@ -10,10 +10,9 @@ export interface IDocregionInfo {
   ranges: Range[];
 }
 
-interface IProvisionaryDocregionInfo {
-  lines: string[];
-  ranges: number[][];
-  open: boolean;
+interface IProvisionalDocregionInfo {
+  rawContents: string[];
+  rawRanges: number[][];
 }
 
 export class DocregionExtractor {
@@ -30,7 +29,7 @@ export class DocregionExtractor {
 
   private static readonly DEFAULT_PLASTER = '. . .';
   private static readonly cache = new LruCache<string, DocregionExtractor>();
-  private regions: Map<string, IProvisionaryDocregionInfo> | null = null;
+  private regions: Map<string, IProvisionalDocregionInfo> | null = null;
 
   constructor(private readonly fileType: string, private contents: string) {
   }
@@ -52,9 +51,9 @@ export class DocregionExtractor {
     return {fileType: this.fileType, contents, ranges};
   }
 
-  private extractProvisional(fileType: string, contents: string): Map<string, IProvisionaryDocregionInfo> {
+  private extractProvisional(fileType: string, contents: string): Map<string, IProvisionalDocregionInfo> {
     const rawLines = contents.split(/\r?\n/);
-    const regions = new Map<string, IProvisionaryDocregionInfo>();
+    const regions = new Map<string, IProvisionalDocregionInfo>();
     const openRegions: string[] = [];
 
     // Retrieve an appropriate docregion matcher for the file-type.
@@ -76,15 +75,15 @@ export class DocregionExtractor {
 
         names.forEach(name => {
           openRegions.push(name);
+          const newRange = [lineIdx + 1];
 
           if (!regions.has(name)) {
-            regions.set(name, {lines: [], ranges: [[lineIdx + 1]], open: true});
+            regions.set(name, {rawContents: [], rawRanges: [newRange]});
           } else {
             const region = regions.get(name)!;
-            region.open = true;
-            region.ranges.push([lineIdx + 1]);
+            region.rawRanges.push(newRange);
             if (plaster) {
-              region.lines.push(plaster);
+              region.rawContents.push(plaster);
             }
           }
         });
@@ -97,15 +96,14 @@ export class DocregionExtractor {
 
         names.forEach(name => {
           const region = regions.get(name)!;
-          region.open = false;
-          region.ranges[region.ranges.length - 1].push(lineIdx);
+          region.rawRanges[region.rawRanges.length - 1].push(lineIdx);
           this.removeLast(openRegions, name);
         });
       } else if (updatePlaster) {
         const plasterText = updatePlaster[1].trim();
         plaster = plasterText && matcher.createPlasterComment(plasterText);
       } else {
-        openRegions.forEach(name => regions.get(name)!.lines.push(line));
+        openRegions.forEach(name => regions.get(name)!.rawContents.push(line));
         return true;
       }
 
@@ -115,14 +113,13 @@ export class DocregionExtractor {
     // All open docregions are implicitly closed at the EOF.
     openRegions.forEach(name => {
       const region = regions.get(name)!;
-      region.open = false;
-      region.ranges[region.ranges.length - 1].push(rawLines.length);
+      region.rawRanges[region.rawRanges.length - 1].push(rawLines.length);
     });
 
     // If there is no explicit "default" docregion (i.e. `''`),
     // then all lines (except for docregion markers) belong to the default docregion.
     if (!regions.has('')) {
-      regions.set('', {lines, ranges: [[0, 0]], open: false});
+      regions.set('', {rawContents: lines, rawRanges: [[0, 0]]});
     }
 
     return regions;
@@ -133,7 +130,7 @@ export class DocregionExtractor {
     return !input ? [] : input.split(',').map(name => name.trim());
   }
 
-  private getRegions(): Map<string, IProvisionaryDocregionInfo> {
+  private getRegions(): Map<string, IProvisionalDocregionInfo> {
     if (!this.regions) {
       this.regions = this.extractProvisional(this.fileType, this.contents);
       this.contents = '';
