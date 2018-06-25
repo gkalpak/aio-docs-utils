@@ -29,7 +29,7 @@ export class DocregionExtractor {
 
   private static readonly DEFAULT_PLASTER = '. . .';
   private static readonly cache = new LruCache<string, DocregionExtractor>();
-  private regions: Map<string, IProvisionalDocregionInfo> | null = null;
+  private regions: Map<string, IProvisionalDocregionInfo | IDocregionInfo> | null = null;
 
   constructor(private readonly fileType: string, private contents: string) {
   }
@@ -37,18 +37,24 @@ export class DocregionExtractor {
   public extract(docregion?: ''): IDocregionInfo;
   public extract(docregion: string): IDocregionInfo | null;
   public extract(docregion: string = ''): IDocregionInfo | null {
-    // Retrieve the specified region, post-process, and return it.
+    // Retrieve the specified region, post-process (if not already post-processed), and return it.
     const regions = this.getRegions();
-    const region = regions.get(docregion);
-    if (!region) {
+    let regionInfo = regions.get(docregion);
+
+    if (!regionInfo) {
       return null;
     }
 
-    const contents = this.leftAlign(region.lines);
-    const ranges = region.ranges.map(([fromLineIdx, toLineIdx]) =>
-      new Range(fromLineIdx, 0, toLineIdx, 0));
+    if (this.isProvisional(regionInfo)) {
+      const contents = this.leftAlign(regionInfo.rawContents);
+      const ranges = regionInfo.rawRanges.map(([fromLineIdx, toLineIdx]) =>
+        new Range(fromLineIdx, 0, toLineIdx, 0));
 
-    return {fileType: this.fileType, contents, ranges};
+      regionInfo = {fileType: this.fileType, contents, ranges};
+      regions.set(docregion, regionInfo);
+    }
+
+    return regionInfo;
   }
 
   private extractProvisional(fileType: string, contents: string): Map<string, IProvisionalDocregionInfo> {
@@ -130,13 +136,17 @@ export class DocregionExtractor {
     return !input ? [] : input.split(',').map(name => name.trim());
   }
 
-  private getRegions(): Map<string, IProvisionalDocregionInfo> {
+  private getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
     if (!this.regions) {
       this.regions = this.extractProvisional(this.fileType, this.contents);
       this.contents = '';
     }
 
     return this.regions;
+  }
+
+  private isProvisional(info: IProvisionalDocregionInfo | IDocregionInfo): info is IProvisionalDocregionInfo {
+    return info.hasOwnProperty('rawContents');
   }
 
   private leftAlign(lines: string[]): string[] {

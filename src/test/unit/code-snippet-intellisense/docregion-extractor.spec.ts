@@ -129,6 +129,21 @@ describe('DocregionExtractor', () => {
       });
     });
 
+    it('should return the same `IDocregionInfo` object for the same docregion', () => {
+      const extractor = createDocregionExtractor('foo', `
+        line 1
+        mock#docregion bar
+          line 2
+            line 3
+        mock#enddocregion bar
+              line 4
+      `);
+      const info1 = extractor.extract('bar');
+      const info2 = extractor.extract('bar');
+
+      expect(info1).toBe(info2);
+    });
+
     it('should split lines by `\n` or `\r\n`', () => {
       const extractor = createDocregionExtractor('foo', 'bar\nbaz\r\nqux');
       expect(extractor.extract().contents).toEqual(['bar', 'baz', 'qux']);
