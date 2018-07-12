@@ -25,7 +25,9 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature {
 
   private registerIntellisenseProvider(extractPathPrefixRe: RegExp, docSelector: DocumentSelector): void {
     const intellisenseProvider = new CodeSnippetIntellisenseProvider(extractPathPrefixRe);
+    const triggerChars = CodeSnippetIntellisenseProvider.COMPLETION_TRIGGER_CHARACTERS;
 
+    this.disposables.push(languages.registerCompletionItemProvider(docSelector, intellisenseProvider, ...triggerChars));
     this.disposables.push(languages.registerDefinitionProvider(docSelector, intellisenseProvider));
     this.disposables.push(languages.registerHoverProvider(docSelector, intellisenseProvider));
 

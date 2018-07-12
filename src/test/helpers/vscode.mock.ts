@@ -11,6 +11,11 @@ export class MockLocation {
   }
 }
 
+export class MockMarkdownString {
+  constructor(public readonly value: string) {
+  }
+}
+
 export class MockPosition {
   constructor(public line: number, public character: number) {
   }
@@ -83,10 +88,12 @@ export class MockUri {
 export const mockVscode = {
   Hover: MockHover,
   Location: MockLocation,
+  MarkdownString: MockMarkdownString,
   Position: MockPosition,
   Range: MockRange,
   Uri: MockUri,
   languages: {
+    registerCompletionItemProvider: noop,
     registerDefinitionProvider: noop,
     registerHoverProvider: noop,
   },

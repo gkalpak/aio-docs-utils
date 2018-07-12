@@ -1,8 +1,8 @@
 import {existsSync} from 'fs';
 import {parse} from 'path';
 import {
-  CancellationToken, Definition, DefinitionProvider, Hover, HoverProvider, Location, Position, ProviderResult, Range,
-  TextDocument, Uri,
+  CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, Definition, DefinitionProvider, Hover,
+  HoverProvider, Location, MarkdownString, Position, ProviderResult, Range, TextDocument, Uri,
 } from 'vscode';
 import {logger} from '../shared/logger';
 import {padStart, readFile, unlessCancelledFactory} from '../shared/utils';
@@ -14,10 +14,55 @@ export interface ICodeSnippetInfoWithFilePath extends ICodeSnippetInfo {
   file: {path: string};
 }
 
-export class CodeSnippetIntellisenseProvider implements DefinitionProvider, HoverProvider {
+export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, DefinitionProvider, HoverProvider {
   public static readonly AUTO_LINENUM_THRESHOLD = 10;
+  public static readonly COMPLETION_TRIGGER_CHARACTERS = ['=', '"', '\''];
+  private readonly csInfoPerCompletionList = new WeakMap<CompletionItem, ICodeSnippetInfoWithFilePath>();
 
   constructor(public readonly extractPathPrefixRe: RegExp) {
+  }
+
+  public provideCompletionItems(
+      doc: TextDocument,
+      pos: Position,
+      token: CancellationToken,
+      ctx: CompletionContext,
+  ): ProviderResult<CompletionItem[]> {
+    if (!this.isInRegionAttribute(doc, pos)) {
+      return null;
+    }
+
+    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing completion items');
+    if (!csInfo) {
+      return null;
+    }
+
+    return this.extractDocregionNames(csInfo, token).then(names => names.map(name => {
+      const label = name || '<default>';
+      const filterText = name;
+      let insertText = name;
+
+      switch (ctx.triggerCharacter) {
+        case '=':
+          insertText = `"${insertText}"`;
+          break;
+        case '"':
+        case '\'':
+          const line = doc.lineAt(pos.line);
+          const nextChar = line.text[pos.character];
+          if (nextChar !== ctx.triggerCharacter) {
+            insertText = insertText + ctx.triggerCharacter;
+          }
+          break;
+        default:
+          break;
+      }
+
+      const item = {label, filterText, insertText};
+      this.csInfoPerCompletionList.set(item, csInfo);
+
+      return item;
+    }));
   }
 
   public provideDefinition(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Definition> {
@@ -59,17 +104,46 @@ export class CodeSnippetIntellisenseProvider implements DefinitionProvider, Hove
     });
   }
 
+  public resolveCompletionItem(item: CompletionItem, token: CancellationToken): ProviderResult<CompletionItem> {
+    if ((item.filterText === undefined) || !this.csInfoPerCompletionList.has(item)) {
+      return null;
+    }
+
+    const originalCsInfo = this.csInfoPerCompletionList.get(item)!;
+    const csInfo = {
+      ...originalCsInfo,
+      attrs: {
+        ...originalCsInfo.attrs,
+        region: item.filterText,
+      },
+    };
+
+    return this.extractDocregionInfo(csInfo, token).then(drInfo => {
+      if (!drInfo) {
+        return null;
+      }
+
+      const codeStr = this.withLinenums(drInfo.contents, -1);
+      const documentation = new MarkdownString(`\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``);
+
+      return {
+        ...item,
+        documentation,
+      };
+    });
+  }
+
   protected extractDocregionInfo(
       csInfo: ICodeSnippetInfoWithFilePath,
       token: CancellationToken,
   ): Promise<IDocregionInfo | null> {
-    const fileType = parse(csInfo.file.path).ext.slice(1);
-    const unlessCancelled = unlessCancelledFactory(token);
+    return this.getDocregionExtractor(csInfo.file.path, token).
+      then(extractor => extractor.extract(csInfo.attrs.region || ''));
+  }
 
-    return readFile(csInfo.file.path).then(unlessCancelled(rawContents => {
-      const extractor = DocregionExtractor.for(fileType, rawContents);
-      return extractor.extract(csInfo.attrs.region || '');
-    }));
+  protected extractDocregionNames(csInfo: ICodeSnippetInfoWithFilePath, token: CancellationToken): Promise<string[]> {
+    return this.getDocregionExtractor(csInfo.file.path, token).
+      then(extractor => extractor.getAvailableNames());
   }
 
   protected getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): ICodeSnippetInfoWithFilePath | null {
@@ -93,6 +167,22 @@ export class CodeSnippetIntellisenseProvider implements DefinitionProvider, Hove
       ...csInfo,
       file: {path: examplePath},
     };
+  }
+
+  protected getDocregionExtractor(filePath: string, token: CancellationToken): Promise<DocregionExtractor> {
+    const fileType = parse(filePath).ext.slice(1);
+    const unlessCancelled = unlessCancelledFactory(token);
+
+    return readFile(filePath).
+      then(unlessCancelled(rawContents => DocregionExtractor.for(fileType, rawContents)));
+  }
+
+  protected isInRegionAttribute(doc: TextDocument, pos: Position): boolean {
+    const line = doc.lineAt(pos.line).text;
+    const whitespaceIdx = line.lastIndexOf(' ', pos.character);
+    const attrStr = line.slice(whitespaceIdx + 1, pos.character);
+
+    return /^region=(?:(["'])(?:(?!\1).)*)?$/.test(attrStr);
   }
 
   private getExamplePath(containerDocPath: string, relativeExamplePath: string): string | null {
