@@ -1,4 +1,5 @@
 import Jasmine = require('jasmine');
+import 'source-map-support/register';
 import {IJasmineRunner} from './jasmine-typings';
 import {bold, cyan, green, red, symbols} from './string-utils';
 
