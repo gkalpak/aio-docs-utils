@@ -2,6 +2,8 @@
 
 > A [VSCode](https://code.visualstudio.com/) extension providing a set of simple utilities to aid in authoring/viewing documentation for angular.io.
 
+[![Build status](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status)](https://travis-ci.org/gkalpak/aio-docs-utils/branches)
+&emsp;
 [![Project license](https://badgen.net/github/license/gkalpak/aio-docs-utils?emoji=1&label=📄+Project+license)](https://github.com/gkalpak/aio-docs-utils/tree/master/LICENSE.txt)
 
 ## Features
@@ -60,7 +62,6 @@ This extension re-implements the relevant logic, but might have slight inconsist
 
 Things I want to (but won't necessarily) do:
 
-- Set up CI.
 - Add e2e tests.
 - Update "Features" section in `README.md`.
 - Add `CONTRIBUTING.md` or "Contributing/Developing" section in `README.md`.
