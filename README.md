@@ -66,10 +66,6 @@ Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
 - Update "Features" section in `README.md`.
-- Add `CONTRIBUTING.md` or "Contributing/Developing" section in `README.md`.
-  - Available npm scripts (with short descriptions/purpose).
-  - Available VSCode tasks and launch configurations (with short descriptions/purpose).
-  - Commit message guidelines.
 - Publish.
   - Ensure `test` is run before publishing.
   - Ensure `version` field is incremented in `package.json` and a corresponding tag is created and pushed to GitHub (probably via `npm version`). E.g.:
