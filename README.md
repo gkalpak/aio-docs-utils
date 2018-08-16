@@ -10,13 +10,41 @@
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Code snippet utilities
 
-For example if there is an image subfolder under your extension project workspace:
+The extension provides features that are useful for viewing and authoring code snippets (with source code extracted from standalone apps) in [Angular](https://github.com/angular/angular) API docs and guides.
 
-\!\[feature X\]\(images/feature-x.png\)
+#### Show code snippets on hover
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Hovering over `<code-example>` or `{@example}` tags, shows the extracted code snippets, including their title and line numbering.
+
+<p align="center">
+  <img alt="Code snippet on hover" height="400" src="img/on-hover.gif" />
+</p>
+
+#### Peek/Go to code snippet definition
+
+Right-clicking on `<code-example>` or `{@example}` tags, shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
+
+<p align="center">
+  <img alt="Code snippet definition" height="400" src="img/definition.gif" />
+</p>
+
+If the code snippet consists of multiple docregions, all regions are highlighted.
+
+<p align="center">
+  <img alt="Multi-region code snippet definition" height="400" src="img/definition-multiregion.gif" />
+</p>
+
+#### Autocomplete suggestions for docregions
+
+When creating `<code-example>` or `{@example}` tags, autocomplete suggestions are shown for the `region` attribute.
+
+<p align="center">
+  <img alt="Docregion autocomplete suggestions" height="400" src="img/autocomplete.gif" />
+</p>
+
+_**Note**: Autocomplete suggestions are triggered by the characters `=` (after `region`) and `'`/`"` (after `region=`)._
 
 ## Releases
 
@@ -65,7 +93,6 @@ This extension re-implements the relevant logic, but might have slight inconsist
 Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
-- Update "Features" section in `README.md`.
 - Publish.
   - Ensure `test` is run before publishing.
   - Ensure `version` field is incremented in `package.json` and a corresponding tag is created and pushed to GitHub (probably via `npm version`). E.g.:
