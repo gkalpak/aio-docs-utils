@@ -1,10 +1,10 @@
-# Building and Testing Angular.io Documentation Utilities
+# Building, Testing, and Publishing Angular.io Documentation Utilities
 
 ## Overview
 
 The project is mainly written in [TypeScript](https://www.typescriptlang.org/).
 [Jasmine](https://jasmine.github.io/) is used for running the tests.
-[Node.js](https://nodejs.org/)/[npm](https://www.npmjs.com/) are used for managing dependencies and running [scripts](#npm-scripts) (for building, testing, etc.).
+[Node.js](https://nodejs.org/)/[npm](https://www.npmjs.com/) are used for managing dependencies and running [scripts](#npm-scripts) (for building, testing, publishing, etc.).
 
 Since this is a [VSCode](https://code.visualstudio.com/) extension, there are some VSCode [tasks](#vscode-tasks) and [launch configurations](#vscode-launch-configs), that can be used for running tests and debugging.
 
@@ -21,6 +21,14 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 - `npm test`: Lint the source code (including tests) and run unit and e2e tests.
 
 - `npm run dev`: Watch the source code (including tests) and re-build and run unit tests whenever something changes. Useful during development.
+
+The following npm scripts can be used for publishing a new version of the extension to the [VSCode marketplace](https://marketplace.visualstudio.com/vscode). They are intended to be used by project maintainers (with publish rights) only.
+
+- `npm run vsce-publish-patch <PAT>`: Run all tests, increment version to the next patch version, and publish the extension. (Beware of this [e2e testing limitation](#e2e-limitation).)
+- `npm run vsce-publish-minor <PAT>`: Run all tests, increment version to the next minor version, and publish the extension. (Beware of this [e2e testing limitation](#e2e-limitation).)
+- `npm run vsce-publish-major <PAT>`: Run all tests, increment version to the next major version, and publish the extension. (Beware of this [e2e testing limitation](#e2e-limitation).)
+
+_All `vcse-publish-*` scripts must be called with a [VSTS](https://visualstudio.microsoft.com/team-services) **Personal Access Token (PAT)**, which is passed to `vsce publish`. See [here](https://code.visualstudio.com/docs/extensions/publish-extension) for more details._
 
 For a full list of available npm scripts, see [package.json](package.json).
 
@@ -41,4 +49,4 @@ Here is a list of VSCode launch configurations (defined in [launch.json](.vscode
 
 ---
 <a name="e2e-limitation"></a>_**Note about e2e testing**_<br />
-_Due to a VSCode limitation, it is currently not possible to run the extension e2e tests from the command line (via `npm run test-e2e`), if another instance of VSCode is already running. Either close all instances of VSCode first, or use the relevant [launch configuration](#vscode-launch-configs) from an already running VSCode instance.
+_Due to a VSCode limitation, depending on your VSCode version and/or installation mode (global vs per user), it might not be possible to run the extension e2e tests from the command line (via `npm run test-e2e`), if another instance of VSCode is already running. If that is the case, either close all instances of VSCode first, or use the relevant [launch configuration](#vscode-launch-configs) from an already running VSCode instance._

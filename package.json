@@ -4,7 +4,10 @@
   "description": "A VSCode extension providing a set of simple utilities to aid in authoring/viewing documentation for angular.io.",
   "version": "0.0.0",
   "publisher": "gkalpak",
-  "repository": "github:gkalpak/aio-docs-utils",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gkalpak/aio-docs-utils.git"
+  },
   "license": "Unlicense",
   "main": "./out/extension",
   "scripts": {
@@ -24,11 +27,16 @@
     "pretest-unit": "npm run build",
     "test-unit": "npm run ~~test-unit",
     "test-unit-watch": "watch \"npm run ~~test-unit\" out --wait=1",
-    "vscode:prepublish": "npm run build",
+    "postversion": "git push && git push --tags",
+    "vsce-publish-patch": "npm run ~~vsce-prepublish patch && npm run ~~vsce-publish --",
+    "vsce-publish-minor": "npm run ~~vsce-prepublish minor && npm run ~~vsce-publish --",
+    "vsce-publish-major": "npm run ~~vsce-prepublish major && npm run ~~vsce-publish --",
     "~~build": "tsc --project .",
     "~~build-watch": "npm run ~~build -- --watch",
     "~~test-e2e": "node node_modules/vscode/bin/test",
-    "~~test-unit": "node out/test/helpers/jasmine-runner"
+    "~~test-unit": "node out/test/helpers/jasmine-runner",
+    "~~vsce-prepublish": "npm test && npm version",
+    "~~vsce-publish": "vsce publish --pat"
   },
   "activationEvents": [
     "onLanguage:markdown",
@@ -51,6 +59,7 @@
     "tslint": "^5.11.0",
     "tslint-jasmine-noSkipOrFocus": "^1.0.9",
     "typescript": "^2.9.2",
+    "vsce": "^1.46.0",
     "vscode": "^1.1.18",
     "watch": "^1.0.2"
   },
