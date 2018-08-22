@@ -2,7 +2,9 @@
 
 > A [VSCode](https://code.visualstudio.com/) extension providing a set of simple utilities to aid in authoring/viewing documentation for angular.io.
 
-[![Build status](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status)](https://travis-ci.org/gkalpak/aio-docs-utils/branches)
+[![Build status (Linux, macOS)](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status+(Linux,+macOS))](https://travis-ci.org/gkalpak/aio-docs-utils/branches)
+&emsp;
+[![Build status (Windows)](https://badgen.net/appveyor/ci/gkalpak/aio-docs-utils/master?icon=appveyor&label=Build+status+(Windows))](https://ci.appveyor.com/project/gkalpak/aio-docs-utils/branch/master)
 &emsp;
 [![Project license](https://badgen.net/github/license/gkalpak/aio-docs-utils?emoji=1&label=📄+Project+license)](https://github.com/gkalpak/aio-docs-utils/tree/master/LICENSE.txt)
 

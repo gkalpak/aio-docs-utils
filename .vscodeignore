@@ -5,6 +5,7 @@ out/**/*.map
 src/**
 
 *.log
+.appveyor.yml
 .gitignore
 .travis.yml
 tsconfig.json

@@ -1,0 +1,37 @@
+version: 1.0.{build}
+shallow_clone: true
+
+
+image:
+- Visual Studio 2015  # Windows Server 2012 R2  (~ Windows 8)
+- Visual Studio 2017  # Windows Server 2016     (~ Windows 10)
+
+platform:
+  - x86
+  - x64
+
+environment:
+  matrix:
+    - NODEJS_VERSION: "8"
+    - NODEJS_VERSION: "10"
+    - NODEJS_VERSION: ""  # For latest version.
+
+
+cache:
+  - .vscode-test                       # Local `.vscode-test/` directory
+  - "%AppData%/npm-cache"              # Global npm cache.
+
+
+install:
+  # Install the specified Node.js version.
+  - ps: Install-Product node $env:NODEJS_VERSION $env:platform
+  - node --version
+  - npm --version
+  # Run `npm install`, if `npm ci` fails, to work around old npm versions' not supporting `npm ci`.
+  - npm ci || npm install
+
+test_script:
+  - npm test
+
+build: off
+deploy: off
