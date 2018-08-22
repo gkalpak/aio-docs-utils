@@ -18,31 +18,23 @@ The extension provides features that are useful for viewing and authoring code s
 
 Hovering over `<code-example>` or `{@example}` tags, shows the extracted code snippets, including their title and line numbering.
 
-<p align="center">
-  <img alt="Code snippet on hover" height="400" src="img/on-hover.gif" />
-</p>
+![Code snippet on hover](img/on-hover.gif)
 
 #### Peek/Go to code snippet definition
 
 Right-clicking on `<code-example>` or `{@example}` tags, shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
 
-<p align="center">
-  <img alt="Code snippet definition" height="400" src="img/definition.gif" />
-</p>
+![Code snippet definition](img/definition.gif)
 
 If the code snippet consists of multiple docregions, all regions are highlighted.
 
-<p align="center">
-  <img alt="Multi-region code snippet definition" height="400" src="img/definition-multiregion.gif" />
-</p>
+![Multi-region code snippet definition](img/definition-multiregion.gif)
 
 #### Autocomplete suggestions for docregions
 
 When creating `<code-example>` or `{@example}` tags, autocomplete suggestions are shown for the `region` attribute.
 
-<p align="center">
-  <img alt="Docregion autocomplete suggestions" height="400" src="img/autocomplete.gif" />
-</p>
+![Docregion autocomplete suggestions](img/autocomplete.gif)
 
 _**Note**: Autocomplete suggestions are triggered by the characters `=` (after `region`) and `'`/`"` (after `region=`)._
 
