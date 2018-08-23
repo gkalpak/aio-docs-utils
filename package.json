@@ -38,6 +38,9 @@
     "~~vsce-prepublish": "npm test && npm version",
     "~~vsce-publish": "vsce publish --pat"
   },
+  "engines": {
+    "vscode": "^1.26.0"
+  },
   "activationEvents": [
     "onLanguage:markdown",
     "onLanguage:typescript"
@@ -45,9 +48,11 @@
   "categories": [
     "Other"
   ],
-  "engines": {
-    "vscode": "^1.26.0"
+  "galleryBanner": {
+    "color": "#1976d2",
+    "theme": "dark"
   },
+  "icon": "img/logo.png",
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
     "@types/node": "^7.0.69",
