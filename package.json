@@ -2,7 +2,7 @@
   "name": "aio-docs-utils",
   "displayName": "Angular.io Documentation Utilities",
   "description": "A VSCode extension providing a set of simple utilities to aid in authoring/viewing angular.io content source code.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "gkalpak",
   "repository": {
     "type": "git",
