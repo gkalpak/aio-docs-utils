@@ -96,8 +96,7 @@ This extension re-implements the relevant logic, but might have slight inconsist
 Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
-- Automate creating GitHub releases and publishing to marketplace via CI. Relevant resources:
+- Automate publishing to marketplace via CI. Relevant resources:
   - https://docs.travis-ci.com/user/deployment (esp. https://docs.travis-ci.com/user/deployment/#conditional-releases-with-on)
-  - https://docs.travis-ci.com/user/deployment/releases
   - https://github.com/VSCodeVim/Vim/blob/e0bed901c4c1e1735582b04a39772a6f6bcb7886/.travis.yml#L52-L70 (reference implementation)
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.
