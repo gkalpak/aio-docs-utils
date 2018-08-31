@@ -30,16 +30,26 @@ script:
 
 
 before_deploy:
-- npm run vsce-package;
+ - npm run vsce-package;
 
 deploy:
-  provider: releases
-  api_key:
-    secure: QN6UNsuZJmqy8qCemtSr8NKcoUIcOBMn929L3zLpvs+Vmd3VWiD+bHwiKdKUo309zRv8EEZnQVUE4qvHKjaUSAijXgNEE3eRPNw/RA2kptj3Dsm0w+jZrrrzauafBfmPoPZ5i8z2/d350z1zwwkNX9mBtESIvOUDnthQ1OtX6ofY/eUDRl1FWkSQefjm1vuQ2K5aihJC/54Pby851DMgJapGzTnNisjXBJVAEKNNSlsZJMAvomvGE2t2/obzTf8ywlOY2Hw/r3RgxdemgoLu6ek5rWf6lG2wISI9LZdbHus/8kFhRpebGAinmb+R2ZncxLz8y2PYmbQ7CKpG1zE84Syy4u+IjHbwr/Pfnxgu5i0ox8ps/C/90ynIboJ7s8utFaEPuOu5bfhcbhfXN/qgIYbZRljspe/T+P8+eXnVvczZxKo75Dc8K1XLkOPC5whAtEmQTA+7tB5UPQThaeAqXiUv8/F2M9X/n/i+w6v59n4y4Nm90/5OoSYhiDCNwYnx0tFGtldoOUuP7zXtVfKyYL1sv/1itlHROAaXlzsL5JmlB8ecQuMjU+zdQhyMsohAjDBz0O3yRCxUoJYvcjK+H8sWqN/f4Jz29A1j7+4ibMbhwxAUjzWeWtrXS1fZUujBiVR3ip5XjrfRmwnm7Bmt24iM6X9HxhHg9g6Ybqoip80=
-  file_glob: true
-  file: "*.vsix"
-  skip_cleanup: true
-  on:
-    condition: $TRAVIS_OS_NAME == linux
-    node: node
-    tags: true
+  # Create a GitHub release.
+  - provider: releases
+    api_key:
+      secure: QN6UNsuZJmqy8qCemtSr8NKcoUIcOBMn929L3zLpvs+Vmd3VWiD+bHwiKdKUo309zRv8EEZnQVUE4qvHKjaUSAijXgNEE3eRPNw/RA2kptj3Dsm0w+jZrrrzauafBfmPoPZ5i8z2/d350z1zwwkNX9mBtESIvOUDnthQ1OtX6ofY/eUDRl1FWkSQefjm1vuQ2K5aihJC/54Pby851DMgJapGzTnNisjXBJVAEKNNSlsZJMAvomvGE2t2/obzTf8ywlOY2Hw/r3RgxdemgoLu6ek5rWf6lG2wISI9LZdbHus/8kFhRpebGAinmb+R2ZncxLz8y2PYmbQ7CKpG1zE84Syy4u+IjHbwr/Pfnxgu5i0ox8ps/C/90ynIboJ7s8utFaEPuOu5bfhcbhfXN/qgIYbZRljspe/T+P8+eXnVvczZxKo75Dc8K1XLkOPC5whAtEmQTA+7tB5UPQThaeAqXiUv8/F2M9X/n/i+w6v59n4y4Nm90/5OoSYhiDCNwYnx0tFGtldoOUuP7zXtVfKyYL1sv/1itlHROAaXlzsL5JmlB8ecQuMjU+zdQhyMsohAjDBz0O3yRCxUoJYvcjK+H8sWqN/f4Jz29A1j7+4ibMbhwxAUjzWeWtrXS1fZUujBiVR3ip5XjrfRmwnm7Bmt24iM6X9HxhHg9g6Ybqoip80=
+    file_glob: true
+    file: "*.vsix"
+    skip_cleanup: true
+    on:
+      condition: $TRAVIS_OS_NAME == linux
+      node: node
+      tags: true
+
+  # Publish to the marketplace.
+  - provider: script
+    script: npm run vsce-publish -- --pat $VSCE_ACCESS_TOKEN
+    skip_cleanup: true
+    on:
+      condition: $TRAVIS_OS_NAME == linux
+      node: node
+      tags: true

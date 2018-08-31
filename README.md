@@ -9,7 +9,7 @@ A [VSCode](https://code.visualstudio.com/) extension providing a set of simple u
 </sub>
 <br />
 
-[![Build status (Linux, macOS)](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status+(Linux,+macOS))](https://travis-ci.org/gkalpak/aio-docs-utils/anches)
+[![Build status (Linux, macOS)](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status+(Linux,+macOS))](https://travis-ci.org/gkalpak/aio-docs-utils/branches)
 &emsp;
 [![Build status (Windows)](https://badgen.net/appveyor/ci/gkalpak/aio-docs-utils/master?icon=appveyor&label=Build+status+(Windows))](https://ci.appveyor.com/project/gkalpak/aio-docs-utils/branch/master)
 &emsp;
@@ -96,7 +96,4 @@ This extension re-implements the relevant logic, but might have slight inconsist
 Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
-- Automate publishing to marketplace via CI. Relevant resources:
-  - https://docs.travis-ci.com/user/deployment (esp. https://docs.travis-ci.com/user/deployment/#conditional-releases-with-on)
-  - https://github.com/VSCodeVim/Vim/blob/e0bed901c4c1e1735582b04a39772a6f6bcb7886/.travis.yml#L52-L70 (reference implementation)
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.
