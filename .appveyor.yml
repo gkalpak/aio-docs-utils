@@ -18,8 +18,8 @@ environment:
 
 
 cache:
-  - .vscode-test                       # Local `.vscode-test/` directory
-  - "%AppData%/npm-cache"              # Global npm cache.
+  - .vscode-test/           # Local `.vscode-test/` directory
+  - "%AppData%/npm-cache/"  # Global npm cache.
 
 
 install:

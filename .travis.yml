@@ -13,7 +13,7 @@ node_js:
 
 cache:
   directories:
-    - "$HOME/.npm"
+    - "$HOME/.npm/"
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then

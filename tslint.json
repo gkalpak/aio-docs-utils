@@ -17,6 +17,6 @@
     "variable-name": [true, "allow-leading-underscore", "allow-trailing-underscore", "ban-keywords", "check-format"]
   },
   "rulesDirectory": [
-    "node_modules/tslint-jasmine-noSkipOrFocus"
+    "node_modules/tslint-jasmine-noSkipOrFocus/"
   ]
 }
