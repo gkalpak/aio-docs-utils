@@ -25,13 +25,13 @@ The extension provides features that are useful for viewing and authoring code s
 
 #### Show code snippets on hover
 
-Hovering over `<code-example>` or `{@example}` tags, shows the extracted code snippets, including their title and line numbering.
+Hovering over `<code-example>` or `{@example}` tags shows the extracted code snippets, including their title and line numbering.
 
 ![Code snippet on hover](img/on-hover.gif)
 
 #### Peek/Go to code snippet definition
 
-Right-clicking on `<code-example>` or `{@example}` tags, shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
+Right-clicking on `<code-example>` or `{@example}` tags shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
 
 ![Code snippet definition](img/definition.gif)
 
@@ -56,17 +56,17 @@ You can find the latest published version [here](https://marketplace.visualstudi
 
 ## Known issues
 
-#### Possible inconsistency with the actual implementation
+### Possible inconsistency with the actual implementation
 
 The examples in the actual docs are processed via [dgeni](https://github.com/angular/dgeni) and more specifically using utilities in the [examples-package](https://github.com/angular/angular/tree/master/aio/tools/transforms/examples-package).<br />
 This extension re-implements the relevant logic, but might have slight inconsistencies compared to the actual `dgeni` implementation.
 
-#### Multi-line `{@example ...}` tags not fully supported
+### Multi-line `{@example ...}` tags not fully supported
 
-`{@example ...}` tags spreading across multi lines, will not be recognized if there are lines that contain only unnamed attributes (such as the path or title). For example:
+`{@example ...}` tags spreading across multi lines will not be recognized if there are lines that contain only unnamed attributes (such as the path or title). For example:
 
+_These **will not** be recognized:_
 ```
-// Not recognized.
 {@example
   path/to/examp.le
   region="foo"
@@ -75,8 +75,10 @@ This extension re-implements the relevant logic, but might have slight inconsist
 {@example path/to/examp.le region="foo"
   This is the title
 }
+```
 
-// Recognized.
+_These **will** be recognized:_
+```
 {@example
   path/to/examp.le region="foo"
 }
