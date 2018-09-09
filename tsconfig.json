@@ -9,7 +9,9 @@
     "sourceMap": true,
     "rootDir": "src/",
     "strict": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "importHelpers": true,
+    "newLine": "lf"
   },
   "exclude": [
     ".vscode-test/",

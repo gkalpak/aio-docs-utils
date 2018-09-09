@@ -52,6 +52,9 @@
     "theme": "dark"
   },
   "icon": "img/logo.png",
+  "dependencies": {
+    "tslib": "^1.9.3"
+  },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
     "@types/node": "^10.9.4",
