@@ -22,6 +22,8 @@
     "lint": "tslint --project tsconfig.json",
     "pretest": "npm run build",
     "test": "npm run lint && npm run ~~test-unit && npm run ~~test-e2e",
+    "pretest-all-versions": "npm run pretest",
+    "test-all-versions": "run-s lint ~~test-unit \"~~test-e2e earliest\" \"~~test-e2e latest\"",
     "pretest-e2e": "npm run build",
     "test-e2e": "npm run ~~test-e2e",
     "pretest-unit": "npm run build",
@@ -34,7 +36,8 @@
     "vscode:prepublish": "npm run build",
     "~~build": "tsc --project ./",
     "~~build-watch": "npm run ~~build -- --watch",
-    "~~test-e2e": "node node_modules/vscode/bin/test",
+    "~~test-e2e": "node out/test/helpers/e2e-runner \"npm run ~~test-e2e-run\"",
+    "~~test-e2e-run": "node node_modules/vscode/bin/test",
     "~~test-unit": "node out/test/helpers/jasmine-runner"
   },
   "engines": {
@@ -56,8 +59,10 @@
     "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "@gkalpak/cli-utils": "0.1.3",
     "@types/jasmine": "^2.8.8",
     "@types/node": "^10.9.4",
+    "@types/shelljs": "^0.8.0",
     "jasmine": "^3.2.0",
     "mock-require": "^3.0.2",
     "npm-run-all": "^4.1.3",

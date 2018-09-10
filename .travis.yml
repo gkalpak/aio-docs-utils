@@ -13,7 +13,8 @@ node_js:
 
 cache:
   directories:
-    - "$HOME/.npm/"
+    - .vscode-test/  # Local `.vscode-test/` directory
+    - "$HOME/.npm/"  # Global npm cache.
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
@@ -26,7 +27,7 @@ install:
   - npm ci || npm install;
 
 script:
-  - npm test;
+  - npm run test-all-versions;
 
 
 before_deploy:

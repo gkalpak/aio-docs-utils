@@ -104,4 +104,5 @@ _These **will** be recognized:_
 Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
+- Add tests for `src/test/helpers/e2e-runner.ts`.
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.

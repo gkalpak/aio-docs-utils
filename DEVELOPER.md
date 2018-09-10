@@ -18,7 +18,8 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 - `npm run lint`: Lint the source code (including tests), using [tslint](https://palantir.github.io/tslint/).
 - `npm run test-unit`: Run unit tests.
 - `npm run test-e2e`: Run e2e tests. ([Note about e2e testing](#e2e-limitation).)
-- `npm test`: Lint the source code (including tests) and run unit and e2e tests.
+- `npm run test`/`npm test`: Lint the source code (including tests) and run unit and e2e tests.
+- `npm run test-all-versions`: Same as `npm test`, but runs e2e tests against the minimum supported and the latest available version.
 
 - `npm run dev`: Watch the source code (including tests) and re-build and run unit tests whenever something changes. Useful during development.
 
