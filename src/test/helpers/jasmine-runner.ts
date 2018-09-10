@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import Jasmine = require('jasmine');
 import 'source-map-support/register';
 import {IJasmineRunner} from './jasmine-typings';
