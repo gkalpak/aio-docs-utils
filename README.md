@@ -47,6 +47,12 @@ When creating `<code-example>` or `{@example}` tags, autocomplete suggestions ar
 
 _**Note**: Autocomplete suggestions are triggered by the characters `=` (after `region`) and `'`/`"` (after `region=`)._
 
+<p align="right">
+  <sub><sub>
+    <i>GIFs captured with <a href="https://www.screentogif.com/">ScreenToGif</a></i> &#x2740;
+  </sub></sub>
+</p>
+
 ## Releases
 
 See [here](https://github.com/gkalpak/aio-docs-utils/releases) for a list of releases.<br />
