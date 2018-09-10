@@ -25,11 +25,11 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 
 The following npm scripts can be used for packaging and publishing a new version of the extension to the [VSCode marketplace](https://marketplace.visualstudio.com/vscode). Publishing can only be performed by project maintainers (with publish rights).
 
-- `npm version <patch|minor|major>`: Run all tests, increment version to the next patch/minor/major version, create and tag a commit, and push the changes to GitHub. (Beware of this [e2e testing limitation](#e2e-limitation).)
+- `npm run release [-- <patch|minor|major>]`: Run all tests, increment version to the next patch/minor/major version (defaults to `patch`), create and tag a commit, and push the changes to GitHub. (Beware of this [e2e testing limitation](#e2e-limitation).)
 - `npm run vsce-package`: Package the current code into a `.vsix` file. These files can be used for offline installation, privately sharing the extension, or [manually publishing](https://marketplace.visualstudio.com/manage/publishers) a new version.
 - `npm run vsce-publish [-- --pat <PAT>]`: Publish the current code of the extension as a new version. Publishing requires authentication, e.g. by passing a [VSTS](https://visualstudio.microsoft.com/team-services) **Personal Access Token (PAT)**. See [here](https://code.visualstudio.com/docs/extensions/publish-extension) for more details.
 
-_Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `deploy` section in [.travis.yml](.travis.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `version` npm script._
+_Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `deploy` section in [.travis.yml](.travis.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `release` npm script._
 
 For a full list of available npm scripts, see [package.json](package.json).
 

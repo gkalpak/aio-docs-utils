@@ -17,19 +17,19 @@
     "build-watch": "npm run ~~build-watch",
     "clean-out": "node --eval \"require('shelljs').rm('-rf', 'out/');\"",
     "predev": "npm run build || true",
-    "dev": "run-p ~~build-watch test-unit-watch",
+    "dev": "run-p ~~build-watch ~~test-unit-watch",
     "postinstall": "node node_modules/vscode/bin/install",
     "lint": "tslint --project tsconfig.json",
+    "prerelease": "npm test",
+    "release": "gkcu-run \"npm version \\${*:patch}\"",
     "pretest": "npm run build",
-    "test": "npm run lint && npm run ~~test-unit && npm run ~~test-e2e",
+    "test": "run-s lint ~~test-unit ~~test-e2e",
     "pretest-all-versions": "npm run pretest",
     "test-all-versions": "run-s lint ~~test-unit \"~~test-e2e earliest\" \"~~test-e2e latest\"",
     "pretest-e2e": "npm run build",
     "test-e2e": "npm run ~~test-e2e",
     "pretest-unit": "npm run build",
     "test-unit": "npm run ~~test-unit",
-    "test-unit-watch": "watch \"npm run ~~test-unit\" out --wait=1",
-    "preversion": "npm test",
     "postversion": "git push && git push --tags",
     "vsce-package": "vsce package",
     "vsce-publish": "vsce publish",
@@ -38,7 +38,8 @@
     "~~build-watch": "npm run ~~build -- --watch",
     "~~test-e2e": "node out/test/helpers/e2e-runner \"npm run ~~test-e2e-run\"",
     "~~test-e2e-run": "node node_modules/vscode/bin/test",
-    "~~test-unit": "node out/test/helpers/jasmine-runner"
+    "~~test-unit": "node out/test/helpers/jasmine-runner",
+    "~~test-unit-watch": "watch \"npm run ~~test-unit\" out/ --wait 1"
   },
   "engines": {
     "vscode": "^1.23.0"
