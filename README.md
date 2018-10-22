@@ -25,7 +25,14 @@ The extension provides features that are useful for viewing and authoring code s
 
 #### Show code snippets on hover
 
-Hovering over `<code-example>` or `{@example}` tags shows the extracted code snippets, including their title and line numbering.
+Hovering over `<code-example>` or `{@example}` tags shows the extracted code snippets, including their header and line numbering.
+
+<sub>
+
+_**Note**: Both `header` and `title` attributes are recognized for backwards compatibility._
+
+</sub>
+
 
 ![Code snippet on hover](img/on-hover.gif)
 
@@ -69,7 +76,7 @@ This extension re-implements the relevant logic, but might have slight inconsist
 
 ### Multi-line `{@example ...}` tags not fully supported
 
-`{@example ...}` tags spreading across multi lines will not be recognized if there are lines that contain only unnamed attributes (such as the path or title). For example:
+`{@example ...}` tags spreading across multi lines will not be recognized if there are lines that contain only unnamed attributes (such as the path or header). For example:
 
 _These **will not** be recognized:_
 ```
@@ -79,7 +86,7 @@ _These **will not** be recognized:_
 }
 
 {@example path/to/examp.le region="foo"
-  This is the title
+  This is the header
 }
 ```
 
@@ -90,11 +97,11 @@ _These **will** be recognized:_
 }
 
 {@example path/to/examp.le region="foo"
-  title="This is the title"
+  header="This is the header"
 }
 
 {@example path/to/examp.le
-  region="foo" This is the title
+  region="foo" This is the header
 }
 ```
 
@@ -105,4 +112,5 @@ Things I want to (but won't necessarily) do:
 
 - Add e2e tests.
 - Add tests for `src/test/helpers/e2e-runner.ts`.
+- Investigate switching from AppVeyor to Travis for testing on Windows (once https://travis-ci.community/t/windows-instances-hanging-before-install/250 has been resolved).
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.

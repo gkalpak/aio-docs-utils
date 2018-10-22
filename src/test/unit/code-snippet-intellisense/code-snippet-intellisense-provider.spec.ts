@@ -692,8 +692,8 @@ describe('CodeSnippetIntellisenseProvider', () => {
       beforeEach(() => {
         Object.assign(mockCodeSnippetInfo, {
           attrs: {
+            header: null,
             linenums: false,
-            title: null,
           },
           raw: {
             endPos: new Position(3, 7),
@@ -723,12 +723,12 @@ describe('CodeSnippetIntellisenseProvider', () => {
         expect([r.start.line, r.start.character, r.end.line, r.end.character]).toEqual([1, 3, 3, 7]);
       });
 
-      it('should include the title in the contents', async () => {
-        mockCodeSnippetInfo.attrs.title = 'Mock Title';
+      it('should include the header in the contents', async () => {
+        mockCodeSnippetInfo.attrs.header = 'Mock Header';
         const result = (await provideHover())!;
 
         expect(result.contents).toBe(stripIndentation(`
-          _Mock Title_
+          _Mock Header_
 
           ---
           \`\`\`qux

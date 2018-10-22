@@ -143,6 +143,10 @@ describe('CodeSnippetUtils', () => {
               linenums=%linenums%
               path=%path%
               region=%region%
+              header=%header%
+              header unknown
+              unknown header
+              header
               title=%title%
               title unknown
               unknown title
@@ -159,6 +163,10 @@ describe('CodeSnippetUtils', () => {
               language=%language%
               linenums=%linenums%
               region=%region%
+              header=%header%
+              header unknown
+              unknown header
+              header
               title=%title%
               title unknown
               unknown title
@@ -172,10 +180,10 @@ describe('CodeSnippetUtils', () => {
         `));
 
         expect(csUtils.getInfo(doc, new Position( 0, 10))).toEqual(jasmine.any(Object));
-        expect(csUtils.getInfo(doc, new Position(13, 10))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(17, 10))).toBeNull();
 
-        expect(csUtils.getInfo(doc, new Position(17, 10))).toEqual(jasmine.any(Object));
-        expect(csUtils.getInfo(doc, new Position(28, 10))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(21, 10))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(36, 10))).toBeNull();
       });
     });
 
@@ -292,9 +300,9 @@ describe('CodeSnippetUtils', () => {
     it('should return `null` if there is no `path` attribute', () => {
       const doc = createTextDocument(`
         <code-example notpath="foo" neitherpath="bar" pathnot="baz" path-neither="qux"></code-example>
-        <code-example linenums="foo" region="bar" title="baz"></code-example>
+        <code-example linenums="foo" region="bar" header="baz" title="qux"></code-example>
 
-        {@example linenums="foo" region="bar" title="baz"}
+        {@example linenums="foo" region="bar" header="baz" title="qux"}
         ${EOF_MARKER}
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -309,9 +317,12 @@ describe('CodeSnippetUtils', () => {
     it('should extract attributes info from single-line code snippets', () => {
       withBothQuotes(q => {
         const doc = createTextDocument(quote(q, `
+          <code-example header=%baz% linenums=%true% path=%foo% region=%bar%></code-example>
           <code-example linenums=%true% path=%foo% region=%bar% title=%baz%></code-example>
 
+          {@example foo linenums=%true% region=%bar% header=%baz%}
           {@example foo linenums=%true% region=%bar% title=%baz%}
+          {@example foo linenums=%true% bar header=%baz%}
           {@example foo linenums=%true% bar title=%baz%}
           {@example foo linenums=%true% bar baz}
           ${EOF_MARKER}
@@ -319,28 +330,41 @@ describe('CodeSnippetUtils', () => {
                     012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
         `));
         const expectedAttrInfo: ICodeSnippetAttrInfo = {
+          header: 'baz',
           linenums: true,
           path: 'foo',
           region: 'bar',
-          title: 'baz',
         };
 
         expect(csUtils.getInfo(doc, new Position(0,  5))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(0, 66))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(0, 73))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(1,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(1, 66))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(1, 73))!.attrs).toEqual(expectedAttrInfo);
 
-        expect(csUtils.getInfo(doc, new Position(2,  5))!.attrs).toEqual(expectedAttrInfo);
-        expect(csUtils.getInfo(doc, new Position(2, 25))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(3,  5))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(3, 25))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(4,  5))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(4, 25))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(5,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(5, 25))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(6,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(6, 25))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(7,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(7, 25))!.attrs).toEqual(expectedAttrInfo);
       });
     });
 
     it('should extract attributes info from multi-line code snippets', () => {
       withBothQuotes(q => {
         const doc = createTextDocument(quote(q, `
+          <code-example
+              header=%baz%
+              linenums=%true%
+              path=%foo%
+              region=%bar%>
+          </code-example>
           <code-example
               linenums=%true%
               path=%foo%
@@ -349,9 +373,18 @@ describe('CodeSnippetUtils', () => {
           </code-example>
 
           {@example foo
+              header=%baz%
+              linenums=%true%
+              region=%bar%
+          }
+          {@example foo
               linenums=%true%
               region=%bar%
               title=%baz%
+          }
+          {@example foo
+              header=%baz%
+              linenums=%true% bar
           }
           {@example foo
               linenums=%true%
@@ -364,12 +397,13 @@ describe('CodeSnippetUtils', () => {
                     012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
         `));
         const expectedAttrInfo: ICodeSnippetAttrInfo = {
+          header: 'baz',
           linenums: true,
           path: 'foo',
           region: 'bar',
-          title: 'baz',
         };
 
+        // First `<code-example>`.
         expect(csUtils.getInfo(doc, new Position( 0,  5))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 1,  0))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 2, 10))!.attrs).toEqual(expectedAttrInfo);
@@ -377,18 +411,40 @@ describe('CodeSnippetUtils', () => {
         expect(csUtils.getInfo(doc, new Position( 4, 10))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 5,  0))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 5, 10))!.attrs).toEqual(expectedAttrInfo);
-
-        expect(csUtils.getInfo(doc, new Position( 7,  5))!.attrs).toEqual(expectedAttrInfo);
+        // Second `<code-example>`.
+        expect(csUtils.getInfo(doc, new Position( 6,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position( 7,  0))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 8, 10))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position( 9,  0))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(10, 10))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(11,  0))!.attrs).toEqual(expectedAttrInfo);
-        expect(csUtils.getInfo(doc, new Position(12,  5))!.attrs).toEqual(expectedAttrInfo);
-        expect(csUtils.getInfo(doc, new Position(13,  0))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(11, 10))!.attrs).toEqual(expectedAttrInfo);
+
+        // First `{@example}`.
+        expect(csUtils.getInfo(doc, new Position(13,  5))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(14, 10))!.attrs).toEqual(expectedAttrInfo);
         expect(csUtils.getInfo(doc, new Position(15,  0))!.attrs).toEqual(expectedAttrInfo);
-        expect(csUtils.getInfo(doc, new Position(16,  5))!.attrs).toEqual(expectedAttrInfo);
-        expect(csUtils.getInfo(doc, new Position(17, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(16, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(17,  0))!.attrs).toEqual(expectedAttrInfo);
+        // Second `{@example}`.
+        expect(csUtils.getInfo(doc, new Position(18,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(19, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(20,  0))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(21, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(22,  0))!.attrs).toEqual(expectedAttrInfo);
+        // Third `{@example}`.
+        expect(csUtils.getInfo(doc, new Position(23,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(24,  0))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(25, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(26,  0))!.attrs).toEqual(expectedAttrInfo);
+        // Fourth `{@example}`.
+        expect(csUtils.getInfo(doc, new Position(27,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(28,  0))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(29, 10))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(30,  0))!.attrs).toEqual(expectedAttrInfo);
+        // Fifth `{@example}`.
+        expect(csUtils.getInfo(doc, new Position(31,  5))!.attrs).toEqual(expectedAttrInfo);
+        expect(csUtils.getInfo(doc, new Position(32, 10))!.attrs).toEqual(expectedAttrInfo);
       });
     });
 
@@ -399,23 +455,23 @@ describe('CodeSnippetUtils', () => {
           linenums=%true%
           path=%foo%
           region=%bar%
-          title=%baz%>
+          header=%baz%>
           </code-example>
 
           {@example foo
           linenums=%true%
           region=%bar%
-          title=%baz%
+          header=%baz%
           }
           ${EOF_MARKER}
           0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                     012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
         `));
         const expectedAttrInfo: ICodeSnippetAttrInfo = {
+          header: 'baz',
           linenums: true,
           path: 'foo',
           region: 'bar',
-          title: 'baz',
         };
 
         expect(csUtils.getInfo(doc, new Position(0, 5))!.attrs).toEqual(expectedAttrInfo);
@@ -435,15 +491,15 @@ describe('CodeSnippetUtils', () => {
 
     it('should support the different type of quotes in attribute values', () => {
       const doc = createTextDocument(`
-        <code-example path="file/pat.h" region="foo'bar" title='baz"qux'></code-example>
-        {@example file/pat.h region="foo'bar" title='baz"qux'}
+        <code-example path="file/pat.h" region="foo'bar" header='baz"qux'></code-example>
+        {@example file/pat.h region="foo'bar" header='baz"qux'}
         ${EOF_MARKER}
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
       const expectedAttrInfo: Partial<ICodeSnippetAttrInfo> = {
+        header: 'baz"qux',
         region: 'foo\'bar',
-        title: 'baz"qux',
       };
 
       expect(csUtils.getInfo(doc, new Position(0,  5))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
@@ -454,19 +510,39 @@ describe('CodeSnippetUtils', () => {
       expect(csUtils.getInfo(doc, new Position(1, 47))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
     });
 
+    it('should give `header` attribute priority over `title`', () => {
+      const doc = createTextDocument(`
+        <code-example path="foo" region="bar" header="baz" title="qux"></code-example>
+        {@example foo region="bar" header="baz" title="qux"}
+        ${EOF_MARKER}
+        0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+      `);
+      const expectedAttrInfo: Partial<ICodeSnippetAttrInfo> = {
+        header: 'baz',
+      };
+
+      expect(csUtils.getInfo(doc, new Position(0,  5))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
+      expect(csUtils.getInfo(doc, new Position(0, 62))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
+      expect(csUtils.getInfo(doc, new Position(0, 69))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
+
+      expect(csUtils.getInfo(doc, new Position(1,  5))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
+      expect(csUtils.getInfo(doc, new Position(1, 44))!.attrs).toEqual(jasmine.objectContaining(expectedAttrInfo));
+    });
+
     it('should not require `linenums` to be specified', () => {
       const doc = createTextDocument(`
-        <code-example path="foo" region="bar" title="baz"></code-example>
-        {@example foo region="bar" title="baz"}
+        <code-example path="foo" region="bar" header="baz"></code-example>
+        {@example foo region="bar" header="baz"}
         ${EOF_MARKER}
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
       const expectedAttrInfo: ICodeSnippetAttrInfo = {
+        header: 'baz',
         linenums: 'auto',
         path: 'foo',
         region: 'bar',
-        title: 'baz',
       };
 
       expect(csUtils.getInfo(doc, new Position(0, 33))!.attrs).toEqual(expectedAttrInfo);
@@ -502,24 +578,24 @@ describe('CodeSnippetUtils', () => {
 
     it('should not require `region` to be specified', () => {
       const doc = createTextDocument(`
-        <code-example linenums="true" path="foo" title="baz"></code-example>
-        {@example linenums="true" foo title="baz"}
+        <code-example linenums="true" path="foo" header="baz"></code-example>
+        {@example linenums="true" foo header="baz"}
         ${EOF_MARKER}
         0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
       const expectedAttrInfo: ICodeSnippetAttrInfo = {
+        header: 'baz',
         linenums: true,
         path: 'foo',
         region: null,
-        title: 'baz',
       };
 
       expect(csUtils.getInfo(doc, new Position(0, 33))!.attrs).toEqual(expectedAttrInfo);
       expect(csUtils.getInfo(doc, new Position(0, 33))!.attrs).toEqual(expectedAttrInfo);
     });
 
-    it('should not require `title` to be specified', () => {
+    it('should not require `header` to be specified', () => {
       const doc = createTextDocument(`
         <code-example linenums="true" path="foo" region="bar"></code-example>
 
@@ -530,10 +606,10 @@ describe('CodeSnippetUtils', () => {
                   012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       `);
       const expectedAttrInfo: ICodeSnippetAttrInfo = {
+        header: null,
         linenums: true,
         path: 'foo',
         region: 'bar',
-        title: null,
       };
 
       expect(csUtils.getInfo(doc, new Position(0, 33))!.attrs).toEqual(expectedAttrInfo);

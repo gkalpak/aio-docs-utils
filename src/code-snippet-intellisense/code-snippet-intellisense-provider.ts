@@ -94,10 +94,10 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
 
       const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
 
-      const titleStr = !csInfo.attrs.title ? '' : `_${csInfo.attrs.title}_\n\n---\n`;
+      const headerStr = !csInfo.attrs.header ? '' : `_${csInfo.attrs.header}_\n\n---\n`;
       const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
 
-      const contents = `${titleStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
+      const contents = `${headerStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
       const range = new Range(csInfo.raw.startPos, csInfo.raw.endPos);
 
       return new Hover(contents, range);

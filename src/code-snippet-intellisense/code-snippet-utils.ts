@@ -11,10 +11,10 @@ export enum CodeSnippetType {
 export type ILinenums = 'auto' | boolean | number;
 
 export interface ICodeSnippetAttrInfo {
+  header: string | null;
   linenums: ILinenums;
   path: string;
   region: string | null;
-  title: string | null;
 }
 
 export interface ICodeSnippetRawInfo<T extends CodeSnippetType = CodeSnippetType> {
@@ -44,6 +44,7 @@ export class CodeSnippetUtils {
   ]);
   private readonly ATTRS = [
     'class',
+    'header',
     'hide-copy',
     'hidecopy',
     'language',
@@ -86,27 +87,29 @@ export class CodeSnippetUtils {
   }
 
   private getAttrInfoHtml(contents: string): ICodeSnippetAttrInfo | null {
-    const [linenumsAttr, path, region, title] = ['linenums', 'path', 'region', 'title']. map(attr => {
-      const re = new RegExp(`\\s${attr}=(["'])((?:(?!\\1).)*)\\1`, 'i');
-      const match = re.exec(contents);
-      return match && match[2];
-    });
+    const [headerAttr, linenumsAttr, path, region, title] = ['header', 'linenums', 'path', 'region', 'title'].
+      map(attr => {
+        const re = new RegExp(`\\s${attr}=(["'])((?:(?!\\1).)*)\\1`, 'i');
+        const match = re.exec(contents);
+        return match && match[2];
+      });
 
+    const header = (headerAttr === null) ? title : headerAttr;
     const linenums = this.normalizeLinenums(linenumsAttr);
 
-    return !path ? null : {linenums, path, region, title};
+    return !path ? null : {header, linenums, path, region};
   }
 
   private getAttrInfoNgdoc(contents: string): ICodeSnippetAttrInfo | null {
     const attrsStr = contents.slice('{@example'.length, -1 * '}'.length);
-    const parsedAttrs = this.parseNgdocAttrs(attrsStr);
+    const {named: namedAttrs, unnamed: unnamedAttrs} = this.parseNgdocAttrs(attrsStr);
 
-    const linenums = this.normalizeLinenums(parsedAttrs.named.linenums || null);
-    const path = parsedAttrs.unnamed[0];
-    const region = parsedAttrs.named.region || parsedAttrs.unnamed[1] || null;
-    const title = parsedAttrs.named.title || parsedAttrs.unnamed.slice(2).join(' ') || null;
+    const header = namedAttrs.header || namedAttrs.title || unnamedAttrs.slice(2).join(' ') || null;
+    const linenums = this.normalizeLinenums(namedAttrs.linenums || null);
+    const path = unnamedAttrs[0];
+    const region = namedAttrs.region || unnamedAttrs[1] || null;
 
-    return !path ? null : {linenums, path, region, title};
+    return !path ? null : {header, linenums, path, region};
   }
 
   private getRawInfo(doc: TextDocument, pos: Position): ICodeSnippetRawInfo | null {
@@ -136,7 +139,7 @@ export class CodeSnippetUtils {
       }
     }
 
-    // Look downwards for the `</code-example>` closing tag.
+    // Look downwards for the code snippet closing tag.
     let closeTag: string | null = null;
     while (lineIdx < doc.lineCount) {
       line = doc.lineAt(lineIdx).text;
