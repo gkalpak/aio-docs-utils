@@ -227,7 +227,7 @@ async function getLatestVersion(): Promise<string> {
     'darwin' : (process.platform === 'win32') ?
     'win32-archive' :
     'linux-x64';
-  const releasesUrl = `https://vscode-update.azurewebsites.net/api/releases/stable/${platformId}`;
+  const releasesUrl = `https://update.code.visualstudio.com/api/releases/stable/${platformId}`;
 
   const response = await httpsGet(releasesUrl);
   const releases = JSON.parse(response);
