@@ -51,10 +51,11 @@ function loadConfig(specDir: string, runner: IJasmineRunner): void {
 }
 
 function setUpReporting(testType: TestType, runner: IJasmineRunner, cb: OnCompleteCb): void {
-  // VSCode monkey-patches the environment that tests are run in, so that `process.stdout.write`
-  // is a no-op. Test runners are expected to use `console.log/info/warn/error` instead :(
+  let pending = '';
+
   if (testType === 'e2e') {
-    let pending = '';
+    // VSCode monkey-patches the environment that tests are run in, so that `process.stdout.write`
+    // is a no-op. Test runners are expected to use `console.log/info/warn/error` instead :(
     runner.configureDefaultReporter({
       print: (input: string | Buffer) => {
         const inputStr = (typeof input === 'string') ? input : input.toString();
@@ -71,6 +72,11 @@ function setUpReporting(testType: TestType, runner: IJasmineRunner, cb: OnComple
   }
 
   runner.onComplete(passed => {
+    if (pending) {
+      console.log(pending);
+      pending = '';
+    }
+
     console.log(passed ?
       green(bold(`${symbols.CHECK_MARK} All tests passed.`)) :
       red(bold(`${symbols.X_MARK} Some tests failed.`)));
