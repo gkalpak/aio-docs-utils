@@ -13,7 +13,7 @@ describe('Logger', () => {
     });
   });
 
-  describe('error()', () => {
+  describe('log()', () => {
     let logSpy: jasmine.Spy;
 
     beforeEach(() => logSpy = spyOn(console, 'log'));

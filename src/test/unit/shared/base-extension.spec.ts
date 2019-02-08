@@ -33,7 +33,7 @@ describe('BaseFeature', () => {
     });
   });
 
-  describe('despose()', () => {
+  describe('dispose()', () => {
     let instance: TestFeature;
 
     beforeEach(() => instance = new TestFeature());
