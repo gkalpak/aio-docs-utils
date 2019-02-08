@@ -16,6 +16,19 @@ export class MockMarkdownString {
   }
 }
 
+export class MockOutputChannel {
+  constructor(public readonly name: string) {
+  }
+
+  public appendLine(value: string): void {
+    return;
+  }
+
+  public dispose(): void {
+    return;
+  }
+}
+
 export class MockPosition {
   constructor(public line: number, public character: number) {
   }
@@ -98,11 +111,16 @@ export const mockVscode = {
     registerHoverProvider: noop,
   },
   window: {
+    createOutputChannel: mockCreateOutputChannel,
     setStatusBarMessage: noop,
   },
 };
 
 // Helpers
+function mockCreateOutputChannel(name: string): MockOutputChannel {
+  return new MockOutputChannel(name);
+}
+
 function noop(): void {
   return;
 }

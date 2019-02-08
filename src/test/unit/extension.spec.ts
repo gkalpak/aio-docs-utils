@@ -32,6 +32,11 @@ describe('extension', () => {
       expect(mockContext.subscriptions).toContain(mockDisposable);
     });
 
+    it('should register `logger` as disposable', () => {
+      activate(mockContext);
+      expect(mockContext.subscriptions).toContain(logger);
+    });
+
     it('should log a message', () => {
       activate(mockContext);
       expect(logSpy).toHaveBeenCalledWith('Activated.');

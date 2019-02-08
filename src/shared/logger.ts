@@ -1,14 +1,29 @@
+import {Disposable, window} from 'vscode';
 // tslint:disable-next-line: no-var-requires
-const {name} = require('../../package.json');
+const {displayName, name} = require('../../package.json');
 
+export class Logger implements Disposable {
+  private channel = window.createOutputChannel(displayName);
 
-export class Logger {
+  public dispose(): void {
+    this.log(`Disposing ${this.constructor.name}...`);
+    this.channel.dispose();
+  }
+
   public error(...args: any[]): void {
-    console.error(`[${name}]`, ...args);
+    const ts = this.getTimestamp();
+    console.error(`${ts} ${name}:`, ...args);
+    this.channel.appendLine(`${ts} ERROR: ${args.join(' ')}`);
   }
 
   public log(...args: any[]): void {
-    console.log(`[${name}]`, ...args);
+    const ts = this.getTimestamp();
+    console.log(`${ts} ${name}:`, ...args);
+    this.channel.appendLine(`${ts} ${args.join(' ')}`);
+  }
+
+  private getTimestamp(): string {
+    return `[${new Date().toISOString()}]`;
   }
 }
 

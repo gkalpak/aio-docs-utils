@@ -15,6 +15,8 @@ export function activate(context: ExtensionContext): void {
   features.forEach(Feature => Feature.activate(context));
   context.subscriptions.push(window.setStatusBarMessage(`${displayName} activated.`, 5000));
 
+  context.subscriptions.push(logger);
+
   logger.log('Activated.');
 }
 
