@@ -25,7 +25,7 @@ The extension provides features that are useful for viewing and authoring code s
 
 #### Show code snippets on hover
 
-Hovering over `<code-example>` or `{@example}` tags shows the extracted code snippets, including their header and line numbering.
+Hovering over `<code-example>`, `<code-pane>` or `{@example}` tags shows the extracted code snippets, including their header and line numbering.
 
 <sub>
 
@@ -38,7 +38,7 @@ _**Note**: Both `header` and `title` attributes are recognized for backwards com
 
 #### Peek/Go to code snippet definition
 
-Right-clicking on `<code-example>` or `{@example}` tags shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
+Right-clicking on `<code-example>`, `<code-pane>` or `{@example}` tags shows context menu options for peeking the definition (source code regions) and navigating to the definition (source code file) of the code snippet.
 
 ![Code snippet definition](img/definition.gif)
 
@@ -48,7 +48,7 @@ If the code snippet consists of multiple docregions, all regions are highlighted
 
 #### Autocomplete suggestions for docregions
 
-When creating `<code-example>` or `{@example}` tags, autocomplete suggestions are shown for the `region` attribute.
+When creating `<code-example>`, `<code-pane>` or `{@example}` tags, autocomplete suggestions are shown for the `region` attribute.
 
 ![Docregion autocomplete suggestions](img/autocomplete.gif)
 
@@ -110,6 +110,11 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
+- Improve previews of `aio/content/**/*.md` files (e.g. guides):
+  - Show local images (map `generated/...` to `aio/src/generated/...`).
+  - Show simple code snippets based on `<code-example>` or `{@example}` tags.
+  - Show tabbed code snippets (how?) based on `<code-tabs>`/`<code-pane>` tags.
+  (References: https://code.visualstudio.com/api/extension-guides/markdown-extension)
 - Add e2e tests.
 - Add tests for `src/test/helpers/e2e-runner.ts`.
 - Consider using `webpack` for start-up time (and overall perf?) improvement.
