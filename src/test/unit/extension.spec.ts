@@ -1,6 +1,7 @@
 import {Disposable, ExtensionContext, window} from 'vscode';
 import {CodeSnippetIntellisenseFeature} from '../../code-snippet-intellisense';
 import {activate, deactivate} from '../../extension';
+import {extendMarkdownIt} from '../../markdown-it-plugins';
 import {BaseFeature} from '../../shared/base-feature';
 import {logger} from '../../shared/logger';
 
@@ -40,6 +41,10 @@ describe('extension', () => {
     it('should log a message', () => {
       activate(mockContext);
       expect(logSpy).toHaveBeenCalledWith('Activated.');
+    });
+
+    it('should extend markdown-it', () => {
+      expect(activate(mockContext)).toEqual({extendMarkdownIt});
     });
   });
 

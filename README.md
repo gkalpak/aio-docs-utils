@@ -60,6 +60,14 @@ _**Note**: Autocomplete suggestions are triggered by the characters `=` (after `
   </sub></sub>
 </p>
 
+### Markdown preview enhancement
+
+The extension enhances the generated previews of documentation Markdown files (mainly guides in the `aio/content/` directory and its sub-directories).
+
+#### Fix URLs to local images
+
+Due to how the [angular.io](https://angular.io/) build system works, the local images references in guides will be served from a `generated/images/` directory in production. During development, images are (usually) located in the `aio/src/generated/images/` directory. The extension fixes the URLs of such images in Markdown previews, so that they point to the correct image files on disk and thus correctly show up in the preview.
+
 ## Releases
 
 See [here](https://github.com/gkalpak/aio-docs-utils/releases) for a list of releases.<br />
@@ -110,11 +118,8 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Improve previews of `aio/content/**/*.md` files (e.g. guides):
-  - Show local images (map `generated/...` to `aio/src/generated/...`).
-  - Show simple code snippets based on `<code-example>` or `{@example}` tags.
-  - Show tabbed code snippets (how?) based on `<code-tabs>`/`<code-pane>` tags.
-  (References: https://code.visualstudio.com/api/extension-guides/markdown-extension)
+- Use `workspace.workspaceFolders` and `workspace.onDidChangeWorkspaceFolders()` to disable the
+  providers when not inside `angular/` (e.g. `aio/` does not exist?).
 - Add e2e tests.
 - Add tests for `src/test/helpers/e2e-runner.ts`.
 - Consider using `webpack` for start-up time (and overall perf?) improvement.

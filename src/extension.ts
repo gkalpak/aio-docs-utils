@@ -1,12 +1,13 @@
 import {ExtensionContext, window} from 'vscode';
 import {CodeSnippetIntellisenseFeature} from './code-snippet-intellisense';
+import {extendMarkdownIt} from './markdown-it-plugins';
 import {logger} from './shared/logger';
 
 
 // tslint:disable-next-line: no-var-requires
 const {displayName} = require('../package.json');
 
-export function activate(context: ExtensionContext): void {
+export function activate(context: ExtensionContext): {extendMarkdownIt: typeof extendMarkdownIt} {
   const features = [
     CodeSnippetIntellisenseFeature,
   ];
@@ -18,6 +19,8 @@ export function activate(context: ExtensionContext): void {
   context.subscriptions.push(logger);
 
   logger.log('Activated.');
+
+  return {extendMarkdownIt};
 }
 
 export function deactivate(): void {
