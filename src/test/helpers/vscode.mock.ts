@@ -1,6 +1,15 @@
 // tslint:disable: max-classes-per-file
 
+// Variables
+export const workspaceOnDidChangeWorkspaceFoldersListeners: Array<() => any> = [];
+
 // Classes
+export class MockDisposable {
+  public dispose(): void {
+    return;
+  }
+}
+
 export class MockHover {
   constructor(public readonly contents: string, public readonly range: MockRange) {
   }
@@ -97,6 +106,14 @@ export class MockUri {
   }
 }
 
+export class MockWorkspaceFolder {
+  public readonly uri: MockUri;
+
+  constructor(path: string) {
+    this.uri = MockUri.file(path);
+  }
+}
+
 // Exports
 export const mockVscode = {
   Hover: MockHover,
@@ -105,6 +122,8 @@ export const mockVscode = {
   Position: MockPosition,
   Range: MockRange,
   Uri: MockUri,
+  WorkspaceFolder: MockWorkspaceFolder,
+
   languages: {
     registerCompletionItemProvider: noop,
     registerDefinitionProvider: noop,
@@ -114,11 +133,19 @@ export const mockVscode = {
     createOutputChannel: mockCreateOutputChannel,
     setStatusBarMessage: noop,
   },
+  workspace: {
+    onDidChangeWorkspaceFolders: mockOnDidChangeWorkspaceFolders,
+  },
 };
 
 // Helpers
 function mockCreateOutputChannel(name: string): MockOutputChannel {
   return new MockOutputChannel(name);
+}
+
+function mockOnDidChangeWorkspaceFolders(listener: () => any): MockDisposable {
+  workspaceOnDidChangeWorkspaceFoldersListeners.push(listener);
+  return new MockDisposable();
 }
 
 function noop(): void {
