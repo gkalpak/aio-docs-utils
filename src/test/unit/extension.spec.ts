@@ -17,6 +17,11 @@ describe('extension', () => {
 
     beforeEach(() => activateSpy = spyOn(BaseFeature, 'activate'));
 
+    it('should register `logger` as disposable', () => {
+      activate(mockContext);
+      expect(mockContext.subscriptions).toContain(logger);
+    });
+
     it('should activate `CodeSnippetIntellisenseFeature`', () => {
       activate(mockContext);
       expect(activateSpy).toHaveBeenCalledWith(mockContext);
@@ -31,11 +36,6 @@ describe('extension', () => {
 
       expect(setStatusBarMessageSpy).toHaveBeenCalledWith('Angular.io Documentation Utilities activated.', 5000);
       expect(mockContext.subscriptions).toContain(mockDisposable);
-    });
-
-    it('should register `logger` as disposable', () => {
-      activate(mockContext);
-      expect(mockContext.subscriptions).toContain(logger);
     });
 
     it('should log a message', () => {

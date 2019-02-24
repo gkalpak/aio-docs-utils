@@ -6,17 +6,16 @@ import {logger} from './shared/logger';
 
 // tslint:disable-next-line: no-var-requires
 const {displayName} = require('../package.json');
+const features = [
+  CodeSnippetIntellisenseFeature,
+];
 
 export function activate(context: ExtensionContext): {extendMarkdownIt: typeof extendMarkdownIt} {
-  const features = [
-    CodeSnippetIntellisenseFeature,
-  ];
+  context.subscriptions.push(logger);
 
   // tslint:disable-next-line: variable-name
   features.forEach(Feature => Feature.activate(context));
   context.subscriptions.push(window.setStatusBarMessage(`${displayName} activated.`, 5000));
-
-  context.subscriptions.push(logger);
 
   logger.log('Activated.');
 
