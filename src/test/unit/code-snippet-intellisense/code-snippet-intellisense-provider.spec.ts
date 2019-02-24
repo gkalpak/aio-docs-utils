@@ -53,8 +53,8 @@ describe('CodeSnippetIntellisenseProvider', () => {
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
 
       deExtractSpy = jasmine.createSpy('extract').and.returnValue(null);
-      getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').
-        and.returnValue(Promise.resolve({extract: deExtractSpy}));
+      getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').and.
+        returnValue(Promise.resolve({extract: deExtractSpy}));
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
@@ -124,8 +124,8 @@ describe('CodeSnippetIntellisenseProvider', () => {
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
 
       deGetAvailableNamesSpy = jasmine.createSpy('getAvailableNames').and.returnValue([]);
-      getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').
-        and.returnValue(Promise.resolve({getAvailableNames: deGetAvailableNamesSpy}));
+      getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').and.
+        returnValue(Promise.resolve({getAvailableNames: deGetAvailableNamesSpy}));
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
