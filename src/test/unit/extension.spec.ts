@@ -4,6 +4,7 @@ import {activate, deactivate} from '../../extension';
 import {extendMarkdownIt} from '../../markdown-it-plugins';
 import {BaseFeature} from '../../shared/base-feature';
 import {logger} from '../../shared/logger';
+import {isNgProjectWatcher} from '../../shared/workspace-folder-watcher';
 
 
 describe('extension', () => {
@@ -20,6 +21,11 @@ describe('extension', () => {
     it('should register `logger` as disposable', () => {
       activate(mockContext);
       expect(mockContext.subscriptions).toContain(logger);
+    });
+
+    it('should register `isNgProjectWatcher` as disposable', () => {
+      activate(mockContext);
+      expect(mockContext.subscriptions).toContain(isNgProjectWatcher);
     });
 
     it('should activate `CodeSnippetIntellisenseFeature`', () => {

@@ -11,6 +11,7 @@ import {
 import {DocregionExtractor, IDocregionInfo} from '../../../code-snippet-intellisense/docregion-extractor';
 import {logger} from '../../../shared/logger';
 import * as utils from '../../../shared/utils';
+import {isNgProjectWatcher} from '../../../shared/workspace-folder-watcher';
 import {stripIndentation} from '../../helpers/string-utils';
 import {reversePromise} from '../../helpers/test-utils';
 import {MockLocation, MockRange, MockTextDocument, MockTextLine} from '../../helpers/vscode.mock';
@@ -19,10 +20,12 @@ import {MockLocation, MockRange, MockTextDocument, MockTextLine} from '../../hel
 describe('CodeSnippetIntellisenseProvider', () => {
   let csip: TestCodeSnippetIntellisenseProvider;
   let logSpy: jasmine.Spy;
+  let matchesGetSpy: jasmine.Spy;
 
   beforeEach(() => {
     csip = new TestCodeSnippetIntellisenseProvider();
     logSpy = spyOn(logger, 'log');
+    matchesGetSpy = spyOnProperty(isNgProjectWatcher, 'matches').and.returnValue(true);
   });
 
   describe('extractPathPrefixRe', () => {
@@ -430,6 +433,15 @@ describe('CodeSnippetIntellisenseProvider', () => {
       extractDocregionNamesSpy = spyOn(csip, 'extractDocregionNames').and.returnValue(Promise.resolve([]));
     });
 
+    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+      const mockDoc = {} as TextDocument;
+      const mockPos = {} as Position;
+      matchesGetSpy.and.returnValue(false);
+
+      expect(provideCompletionItems(mockDoc, mockPos)).toBeNull();
+      expect(isInRegionAttributeSpy).not.toHaveBeenCalled();
+    });
+
     it('should return `null` if not inside a docregion attribute', () => {
       const mockDoc = {} as TextDocument;
       const mockPos = {} as Position;
@@ -437,6 +449,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
       expect(provideCompletionItems(mockDoc, mockPos)).toBeNull();
       expect(isInRegionAttributeSpy).toHaveBeenCalledWith(mockDoc, mockPos);
+      expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
     });
 
     it('should get the code snippet info', async () => {
@@ -592,6 +605,13 @@ describe('CodeSnippetIntellisenseProvider', () => {
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
     });
 
+    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+      matchesGetSpy.and.returnValue(false);
+
+      expect(provideDefinition()).toBeNull();
+      expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
+    });
+
     it('should get the code snippet info', async () => {
       const mockDoc = {} as TextDocument;
       const mockPos = {} as Position;
@@ -658,6 +678,13 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
+    });
+
+    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+      matchesGetSpy.and.returnValue(false);
+
+      expect(provideHover()).toBeNull();
+      expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
     });
 
     it('should get the code snippet info', async () => {

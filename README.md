@@ -118,8 +118,40 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Use `workspace.workspaceFolders` and `workspace.onDidChangeWorkspaceFolders()` to disable the
-  providers when not inside `angular/` (e.g. `aio/` does not exist?).
+- Investigate/Add ability to preview app in `WebView > iframe`. E.g.:
+  ```ts
+  const panel = window.createWebviewPanel('foo', 'Hello, world!', ViewColumn.Active, {
+    enableScripts: true,
+    retainContextWhenHidden: true,
+  });
+  panel.webview.html = `
+    <!DOCTYPE html>
+    <html>
+
+      <head>
+        <style>
+          html, body {
+            margin: 0;
+            overflow: hidden;
+            padding: 0;
+          }
+
+          iframe {
+            border: none;
+            height: 100vh;
+            width: 100vw;
+          }
+        </style>
+      </head>
+
+      <body>
+        <iframe src="http://localhost:4200/"></iframe>
+      </body>
+
+    </html>
+  `;
+  ```
+  (References: https://code.visualstudio.com/api/extension-guides/webview)
 - Add e2e tests.
 - Add tests for `src/test/helpers/e2e-runner.ts`.
 - Consider using `webpack` for start-up time (and overall perf?) improvement.

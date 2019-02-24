@@ -102,7 +102,13 @@ export class MockUri {
     return new MockUri(path);
   }
 
+  public readonly fsPath = `fs:${this.path}`;
+
   private constructor(public readonly path: string) {
+  }
+
+  public with(change: {path: string}): MockUri {
+    return new MockUri(change.path);
   }
 }
 

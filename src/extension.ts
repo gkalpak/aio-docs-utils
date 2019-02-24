@@ -2,6 +2,7 @@ import {ExtensionContext, window} from 'vscode';
 import {CodeSnippetIntellisenseFeature} from './code-snippet-intellisense';
 import {extendMarkdownIt} from './markdown-it-plugins';
 import {logger} from './shared/logger';
+import {isNgProjectWatcher} from './shared/workspace-folder-watcher';
 
 
 // tslint:disable-next-line: no-var-requires
@@ -12,6 +13,7 @@ const features = [
 
 export function activate(context: ExtensionContext): {extendMarkdownIt: typeof extendMarkdownIt} {
   context.subscriptions.push(logger);
+  context.subscriptions.push(isNgProjectWatcher);
 
   // tslint:disable-next-line: variable-name
   features.forEach(Feature => Feature.activate(context));

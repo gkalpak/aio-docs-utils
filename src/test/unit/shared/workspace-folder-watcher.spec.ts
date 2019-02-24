@@ -1,6 +1,7 @@
-import {workspace} from 'vscode';
+import * as fs from 'fs';
+import {workspace, WorkspaceFolder} from 'vscode';
 import {logger} from '../../../shared/logger';
-import {WorkspaceFolderWatcher} from '../../../shared/workspace-folder-watcher';
+import {isNgProjectWatcher, WorkspaceFolderWatcher} from '../../../shared/workspace-folder-watcher';
 import {
   MockDisposable,
   MockWorkspaceFolder,
@@ -14,7 +15,7 @@ describe('WorkspaceFolderWatcher', () => {
   let isOfInterestSpy: jasmine.Spy;
 
   beforeEach(() => {
-    workspace.workspaceFolders = [new MockWorkspaceFolder('/foo/bar') as any];
+    workspace.workspaceFolders = [mockWsFolder('/foo/bar')];
     workspaceOnDidChangeWorkspaceFoldersListeners.length = 0;
 
     logSpy = spyOn(logger, 'log');
@@ -111,3 +112,162 @@ describe('WorkspaceFolderWatcher', () => {
     }
   }
 });
+
+describe('isNgProjectWatcher', () => {
+  // Grab the registered listener, before other tests clean up the list (e.g. in a `beforeEach()` block).
+  const onDidChangeWorkspaceFoldersListener = workspaceOnDidChangeWorkspaceFoldersListeners[0];
+  let existsSyncSpy: jasmine.Spy;
+  let readFileSyncSpy: jasmine.Spy;
+  let statSyncSpy: jasmine.Spy;
+
+  // Helpers
+  const mockStat = (isDirectory = false, isFile = false) => ({isDirectory: () => isDirectory, isFile: () => isFile});
+  const resetMatchingFolder = (baseDir: string) => {
+    setUpMatchingFolder(baseDir);
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(true);
+
+    existsSyncSpy.calls.reset();
+    statSyncSpy.calls.reset();
+    readFileSyncSpy.calls.reset();
+  };
+  const setUpMatchingFolder = (baseDir: string) => {
+    existsSyncSpy.and.callFake((path: string) =>
+      (path === `fs:${baseDir}/aio/content`) ||
+      (path === `fs:${baseDir}/packages`) ||
+      (path === `fs:${baseDir}/package.json`));
+
+    statSyncSpy.and.callFake((path: string) => {
+      switch (path) {
+        case `fs:${baseDir}/aio/content`:
+        case `fs:${baseDir}/packages`:
+          return mockStat(true);
+        case `fs:${baseDir}/package.json`:
+          return mockStat(false, true);
+        default:
+          return mockStat();
+      }
+    });
+
+    readFileSyncSpy.and.callFake((path: string, encoding?: string) =>
+      ((path === `fs:${baseDir}/package.json`) && (encoding === 'utf8')) ? '{"name":"angular-srcs"}' : '');
+  };
+
+  beforeEach(() => {
+    existsSyncSpy = spyOn(fs, 'existsSync');
+    readFileSyncSpy = spyOn(fs, 'readFileSync');
+    statSyncSpy = spyOn(fs, 'statSync');
+
+    spyOn(logger, 'log');
+
+    workspace.workspaceFolders = [mockWsFolder('/foo/bar')];
+    resetMatchingFolder('/foo/bar');
+  });
+
+  it('should be a `WorkspaceFolderWatcher` instance (with an appropriate ID)', () => {
+    expect(isNgProjectWatcher).toEqual(jasmine.any(WorkspaceFolderWatcher));
+    expect(isNgProjectWatcher.toString()).toBe('WorkspaceFolderWatcher(isAngularProject)');
+  });
+
+  it('should have `matches: true` if the workspace folder matches criteria', () => {
+    expect(isNgProjectWatcher.matches).toBe(true);
+  });
+
+  it('should have `matches: false` if none of the workspace folders matches criteria', () => {
+    workspace.workspaceFolders = [mockWsFolder('/baz'), mockWsFolder('/qux')];
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+  });
+
+  it('should have `matches: true` if any of the workspace folders matches criteria', () => {
+    workspace.workspaceFolders = [mockWsFolder('/bax/qux'), mockWsFolder('/foo/bar')];
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(true);
+  });
+
+  it('should have `matches: false` if any of the "landmark" files is missing', () => {
+    // Missing `/foo/bar/aio/content`.
+    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/aio/content');
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
+      'fs:/foo/bar/aio/content',
+    ]);
+
+    resetMatchingFolder('/foo/bar');
+
+    // Missing `/foo/bar/packages`.
+    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/packages');
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
+      'fs:/foo/bar/aio/content',
+      'fs:/foo/bar/packages',
+    ]);
+
+    resetMatchingFolder('/foo/bar');
+
+    // Missing `/foo/bar/package.json`.
+    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/package.json');
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
+      'fs:/foo/bar/aio/content',
+      'fs:/foo/bar/packages',
+      'fs:/foo/bar/package.json',
+    ]);
+  });
+
+  it('should have `matches: false` if any of the "landmark" files is of wrong type', () => {
+    const defStat = mockStat(true, true);
+
+    // `/foo/bar/aio/content` is not a directory.
+    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/aio/content') ? mockStat(false, true) : defStat);
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(statSyncSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSyncSpy).not.toHaveBeenCalled();
+
+    resetMatchingFolder('/foo/bar');
+
+    // `/foo/bar/packages` is not a directory.
+    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/packages') ? mockStat(false, true) : defStat);
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(statSyncSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSyncSpy).not.toHaveBeenCalled();
+
+    resetMatchingFolder('/foo/bar');
+
+    // `/foo/bar/package.json` is not a file.
+    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/package.json') ? mockStat(true) : defStat);
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(statSyncSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSyncSpy).not.toHaveBeenCalled();
+  });
+
+  it('should have `matches: false` if the project has the wrong name', () => {
+    readFileSyncSpy.and.callFake((path: string) =>
+      `{"name":"${(path === 'fs:/foo/bar/package.json') ? 'not-' : ''}angular-srcs"}`);
+
+    onDidChangeWorkspaceFoldersListener();
+
+    expect(isNgProjectWatcher.matches).toBe(false);
+    expect(readFileSyncSpy).toHaveBeenCalledWith('fs:/foo/bar/package.json', 'utf8');
+  });
+});
+
+// Helpers
+function mockWsFolder(path: string): WorkspaceFolder {
+  return new MockWorkspaceFolder(path) as any;
+}

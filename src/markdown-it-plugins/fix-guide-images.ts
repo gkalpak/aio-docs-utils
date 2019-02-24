@@ -1,5 +1,6 @@
 import * as MarkdownIt from 'markdown-it';
 import {logger} from '../shared/logger';
+import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 
 
 export const IMG_URL_PREFIX = '../../src/';
@@ -20,8 +21,10 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
     const originalRender = rendererRules[ruleName] || fallbackRender;
 
     rendererRules[ruleName] = (tokens, idx, options, env, self) => {
-      const token = tokens[idx];
-      token.content = token.content.replace(imgReHtml, imgReplacer);
+      if (isNgProjectWatcher.matches) {
+        const token = tokens[idx];
+        token.content = token.content.replace(imgReHtml, imgReplacer);
+      }
 
       return originalRender(tokens, idx, options, env, self);
     };
@@ -31,11 +34,13 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
   const originalImageRender = rendererRules.image || fallbackRender;
 
   rendererRules.image = (tokens, idx, options, env, self) => {
-    const token = tokens[idx];
-    const srcAttr = token.attrs[token.attrIndex('src')];
+    if (isNgProjectWatcher.matches) {
+      const token = tokens[idx];
+      const srcAttr = token.attrs[token.attrIndex('src')];
 
-    if (srcAttr) {
-      srcAttr[1] = srcAttr[1].replace(imgReMd, imgReplacer);
+      if (srcAttr) {
+        srcAttr[1] = srcAttr[1].replace(imgReMd, imgReplacer);
+      }
     }
 
     return originalImageRender(tokens, idx, options, env, self);

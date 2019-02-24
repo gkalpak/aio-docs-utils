@@ -1,6 +1,7 @@
 import * as MarkdownIt from 'markdown-it';
 import {fixGuideImagesPlugin, IMG_URL_PREFIX} from '../../../markdown-it-plugins/fix-guide-images';
 import {logger} from '../../../shared/logger';
+import {isNgProjectWatcher} from '../../../shared/workspace-folder-watcher';
 import {stripIndentation} from '../../helpers/string-utils';
 
 
@@ -19,10 +20,12 @@ describe('fixGuideImagesPlugin()', () => {
   ];
   let md: MarkdownIt;
   let logSpy: jasmine.Spy;
+  let matchesGetSpy: jasmine.Spy;
 
   beforeEach(() => {
     md = new MarkdownIt({html: true}).use(fixGuideImagesPlugin);
     logSpy = spyOn(logger, 'log');
+    matchesGetSpy = spyOnProperty(isNgProjectWatcher, 'matches').and.returnValue(true);
   });
 
   markdownImageGenerators.forEach(imgMdGenerator => {
@@ -113,6 +116,17 @@ describe('fixGuideImagesPlugin()', () => {
         [`Rewriting image URL in Markdown preview: ${url}.1 --> ${IMG_URL_PREFIX}${url}.1`],
         [`Rewriting image URL in Markdown preview: ${url}.2 --> ${IMG_URL_PREFIX}${url}.2`],
       ]);
+    });
+
+    it('should not rewrite image URLs if `isNgProjectWatcher.matches` is false', () => {
+      matchesGetSpy.and.returnValue(false);
+
+      const url = 'generated/images/foo/bar.png';
+      const input = mdGenerator(url);
+      const output = md.render(input);
+
+      expect(output).toMatch(imgMatcher(url));
+      expect(output).not.toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}`));
     });
   }
 });

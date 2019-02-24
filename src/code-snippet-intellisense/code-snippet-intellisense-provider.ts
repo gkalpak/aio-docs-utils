@@ -6,6 +6,7 @@ import {
 } from 'vscode';
 import {logger} from '../shared/logger';
 import {padStart, readFile, unlessCancelledFactory} from '../shared/utils';
+import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 import {codeSnippetUtils, ICodeSnippetInfo} from './code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
 
@@ -19,6 +20,8 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
   public static readonly COMPLETION_TRIGGER_CHARACTERS = ['=', '"', '\''];
   private readonly csInfoPerCompletionList = new WeakMap<CompletionItem, ICodeSnippetInfoWithFilePath>();
 
+  private get disabled() { return !isNgProjectWatcher.matches; }
+
   constructor(public readonly extractPathPrefixRe: RegExp) {
   }
 
@@ -28,7 +31,7 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
       token: CancellationToken,
       ctx: CompletionContext,
   ): ProviderResult<CompletionItem[]> {
-    if (!this.isInRegionAttribute(doc, pos)) {
+    if (this.disabled || !this.isInRegionAttribute(doc, pos)) {
       return null;
     }
 
@@ -66,6 +69,10 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
   }
 
   public provideDefinition(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Definition> {
+    if (this.disabled) {
+      return null;
+    }
+
     const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing definition');
     if (!csInfo) {
       return null;
@@ -82,6 +89,10 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
   }
 
   public provideHover(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Hover> {
+    if (this.disabled) {
+      return null;
+    }
+
     const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing hover');
     if (!csInfo) {
       return null;
