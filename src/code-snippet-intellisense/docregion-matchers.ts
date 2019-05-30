@@ -88,6 +88,7 @@ export const getDocregionMatcher = (fileType: string): IDocregionMatcher => {
 
     case 'sh':
     case 'yaml':
+    case 'yml':
       return docregionMatchers.hashComment;
 
     case 'jade':

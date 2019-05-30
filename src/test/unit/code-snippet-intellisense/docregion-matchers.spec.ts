@@ -474,6 +474,9 @@ describe('getDocregionMatchers()', () => {
   it('should return `hashComment` matcher for YAML files', () => {
     expect(getDocregionMatcher('yaml')).toBe(docregionMatchers.hashComment);
     expect(getDocregionMatcher('YAML')).toBe(docregionMatchers.hashComment);
+
+    expect(getDocregionMatcher('yml')).toBe(docregionMatchers.hashComment);
+    expect(getDocregionMatcher('YML')).toBe(docregionMatchers.hashComment);
   });
 
   it('should return `inlineComment` matcher for JADE files', () => {
