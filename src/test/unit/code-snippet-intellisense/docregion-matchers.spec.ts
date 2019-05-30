@@ -461,11 +461,6 @@ describe('getDocregionMatchers()', () => {
     expect(getDocregionMatcher('CSS')).toBe(docregionMatchers.blockComment);
   });
 
-  it('should return `htmlComment` matcher for HTML files', () => {
-    expect(getDocregionMatcher('html')).toBe(docregionMatchers.htmlComment);
-    expect(getDocregionMatcher('HTML')).toBe(docregionMatchers.htmlComment);
-  });
-
   it('should return `hashComment` matcher for SH files', () => {
     expect(getDocregionMatcher('sh')).toBe(docregionMatchers.hashComment);
     expect(getDocregionMatcher('SH')).toBe(docregionMatchers.hashComment);
@@ -477,6 +472,16 @@ describe('getDocregionMatchers()', () => {
 
     expect(getDocregionMatcher('yml')).toBe(docregionMatchers.hashComment);
     expect(getDocregionMatcher('YML')).toBe(docregionMatchers.hashComment);
+  });
+
+  it('should return `htmlComment` matcher for HTML files', () => {
+    expect(getDocregionMatcher('html')).toBe(docregionMatchers.htmlComment);
+    expect(getDocregionMatcher('HTML')).toBe(docregionMatchers.htmlComment);
+  });
+
+  it('should return `htmlComment` matcher for SVG files', () => {
+    expect(getDocregionMatcher('svg')).toBe(docregionMatchers.htmlComment);
+    expect(getDocregionMatcher('SVG')).toBe(docregionMatchers.htmlComment);
   });
 
   it('should return `inlineComment` matcher for JADE files', () => {

@@ -58,7 +58,7 @@ class HashCommentDocregionMatcher implements IDocregionMatcher {
 
 /**
  * Used in languages that support HTML-like comments only.
- * E.g.: HTML
+ * E.g.: HTML, SVG
  */
 class HtmlCommentDocregionMatcher implements IDocregionMatcher {
   public readonly regionStartRe = /^\s*<!--\s*#docregion\s*([^>]*?)\s*(?:-->\s*)?$/;
@@ -83,13 +83,14 @@ export const getDocregionMatcher = (fileType: string): IDocregionMatcher => {
     case 'css':
       return docregionMatchers.blockComment;
 
-    case 'html':
-      return docregionMatchers.htmlComment;
-
     case 'sh':
     case 'yaml':
     case 'yml':
       return docregionMatchers.hashComment;
+
+    case 'html':
+    case 'svg':
+      return docregionMatchers.htmlComment;
 
     case 'jade':
     case 'pug':
