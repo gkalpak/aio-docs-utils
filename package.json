@@ -15,7 +15,7 @@
     "build": "npm run ~~build",
     "prebuild-watch": "npm run prebuild",
     "build-watch": "npm run ~~build-watch",
-    "clean-out": "node --eval \"require('shelljs').rm('-rf', 'out/');\"",
+    "clean-out": "node --eval \"require('shelljs/global'); set('-e'); rm('-rf', 'out/');\"",
     "predev": "npm run build || true",
     "dev": "run-p ~~build-watch ~~test-unit-watch",
     "postinstall": "node node_modules/vscode/bin/install",
