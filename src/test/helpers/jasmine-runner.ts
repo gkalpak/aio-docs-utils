@@ -18,17 +18,20 @@ if (require.main === module) {
 
 // Helpers
 function _main(): void {
-  const mock = require('mock-require');
   const {resolve} = require('path');
-  const {mockVscode} = require('./vscode.mock');
-
-  // `vscode` APIs are only provided when running tests through VSCode.
-  // For "standalone" unit tests, we need to mock them.
-  mock('vscode', mockVscode);
-  runUnit(resolve(__dirname, '..'));
+  runUnit(resolve(`${__dirname}/..`));
 }
 
 function runTests(testType: TestType, testDir: string): Promise<boolean> {
+  // `vscode` APIs are only provided when running tests through VSCode (i.e. e2e tests).
+  // For "standalone" unit tests, we need to mock them.
+  if (testType === 'unit') {
+    const mock = require('mock-require');
+    const {mockVscode} = require('./vscode.mock');
+
+    mock('vscode', mockVscode);
+  }
+
   return new Promise(resolve => {
     const runner = new Jasmine({projectBaseDir: testDir});
 
