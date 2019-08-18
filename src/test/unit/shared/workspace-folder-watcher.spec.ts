@@ -15,7 +15,7 @@ describe('WorkspaceFolderWatcher', () => {
   let isOfInterestSpy: jasmine.Spy;
 
   beforeEach(() => {
-    workspace.workspaceFolders = [mockWsFolder('/foo/bar')];
+    setMockWsFolders(['/foo/bar']);
     workspaceOnDidChangeWorkspaceFoldersListeners.length = 0;
 
     logSpy = spyOn(logger, 'log');
@@ -86,11 +86,11 @@ describe('WorkspaceFolderWatcher', () => {
 
       expect(watcher.matches).toBe(true);
 
-      workspace.workspaceFolders = undefined;
+      setMockWsFolders(undefined);
       watcher.updateMatches();
       expect(watcher.matches).toBe(false);
 
-      workspace.workspaceFolders = [];
+      setMockWsFolders([]);
       watcher.updateMatches();
       expect(watcher.matches).toBe(false);
 
@@ -161,7 +161,7 @@ describe('isNgProjectWatcher', () => {
 
     spyOn(logger, 'log');
 
-    workspace.workspaceFolders = [mockWsFolder('/foo/bar')];
+    setMockWsFolders(['/foo/bar']);
     resetMatchingFolder('/foo/bar');
   });
 
@@ -175,14 +175,14 @@ describe('isNgProjectWatcher', () => {
   });
 
   it('should have `matches: false` if none of the workspace folders matches criteria', () => {
-    workspace.workspaceFolders = [mockWsFolder('/baz'), mockWsFolder('/qux')];
+    setMockWsFolders(['/baz', '/qux']);
     onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
   });
 
   it('should have `matches: true` if any of the workspace folders matches criteria', () => {
-    workspace.workspaceFolders = [mockWsFolder('/bax/qux'), mockWsFolder('/foo/bar')];
+    setMockWsFolders(['/bax/qux', '/foo/bar']);
     onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(true);
@@ -268,6 +268,7 @@ describe('isNgProjectWatcher', () => {
 });
 
 // Helpers
-function mockWsFolder(path: string): WorkspaceFolder {
-  return new MockWorkspaceFolder(path) as any;
+function setMockWsFolders(paths: string[] | undefined): void {
+  (workspace.workspaceFolders as any) = paths && paths.map(path =>
+    new MockWorkspaceFolder(path) as unknown as WorkspaceFolder);
 }

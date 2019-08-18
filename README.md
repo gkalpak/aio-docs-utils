@@ -124,6 +124,11 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
+- Add e2e tests.
+- Consider using `webpack` for start-up time (and overall perf?) improvement.
+  (References: https://medium.com/@fabiospampinato/why-i-wrote-33-vscode-extensions-and-how-i-manage-them-cb61df05e154, https://code.visualstudio.com/updates/v1_29#_bundling-extensions)
+- Investigate switching from AppVeyor to Travis for testing on Windows (once https://travis-ci.community/t/windows-instances-hanging-before-install/250 has been resolved).
+- Alternatively, investigate switching from AppVeyor/Travis to CircleCI for testing on all platforms.
 - Investigate/Add ability to preview app in `WebView > iframe`. E.g.:
   ```ts
   const panel = window.createWebviewPanel('foo', 'Hello, world!', ViewColumn.Active, {
@@ -158,9 +163,4 @@ Things I want to (but won't necessarily) do:
   `;
   ```
   (References: https://code.visualstudio.com/api/extension-guides/webview)
-- Add e2e tests.
-- Add tests for `src/test/helpers/e2e-runner.ts`.
-- Consider using `webpack` for start-up time (and overall perf?) improvement.
-  (References: https://medium.com/@fabiospampinato/why-i-wrote-33-vscode-extensions-and-how-i-manage-them-cb61df05e154, https://code.visualstudio.com/updates/v1_29#_bundling-extensions)
-- Investigate switching from AppVeyor to Travis for testing on Windows (once https://travis-ci.community/t/windows-instances-hanging-before-install/250 has been resolved).
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.

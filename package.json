@@ -18,14 +18,13 @@
     "clean-out": "node --eval \"require('shelljs/global'); set('-e'); rm('-rf', 'out/');\"",
     "predev": "npm run build || true",
     "dev": "run-p ~~build-watch ~~test-unit-watch",
-    "postinstall": "node node_modules/vscode/bin/install",
     "lint": "tslint --project tsconfig.json",
     "prerelease": "npm test",
     "release": "gkcu-run \"npm version \\${*:patch}\"",
     "pretest": "npm run build",
     "test": "run-s lint ~~test-unit ~~test-e2e",
     "pretest-all-versions": "npm run pretest",
-    "test-all-versions": "run-s lint ~~test-unit \"~~test-e2e earliest\" \"~~test-e2e latest\"",
+    "test-all-versions": "run-s lint ~~test-unit \"~~test-e2e min-supported\" \"~~test-e2e stable\"",
     "pretest-e2e": "npm run build",
     "test-e2e": "npm run ~~test-e2e",
     "pretest-unit": "npm run build",
@@ -36,13 +35,12 @@
     "vscode:prepublish": "npm run build",
     "~~build": "tsc --project ./",
     "~~build-watch": "npm run ~~build -- --watch",
-    "~~test-e2e": "node out/test/helpers/e2e-runner \"npm run ~~test-e2e-run\"",
-    "~~test-e2e-run": "node node_modules/vscode/bin/test",
+    "~~test-e2e": "node out/test/helpers/e2e-runner",
     "~~test-unit": "node out/test/helpers/jasmine-runner",
     "~~test-unit-watch": "watch \"npm run ~~test-unit\" out/ --wait 1"
   },
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.36.0"
   },
   "activationEvents": [
     "onLanguage:markdown",
@@ -68,6 +66,7 @@
     "@types/markdown-it": "0.0.7",
     "@types/node": "^10.12.18",
     "@types/shelljs": "^0.8.1",
+    "@types/vscode": "^1.36.0",
     "jasmine": "^3.3.1",
     "markdown-it": "^8.4.2",
     "mock-require": "^3.0.3",
@@ -78,7 +77,7 @@
     "tslint-jasmine-noSkipOrFocus": "^1.0.9",
     "typescript": "^3.2.2",
     "vsce": "^1.54.0",
-    "vscode": "^1.1.26",
+    "vscode-test": "^1.2.0",
     "watch": "^1.0.2"
   },
   "private": true

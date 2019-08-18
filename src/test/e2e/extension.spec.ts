@@ -1,8 +1,8 @@
-import {getCurrentVersion} from '../helpers/e2e-runner';
+import {version} from 'vscode';
 import {cyan} from '../helpers/string-utils';
 
 // Log the current version for debugging purposes.
-console.log(cyan(`(VSCode version: ${getCurrentVersion()})`));
+console.log(cyan(`(VSCode version: ${version})`));
 
 describe('extension', () => {
   it('should have tests', () => {
