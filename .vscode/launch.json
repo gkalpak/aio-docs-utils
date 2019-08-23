@@ -17,7 +17,7 @@
       "outFiles": [
         "${workspaceFolder}/out/**/*.js",
       ],
-      "preLaunchTask": "npm: build"
+      "preLaunchTask": "npm: build-watch",
     },
     {
       "name": "Extension Tests (unit) - DEBUG",
