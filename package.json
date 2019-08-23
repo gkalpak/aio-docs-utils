@@ -35,7 +35,7 @@
     "vscode:prepublish": "npm run build",
     "~~build": "tsc --project ./",
     "~~build-watch": "npm run ~~build -- --watch",
-    "~~test-e2e": "node out/test/helpers/e2e-runner",
+    "~~test-e2e": "gkcu-run \"node out/test/helpers/e2e-runner \\${*:min-supported}\"",
     "~~test-unit": "node out/test/helpers/jasmine-runner",
     "~~test-unit-watch": "watch \"npm run ~~test-unit\" out/ --wait 1"
   },

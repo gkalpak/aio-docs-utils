@@ -17,9 +17,10 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 
 - `npm run lint`: Lint the source code (including tests), using [tslint](https://palantir.github.io/tslint/).
 - `npm run test-unit`: Run unit tests.
-- `npm run test-e2e`: Run e2e tests. ([Note about e2e testing](#e2e-limitation).)
+- `npm run test-e2e [-- <version>]`: Run e2e tests against the specified VSCode version (or the minimum supported version, if `<version>` is not specified). Possible values for `<version>` are: `insiders`, `min-supported`, `stable` or `<X>.<Y>.<Z>`<br />
+  ([Note about e2e testing](#e2e-limitation).)
 - `npm run test`/`npm test`: Lint the source code (including tests) and run unit and e2e tests.
-- `npm run test-all-versions`: Same as `npm test`, but runs e2e tests against the minimum supported and the latest available version.
+- `npm run test-all-versions`: Same as `npm test`, but runs e2e tests against both the minimum supported and the latest available version.
 
 - `npm run dev`: Watch the source code (including tests) and re-build and run unit tests whenever something changes. Useful during development.
 
@@ -52,4 +53,4 @@ Here is a list of VSCode launch configurations (defined in [launch.json](.vscode
 
 ---
 <a name="e2e-limitation"></a>_**Note about e2e testing**_<br />
-_Due to a VSCode limitation, depending on your VSCode version and/or installation mode (global vs per user), it might not be possible to run the extension e2e tests from the command line (via `npm run test-e2e`), if another instance of VSCode is already running. If that is the case, either close all instances of VSCode first, or use the relevant [launch configuration](#vscode-launch-configs) from an already running VSCode instance._
+_Due to a [VSCode limitation](https://code.visualstudio.com/api/working-with-extensions/testing-extension#using-insiders-version-for-extension-development), depending on your VSCode version and/or installation mode (global vs per user), it might not be possible to run the extension e2e tests from the command line (via `npm run test-e2e`), if another instance of VSCode is already running. If that is the case, either close all instances of VSCode first, use the relevant [launch configuration](#vscode-launch-configs) from an already running VSCode instance, or run the tests on a different VSCode version (via `npm run test-e2e -- <some-version>`)._
