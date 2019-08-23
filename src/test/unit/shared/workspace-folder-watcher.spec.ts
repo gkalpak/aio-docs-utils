@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import {workspace, WorkspaceFolder} from 'vscode';
+import {Uri, workspace, WorkspaceFolder} from 'vscode';
+import {fileSystem as fs} from '../../../shared/file-system';
 import {logger} from '../../../shared/logger';
 import {isNgProjectWatcher, WorkspaceFolderWatcher} from '../../../shared/workspace-folder-watcher';
 import {
@@ -14,7 +14,7 @@ describe('WorkspaceFolderWatcher', () => {
   let logSpy: jasmine.Spy;
   let isOfInterestSpy: jasmine.Spy;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     setMockWsFolders(['/foo/bar']);
     workspaceOnDidChangeWorkspaceFoldersListeners.length = 0;
 
@@ -22,6 +22,8 @@ describe('WorkspaceFolderWatcher', () => {
     isOfInterestSpy = jasmine.createSpy('isOfInterest').and.returnValue(true);
 
     watcher = new TestWorkspaceFolderWatcher('testWatcher', isOfInterestSpy);
+
+    await watcher.ready;
   });
 
   describe('constructor()', () => {
@@ -29,15 +31,15 @@ describe('WorkspaceFolderWatcher', () => {
       expect(watcher.updateMatchesSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should call `updateMatches()` whenever the workspace folders change', () => {
+    it('should call `updateMatches()` whenever the workspace folders change', async () => {
       expect(workspaceOnDidChangeWorkspaceFoldersListeners).toEqual([jasmine.any(Function)]);
 
       const cb = workspaceOnDidChangeWorkspaceFoldersListeners[0];
 
-      cb();
+      await cb();
       expect(watcher.updateMatchesSpy).toHaveBeenCalledTimes(2);
 
-      cb();
+      await cb();
       expect(watcher.updateMatchesSpy).toHaveBeenCalledTimes(3);
     });
   });
@@ -63,35 +65,35 @@ describe('WorkspaceFolderWatcher', () => {
   });
 
   describe('updateMatches()', () => {
-    it('should update `matches` (and log a message)', () => {
+    it('should update `matches` (and log a message)', async () => {
       logSpy.calls.reset();
 
       expect(watcher.matches).toBe(true);
 
       isOfInterestSpy.and.returnValue(false);
-      watcher.updateMatches();
+      await watcher.updateMatches();
       expect(watcher.matches).toBe(false);
       expect(logSpy).toHaveBeenCalledTimes(1);
       expect(logSpy).toHaveBeenCalledWith(`${watcher}: Workspace does not match criteria.`);
 
-      isOfInterestSpy.and.returnValue(true);
-      watcher.updateMatches();
+      isOfInterestSpy.and.returnValue(Promise.resolve(true));
+      await watcher.updateMatches();
       expect(watcher.matches).toBe(true);
       expect(logSpy).toHaveBeenCalledTimes(2);
       expect(logSpy).toHaveBeenCalledWith(`${watcher}: Workspace matches criteria.`);
     });
 
-    it('should set `matches` to false if there are no workspace folders', () => {
+    it('should set `matches` to false if there are no workspace folders', async () => {
       isOfInterestSpy.calls.reset();
 
       expect(watcher.matches).toBe(true);
 
       setMockWsFolders(undefined);
-      watcher.updateMatches();
+      await watcher.updateMatches();
       expect(watcher.matches).toBe(false);
 
       setMockWsFolders([]);
-      watcher.updateMatches();
+      await watcher.updateMatches();
       expect(watcher.matches).toBe(false);
 
       expect(isOfInterestSpy).not.toHaveBeenCalled();
@@ -102,7 +104,7 @@ describe('WorkspaceFolderWatcher', () => {
   class TestWorkspaceFolderWatcher extends WorkspaceFolderWatcher {
     public updateMatchesSpy: jasmine.Spy | undefined;
 
-    public updateMatches(): void {
+    public updateMatches(): ReturnType<WorkspaceFolderWatcher['updateMatches']> {
       if (!this.updateMatchesSpy) {
         this.updateMatchesSpy = jasmine.createSpy('updateMatches');
       }
@@ -116,53 +118,46 @@ describe('WorkspaceFolderWatcher', () => {
 describe('isNgProjectWatcher', () => {
   // Grab the registered listener, before other tests clean up the list (e.g. in a `beforeEach()` block).
   const onDidChangeWorkspaceFoldersListener = workspaceOnDidChangeWorkspaceFoldersListeners[0];
-  let existsSyncSpy: jasmine.Spy;
-  let readFileSyncSpy: jasmine.Spy;
-  let statSyncSpy: jasmine.Spy;
+  let readFileSpy: jasmine.Spy;
+  let statSpy: jasmine.Spy;
 
   // Helpers
   const mockStat = (isDirectory = false, isFile = false) => ({isDirectory: () => isDirectory, isFile: () => isFile});
-  const resetMatchingFolder = (baseDir: string) => {
+  const resetMatchingFolder = async (baseDir: string) => {
     setUpMatchingFolder(baseDir);
-    onDidChangeWorkspaceFoldersListener();
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(true);
 
-    existsSyncSpy.calls.reset();
-    statSyncSpy.calls.reset();
-    readFileSyncSpy.calls.reset();
+    readFileSpy.calls.reset();
+    statSpy.calls.reset();
   };
   const setUpMatchingFolder = (baseDir: string) => {
-    existsSyncSpy.and.callFake((path: string) =>
-      (path === `fs:${baseDir}/aio/content`) ||
-      (path === `fs:${baseDir}/packages`) ||
-      (path === `fs:${baseDir}/package.json`));
+    readFileSpy.and.callFake(async (uri: Uri) =>
+      (uri.path === `${baseDir}/package.json`) ? '{\n  "name": "angular-srcs"\n}' : '');
 
-    statSyncSpy.and.callFake((path: string) => {
-      switch (path) {
-        case `fs:${baseDir}/aio/content`:
-        case `fs:${baseDir}/packages`:
+    statSpy.and.callFake(async (uri: Uri) => {
+      switch (uri.path) {
+        case `${baseDir}/aio/content`:
+        case `${baseDir}/packages`:
           return mockStat(true);
-        case `fs:${baseDir}/package.json`:
+        case `${baseDir}/package.json`:
           return mockStat(false, true);
         default:
-          return mockStat();
+          throw new Error('Does not exist.');
       }
     });
-
-    readFileSyncSpy.and.callFake((path: string, encoding?: string) =>
-      ((path === `fs:${baseDir}/package.json`) && (encoding === 'utf8')) ? '{"name":"angular-srcs"}' : '');
   };
 
-  beforeEach(() => {
-    existsSyncSpy = spyOn(fs, 'existsSync');
-    readFileSyncSpy = spyOn(fs, 'readFileSync');
-    statSyncSpy = spyOn(fs, 'statSync');
+  beforeEach(async () => {
+    readFileSpy = spyOn(fs, 'readFile');
+    statSpy = spyOn(fs, 'stat');
 
     spyOn(logger, 'log');
 
     setMockWsFolders(['/foo/bar']);
-    resetMatchingFolder('/foo/bar');
+    await resetMatchingFolder('/foo/bar');
+    await isNgProjectWatcher.ready;
   });
 
   it('should be a `WorkspaceFolderWatcher` instance (with an appropriate ID)', () => {
@@ -174,96 +169,90 @@ describe('isNgProjectWatcher', () => {
     expect(isNgProjectWatcher.matches).toBe(true);
   });
 
-  it('should have `matches: false` if none of the workspace folders matches criteria', () => {
+  it('should have `matches: false` if none of the workspace folders matches criteria', async () => {
     setMockWsFolders(['/baz', '/qux']);
-    onDidChangeWorkspaceFoldersListener();
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
   });
 
-  it('should have `matches: true` if any of the workspace folders matches criteria', () => {
+  it('should have `matches: true` if any of the workspace folders matches criteria', async () => {
     setMockWsFolders(['/bax/qux', '/foo/bar']);
-    onDidChangeWorkspaceFoldersListener();
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(true);
   });
 
-  it('should have `matches: false` if any of the "landmark" files is missing', () => {
+  it('should have `matches: false` if any of the "landmark" files is missing', async () => {
+    const defStat = mockStat(true, true);
+    const missingStat = Promise.reject('Does not exist.');
+
     // Missing `/foo/bar/aio/content`.
-    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/aio/content');
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/aio/content') ? missingStat : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
-      'fs:/foo/bar/aio/content',
-    ]);
+    expect(statSpy).toHaveBeenCalledTimes(3);
 
-    resetMatchingFolder('/foo/bar');
+    await resetMatchingFolder('/foo/bar');
 
     // Missing `/foo/bar/packages`.
-    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/packages');
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/packages') ? missingStat : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
-      'fs:/foo/bar/aio/content',
-      'fs:/foo/bar/packages',
-    ]);
+    expect(statSpy).toHaveBeenCalledTimes(3);
 
-    resetMatchingFolder('/foo/bar');
+    await resetMatchingFolder('/foo/bar');
 
     // Missing `/foo/bar/package.json`.
-    existsSyncSpy.and.callFake((path: string) => path !== 'fs:/foo/bar/package.json');
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/package.json') ? missingStat : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(existsSyncSpy.calls.allArgs().map(args => args[0])).toEqual([
-      'fs:/foo/bar/aio/content',
-      'fs:/foo/bar/packages',
-      'fs:/foo/bar/package.json',
-    ]);
+    expect(statSpy).toHaveBeenCalledTimes(3);
   });
 
-  it('should have `matches: false` if any of the "landmark" files is of wrong type', () => {
+  it('should have `matches: false` if any of the "landmark" files is of wrong type', async () => {
     const defStat = mockStat(true, true);
 
     // `/foo/bar/aio/content` is not a directory.
-    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/aio/content') ? mockStat(false, true) : defStat);
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/aio/content') ? mockStat(false, true) : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(statSyncSpy).toHaveBeenCalledTimes(3);
-    expect(readFileSyncSpy).not.toHaveBeenCalled();
+    expect(statSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSpy).not.toHaveBeenCalled();
 
-    resetMatchingFolder('/foo/bar');
+    await resetMatchingFolder('/foo/bar');
 
     // `/foo/bar/packages` is not a directory.
-    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/packages') ? mockStat(false, true) : defStat);
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/packages') ? mockStat(false, true) : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(statSyncSpy).toHaveBeenCalledTimes(3);
-    expect(readFileSyncSpy).not.toHaveBeenCalled();
+    expect(statSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSpy).not.toHaveBeenCalled();
 
-    resetMatchingFolder('/foo/bar');
+    await  resetMatchingFolder('/foo/bar');
 
     // `/foo/bar/package.json` is not a file.
-    statSyncSpy.and.callFake((path: string) => (path === 'fs:/foo/bar/package.json') ? mockStat(true) : defStat);
-    onDidChangeWorkspaceFoldersListener();
+    statSpy.and.callFake(async (uri: Uri) => (uri.path === '/foo/bar/package.json') ? mockStat(true) : defStat);
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(statSyncSpy).toHaveBeenCalledTimes(3);
-    expect(readFileSyncSpy).not.toHaveBeenCalled();
+    expect(statSpy).toHaveBeenCalledTimes(3);
+    expect(readFileSpy).not.toHaveBeenCalled();
   });
 
-  it('should have `matches: false` if the project has the wrong name', () => {
-    readFileSyncSpy.and.callFake((path: string) =>
-      `{"name":"${(path === 'fs:/foo/bar/package.json') ? 'not-' : ''}angular-srcs"}`);
+  it('should have `matches: false` if the project has the wrong name', async () => {
+    readFileSpy.and.callFake(async (uri: Uri) =>
+      `{\n  "name": "${(uri.path === '/foo/bar/package.json') ? 'not-' : ''}angular-srcs"\n}`);
 
-    onDidChangeWorkspaceFoldersListener();
+    await onDidChangeWorkspaceFoldersListener();
 
     expect(isNgProjectWatcher.matches).toBe(false);
-    expect(readFileSyncSpy).toHaveBeenCalledWith('fs:/foo/bar/package.json', 'utf8');
+    expect(readFileSpy).toHaveBeenCalledWith(Uri.file('/foo/bar/package.json'));
   });
 });
 

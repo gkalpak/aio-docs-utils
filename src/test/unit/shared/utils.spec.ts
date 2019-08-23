@@ -1,6 +1,5 @@
-import * as fs from 'fs';
 import {CancellationToken} from 'vscode';
-import {asPromised, hash, kebabToCamelCase, padStart, readFile, unlessCancelledFactory} from '../../../shared/utils';
+import {asPromised, hash, kebabToCamelCase, padStart, unlessCancelledFactory} from '../../../shared/utils';
 import {reversePromise} from '../../helpers/test-utils';
 
 
@@ -97,32 +96,6 @@ describe('utils', () => {
 
     it('should return the input string as is if it exceeds the specified length', () => {
       expect(padStart('foo & bar', 4)).toBe('foo & bar');
-    });
-  });
-
-  describe('readFile()', () => {
-    let readFileSpy: jasmine.Spy;
-
-    beforeEach(() => readFileSpy = spyOn(fs, 'readFile'));
-
-    it('should delegate to `fs.readFile()`', () => {
-      readFile('foo.txt');
-      expect(readFileSpy).toHaveBeenCalledWith('foo.txt', 'utf8', jasmine.any(Function));
-    });
-
-    it('should return a promise', () => {
-      const promise = readFile('foo.txt');
-      expect(promise).toEqual(jasmine.any(Promise));
-    });
-
-    it('should resolve the promise if `fs.readFile()` completes successfully', async () => {
-      readFileSpy.and.callFake((_1: any, _2: any, cb: (err: any, value?: any) => void) => cb(null, 'foo content'));
-      expect(await readFile('foo.txt')).toBe('foo content');
-    });
-
-    it('should reject the promise if `fs.readFile()` completes with error', async () => {
-      readFileSpy.and.callFake((_1: any, _2: any, cb: (err: any, value?: any) => void) => cb('foo error'));
-      expect(await reversePromise(readFile('foo.txt'))).toBe('foo error');
     });
   });
 

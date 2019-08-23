@@ -1,5 +1,4 @@
 import {createHash} from 'crypto';
-import {readFile as fsReadFile} from 'fs';
 import {CancellationToken} from 'vscode';
 
 
@@ -24,9 +23,6 @@ export const padStart = (input: string, len: number, padStr = ' '): string => {
   const padding = padStr.repeat(Math.max(0, len - input.length));
   return `${padding}${input}`;
 };
-
-export const readFile = (fileName: string): Promise<string> =>
-  asPromised(fsReadFile)(fileName, 'utf8');
 
 export const unlessCancelledFactory = (token: CancellationToken) =>
   <TInput, TOutput>(fn: (input: TInput) => TOutput | Promise<TOutput>) =>

@@ -10,6 +10,13 @@ export class MockDisposable {
   }
 }
 
+export enum MockFileType {
+  Unknown = 0,
+  File = 1,
+  Directory = 2,
+  SymbolicLink = 64,
+}
+
 export class MockHover {
   constructor(public readonly contents: string, public readonly range: MockRange) {
   }
@@ -102,8 +109,6 @@ export class MockUri {
     return new MockUri(path);
   }
 
-  public readonly fsPath = `fs:${this.path}`;
-
   private constructor(public readonly path: string) {
   }
 
@@ -122,6 +127,7 @@ export class MockWorkspaceFolder {
 
 // Exports
 export const mockVscode = {
+  FileType: MockFileType,
   Hover: MockHover,
   Location: MockLocation,
   MarkdownString: MockMarkdownString,
@@ -140,6 +146,10 @@ export const mockVscode = {
     setStatusBarMessage: noop,
   },
   workspace: {
+    fs: {
+      readFile: notImplemented,
+      stat: notImplemented,
+    },
     onDidChangeWorkspaceFolders: mockOnDidChangeWorkspaceFolders,
   },
 };
@@ -156,4 +166,8 @@ function mockOnDidChangeWorkspaceFolders(listener: () => any): MockDisposable {
 
 function noop(): void {
   return;
+}
+
+function notImplemented(): never {
+  throw new Error('Not implemented.');
 }

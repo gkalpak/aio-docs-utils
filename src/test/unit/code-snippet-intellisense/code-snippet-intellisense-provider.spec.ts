@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {
   CancellationToken, CompletionContext, CompletionItem, Hover, Location, MarkdownString, Position, TextDocument, Uri,
 } from 'vscode';
@@ -9,8 +8,8 @@ import {
   codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetRawInfo,
 } from '../../../code-snippet-intellisense/code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from '../../../code-snippet-intellisense/docregion-extractor';
+import {fileSystem as fs} from '../../../shared/file-system';
 import {logger} from '../../../shared/logger';
-import * as utils from '../../../shared/utils';
 import {isNgProjectWatcher} from '../../../shared/workspace-folder-watcher';
 import {stripIndentation} from '../../helpers/string-utils';
 import {reversePromise} from '../../helpers/test-utils';
@@ -173,41 +172,41 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('getCodeSnippetInfo()', () => {
-    let existsSyncSpy: jasmine.Spy;
+    let existsSpy: jasmine.Spy;
     let getInfoSpy: jasmine.Spy;
 
     beforeEach(() => {
-      existsSyncSpy = spyOn(fs, 'existsSync').and.returnValue(true);
+      existsSpy = spyOn(fs, 'exists').and.returnValue(Promise.resolve(true));
       getInfoSpy = spyOn(codeSnippetUtils, 'getInfo').and.returnValue({
         attrs: {path: 'file/pat.h'},
         raw: {contents: '<code-snippet></code-snippet>'},
       });
     });
 
-    it('should delegate to `CodeSnippetUtils.getInfo()`', () => {
+    it('should delegate to `CodeSnippetUtils.getInfo()`', async () => {
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(0, 0);
-      const result = csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
       const getInfoResult = getInfoSpy.calls.mostRecent().returnValue;
 
       expect(getInfoSpy).toHaveBeenCalledWith(doc, pos);
       expect(result).toEqual(jasmine.objectContaining(getInfoResult));
     });
 
-    it('should detect the example file path (based on its `extractPathPrefixRe`', () => {
+    it('should detect the example file path (based on its `extractPathPrefixRe`', async () => {
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(0, 0);
-      const result = csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
       const expectedPath = '/angular/aio/content/examples/file/pat.h';
 
-      expect(existsSyncSpy).toHaveBeenCalledWith(expectedPath);
+      expect(existsSpy).toHaveBeenCalledWith(expectedPath);
       expect(result!.file).toEqual({path: expectedPath});
     });
 
-    it('should log its progress', () => {
+    it('should log its progress', async () => {
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
-      csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(logSpy.calls.allArgs()).toEqual([
         ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
@@ -216,12 +215,12 @@ describe('CodeSnippetIntellisenseProvider', () => {
       ]);
     });
 
-    it('should return `null` if `CodeSnippetUtils.getInfo()` returns `null`', () => {
+    it('should return `null` if `CodeSnippetUtils.getInfo()` returns `null`', async () => {
       getInfoSpy.and.returnValue(null);
 
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
-      const result = csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
       expect(logSpy.calls.allArgs()).toEqual([
@@ -229,10 +228,10 @@ describe('CodeSnippetIntellisenseProvider', () => {
       ]);
     });
 
-    it('should return `null` if the example file path is not inside `aio/content/`', () => {
+    it('should return `null` if the example file path is not inside `aio/content/`', async () => {
       const doc: TextDocument = new MockTextDocument('some text', '/foo/not-aio/content/bar') as any;
       const pos = new Position(4, 2);
-      const result = csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
       expect(logSpy.calls.allArgs()).toEqual([
@@ -241,15 +240,15 @@ describe('CodeSnippetIntellisenseProvider', () => {
       ]);
     });
 
-    it('should return `null` if the example file path does not exist', () => {
-      existsSyncSpy.and.returnValue(false);
+    it('should return `null` if the example file path does not exist', async () => {
+      existsSpy.and.returnValue(Promise.resolve(false));
 
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(4, 2);
-      const result = csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
-      expect(existsSyncSpy).toHaveBeenCalledWith('/angular/aio/content/examples/file/pat.h');
+      expect(existsSpy).toHaveBeenCalledWith('/angular/aio/content/examples/file/pat.h');
       expect(logSpy.calls.allArgs()).toEqual([
         ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
         ['  Detected code snippet: <code-snippet></code-snippet>'],
@@ -272,7 +271,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
 
       deForSpy = spyOn(DocregionExtractor, 'for');
-      readFileSpy = spyOn(utils, 'readFile').and.returnValue(Promise.resolve('example code'));
+      readFileSpy = spyOn(fs, 'readFile').and.returnValue(Promise.resolve('example code'));
     });
 
     it('should retrieve the example file\'s contents', async () => {
@@ -428,26 +427,26 @@ describe('CodeSnippetIntellisenseProvider', () => {
     beforeEach(() => {
       mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
 
-      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
+      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       isInRegionAttributeSpy = spyOn(csip, 'isInRegionAttribute').and.returnValue(true);
       extractDocregionNamesSpy = spyOn(csip, 'extractDocregionNames').and.returnValue(Promise.resolve([]));
     });
 
-    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+    it('should return `null` if `isNgProjectWatcher.matches` is false', async () => {
       const mockDoc = {} as TextDocument;
       const mockPos = {} as Position;
       matchesGetSpy.and.returnValue(false);
 
-      expect(provideCompletionItems(mockDoc, mockPos)).toBeNull();
+      expect(await provideCompletionItems(mockDoc, mockPos)).toBeNull();
       expect(isInRegionAttributeSpy).not.toHaveBeenCalled();
     });
 
-    it('should return `null` if not inside a docregion attribute', () => {
+    it('should return `null` if not inside a docregion attribute', async () => {
       const mockDoc = {} as TextDocument;
       const mockPos = {} as Position;
       isInRegionAttributeSpy.and.returnValue(false);
 
-      expect(provideCompletionItems(mockDoc, mockPos)).toBeNull();
+      expect(await provideCompletionItems(mockDoc, mockPos)).toBeNull();
       expect(isInRegionAttributeSpy).toHaveBeenCalledWith(mockDoc, mockPos);
       expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
     });
@@ -461,9 +460,9 @@ describe('CodeSnippetIntellisenseProvider', () => {
       expect(getCodeSnippetInfoSpy).toHaveBeenCalledWith(mockDoc, mockPos, 'Providing completion items');
     });
 
-    it('should return `null` if no code snippet info', () => {
+    it('should return `null` if no code snippet info', async () => {
       getCodeSnippetInfoSpy.and.returnValue(null);
-      expect(provideCompletionItems()).toBeNull();
+      expect(await provideCompletionItems()).toBeNull();
     });
 
     it('should extract docregion names for code snippet', async () => {
@@ -601,14 +600,14 @@ describe('CodeSnippetIntellisenseProvider', () => {
     beforeEach(() => {
       mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
 
-      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
+      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
     });
 
-    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+    it('should return `null` if `isNgProjectWatcher.matches` is false', async () => {
       matchesGetSpy.and.returnValue(false);
 
-      expect(provideDefinition()).toBeNull();
+      expect(await provideDefinition()).toBeNull();
       expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
     });
 
@@ -621,9 +620,9 @@ describe('CodeSnippetIntellisenseProvider', () => {
       expect(getCodeSnippetInfoSpy).toHaveBeenCalledWith(mockDoc, mockPos, 'Providing definition');
     });
 
-    it('should return `null` if no code snippet info', () => {
+    it('should return `null` if no code snippet info', async () => {
       getCodeSnippetInfoSpy.and.returnValue(null);
-      expect(provideDefinition()).toBeNull();
+      expect(await provideDefinition()).toBeNull();
     });
 
     it('should extract docregions for code snippet', async () => {
@@ -676,14 +675,14 @@ describe('CodeSnippetIntellisenseProvider', () => {
     beforeEach(() => {
       mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
 
-      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
+      getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
     });
 
-    it('should return `null` if `isNgProjectWatcher.matches` is false', () => {
+    it('should return `null` if `isNgProjectWatcher.matches` is false', async () => {
       matchesGetSpy.and.returnValue(false);
 
-      expect(provideHover()).toBeNull();
+      expect(await provideHover()).toBeNull();
       expect(getCodeSnippetInfoSpy).not.toHaveBeenCalled();
     });
 
@@ -696,9 +695,9 @@ describe('CodeSnippetIntellisenseProvider', () => {
       expect(getCodeSnippetInfoSpy).toHaveBeenCalledWith(mockDoc, mockPos, 'Providing hover');
     });
 
-    it('should return `null` if no code snippet info', () => {
+    it('should return `null` if no code snippet info', async () => {
       getCodeSnippetInfoSpy.and.returnValue(null);
-      expect(provideHover()).toBeNull();
+      expect(await provideHover()).toBeNull();
     });
 
     it('should extract docregions for code snippet', async () => {
@@ -931,7 +930,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
 
-      spyOn(csip, 'getCodeSnippetInfo').and.returnValue(mockCodeSnippetInfo);
+      spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       spyOn(csip, 'isInRegionAttribute').and.returnValue(true);
       spyOn(csip, 'extractDocregionNames').and.returnValue(Promise.resolve(['foo', 'bar']));
     });
@@ -1021,7 +1020,11 @@ describe('CodeSnippetIntellisenseProvider', () => {
       return super.extractDocregionNames(csInfo, token);
     }
 
-    public getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): ICodeSnippetInfoWithFilePath | null {
+    public getCodeSnippetInfo(
+        doc: TextDocument,
+        pos: Position,
+        action: string,
+    ): Promise<ICodeSnippetInfoWithFilePath | null> {
       return super.getCodeSnippetInfo(doc, pos, action);
     }
 

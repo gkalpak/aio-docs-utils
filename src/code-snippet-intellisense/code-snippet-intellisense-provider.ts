@@ -1,11 +1,11 @@
-import {existsSync} from 'fs';
 import {parse} from 'path';
 import {
   CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, Definition, DefinitionProvider, Hover,
   HoverProvider, Location, MarkdownString, Position, ProviderResult, Range, TextDocument, Uri,
 } from 'vscode';
+import {fileSystem as fs} from '../shared/file-system';
 import {logger} from '../shared/logger';
-import {padStart, readFile, unlessCancelledFactory} from '../shared/utils';
+import {padStart, unlessCancelledFactory} from '../shared/utils';
 import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 import {codeSnippetUtils, ICodeSnippetInfo} from './code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
@@ -25,22 +25,24 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
   constructor(public readonly extractPathPrefixRe: RegExp) {
   }
 
-  public provideCompletionItems(
+  public async provideCompletionItems(
       doc: TextDocument,
       pos: Position,
       token: CancellationToken,
       ctx: CompletionContext,
-  ): ProviderResult<CompletionItem[]> {
+  ): Promise<CompletionItem[] | null> {
     if (this.disabled || !this.isInRegionAttribute(doc, pos)) {
       return null;
     }
 
-    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing completion items');
+    const csInfo = await this.getCodeSnippetInfo(doc, pos, 'Providing completion items');
     if (!csInfo) {
       return null;
     }
 
-    return this.extractDocregionNames(csInfo, token).then(names => names.map(name => {
+    const names = await this.extractDocregionNames(csInfo, token);
+
+    return names.map(name => {
       const label = name || '<default>';
       const filterText = name;
       let insertText = name;
@@ -65,54 +67,56 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
       this.csInfoPerCompletionList.set(item, csInfo);
 
       return item;
-    }));
+    });
   }
 
-  public provideDefinition(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Definition> {
+  public async provideDefinition(
+      doc: TextDocument,
+      pos: Position,
+      token: CancellationToken,
+  ): Promise<Definition | null> {
     if (this.disabled) {
       return null;
     }
 
-    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing definition');
+    const csInfo = await this.getCodeSnippetInfo(doc, pos, 'Providing definition');
     if (!csInfo) {
       return null;
     }
 
-    return this.extractDocregionInfo(csInfo, token).then(drInfo => {
-      if (!drInfo) {
-        return null;
-      }
+    const drInfo = await this.extractDocregionInfo(csInfo, token);
+    if (!drInfo) {
+      return null;
+    }
 
-      const exampleFile = Uri.file(csInfo.file.path);
-      return drInfo.ranges.map(range => new Location(exampleFile, range));
-    });
+    const exampleFile = Uri.file(csInfo.file.path);
+    return drInfo.ranges.map(range => new Location(exampleFile, range));
   }
 
-  public provideHover(doc: TextDocument, pos: Position, token: CancellationToken): ProviderResult<Hover> {
+  public async provideHover(doc: TextDocument, pos: Position, token: CancellationToken): Promise<Hover | null> {
     if (this.disabled) {
       return null;
     }
 
-    const csInfo = this.getCodeSnippetInfo(doc, pos, 'Providing hover');
+    const csInfo = await this.getCodeSnippetInfo(doc, pos, 'Providing hover');
     if (!csInfo) {
       return null;
     }
 
-    return this.extractDocregionInfo(csInfo, token).then(drInfo => {
-      if (!drInfo) {
-        return null;
-      }
+    const drInfo = await this.extractDocregionInfo(csInfo, token);
+    if (!drInfo) {
+      return null;
+    }
 
-      const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
+    const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
 
-      const headerStr = !csInfo.attrs.header ? '' : `_${csInfo.attrs.header}_\n\n---\n`;
-      const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
+    const headerStr = !csInfo.attrs.header ? '' : `_${csInfo.attrs.header}_\n\n---\n`;
+    const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
 
-      const contents = `${headerStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
-      const range = new Range(csInfo.raw.startPos, csInfo.raw.endPos);
+    const contents = `${headerStr}\`\`\`${drInfo.fileType}\n${codeStr}\n\`\`\``;
+    const range = new Range(csInfo.raw.startPos, csInfo.raw.endPos);
 
-      return new Hover(contents, range);
-    });
+    return new Hover(contents, range);
   }
 
   public resolveCompletionItem(item: CompletionItem, token: CancellationToken): ProviderResult<CompletionItem> {
@@ -157,7 +161,11 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
       then(extractor => extractor.getAvailableNames());
   }
 
-  protected getCodeSnippetInfo(doc: TextDocument, pos: Position, action: string): ICodeSnippetInfoWithFilePath | null {
+  protected async getCodeSnippetInfo(
+      doc: TextDocument,
+      pos: Position,
+      action: string,
+  ): Promise<ICodeSnippetInfoWithFilePath | null> {
     logger.log(`${action} for '${doc.fileName}:${pos.line}:${pos.character}'...`);
 
     const csInfo = codeSnippetUtils.getInfo(doc, pos);
@@ -167,7 +175,7 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
 
     logger.log(`  Detected code snippet: ${csInfo.raw.contents}`);
 
-    const examplePath = this.getExamplePath(doc.fileName, csInfo.attrs.path);
+    const examplePath = await this.getExamplePath(doc.fileName, csInfo.attrs.path);
     if (!examplePath) {
       return null;
     }
@@ -184,7 +192,7 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
     const fileType = parse(filePath).ext.slice(1);
     const unlessCancelled = unlessCancelledFactory(token);
 
-    return readFile(filePath).
+    return fs.readFile(filePath).
       then(unlessCancelled(rawContents => DocregionExtractor.for(fileType, rawContents)));
   }
 
@@ -196,11 +204,11 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
     return /^region=(?:(["'])(?:(?!\1).)*)?$/.test(attrStr);
   }
 
-  private getExamplePath(containerDocPath: string, relativeExamplePath: string): string | null {
+  private async getExamplePath(containerDocPath: string, relativeExamplePath: string): Promise<string | null> {
     const pathPrefix = this.extractPathPrefixRe.exec(containerDocPath);
     const examplePath = pathPrefix && `${pathPrefix[0]}examples/${relativeExamplePath}`;
 
-    return (!examplePath || !existsSync(examplePath)) ? null : examplePath;
+    return (!examplePath || !(await fs.exists(examplePath))) ? null : examplePath;
   }
 
   private getFirstLinenum(linenums: 'auto' | boolean | number, lines: string[]): number {
