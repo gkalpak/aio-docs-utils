@@ -10,8 +10,8 @@
       "problemMatcher": "$tsc",
       "group": {
         "kind": "build",
-        "isDefault": true
-      }
+        "isDefault": true,
+      },
     },
     {
       "label": "npm: build-watch",
@@ -19,7 +19,7 @@
       "script": "build-watch",
       "problemMatcher": "$tsc-watch",
       "isBackground": true,
-      "group": "build"
-    }
-  ]
+      "group": "build",
+    },
+  ],
 }
