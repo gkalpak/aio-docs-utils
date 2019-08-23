@@ -31,6 +31,8 @@ The following npm scripts can be used for packaging and publishing a new version
 
 _Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `deploy` section in [.travis.yml](.travis.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `release` npm script._
 
+_This extension is published under the [gkalpak](https://dev.azure.com/gkalpak) Azure DevOps organization._
+
 For a full list of available npm scripts, see [package.json](package.json).
 
 ## <a name="vscode-tasks"></a>VSCode tasks
