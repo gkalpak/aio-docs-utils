@@ -3,7 +3,7 @@ import {Stats, utimesSync} from 'fs';
 import {dirname, join, resolve} from 'path';
 import {ls, rm, set} from 'shelljs';
 import {downloadAndUnzipVSCode, runTests} from 'vscode-test';
-import {cyan} from './string-utils';
+import {cyan, yellow} from './string-utils';
 
 set('-e');
 
@@ -73,8 +73,16 @@ async function _main([versionSpec]: string[]): Promise<void> {
 
     markVersionUsed(vscodeExecutablePath);
     await runTests({extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath});
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
   } finally {
-    cleanUpVersionDirectories();
+    try {
+      cleanUpVersionDirectories();
+    } catch (err) {
+      warnMessage('Failed to clean up unused versions.');
+      console.error(err);
+    }
   }
 }
 
@@ -151,4 +159,8 @@ function resolveVersion(versionSpec = 'stable'): string {
 function rmRf(dir: string): void {
   debugMessage(`Deleting directory '${dir}'...`);
   rm('-rf', dir);
+}
+
+function warnMessage(msg: string): void {
+  console.warn(`${cyan('[e2e-runner]')} ${yellow(`[WARN] ${msg}`)}`);
 }

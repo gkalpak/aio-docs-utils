@@ -9,6 +9,7 @@ export const bold = styleFactory(1, 22);
 export const cyan = styleFactory(36);
 export const green = styleFactory(32);
 export const red = styleFactory(31);
+export const yellow = styleFactory(33);
 
 export const stripIndentation = (input: string): string => {
   const lines = input.replace(/^ *\n/, '').replace(/\n *$/, '').split('\n');
