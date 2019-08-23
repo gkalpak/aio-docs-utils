@@ -65,14 +65,17 @@ _main(process.argv.slice(2));
 // Helpers
 async function _main([versionSpec]: string[]): Promise<void> {
   try {
+    const extensionDevelopmentPath = ROOT_DIR;
+    const extensionTestsPath = TEST_DIR;
+    const launchArgs = [
+      '--disable-extensions',
+    ];
+
     const version = resolveVersion(versionSpec);
     const vscodeExecutablePath = await downloadAndUnzipVSCode(version);
 
-    const extensionDevelopmentPath = ROOT_DIR;
-    const extensionTestsPath = TEST_DIR;
-
     markVersionUsed(vscodeExecutablePath);
-    await runTests({extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath});
+    await runTests({extensionDevelopmentPath, extensionTestsPath, launchArgs, vscodeExecutablePath});
   } catch (err) {
     console.error(err);
     process.exit(1);
