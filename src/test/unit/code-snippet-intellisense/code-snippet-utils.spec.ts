@@ -540,7 +540,7 @@ describe('CodeSnippetUtils', () => {
       `);
       const expectedAttrInfo: ICodeSnippetAttrInfo = {
         header: 'baz',
-        linenums: 'auto',
+        linenums: false,
         path: 'foo',
         region: 'bar',
       };
@@ -567,12 +567,12 @@ describe('CodeSnippetUtils', () => {
 
       expect(csUtils.getInfo(doc, new Position(0, 33))!.attrs.linenums).toBe(false);
       expect(csUtils.getInfo(doc, new Position(1, 33))!.attrs.linenums).toBe(true);
-      expect(csUtils.getInfo(doc, new Position(2, 33))!.attrs.linenums).toBe('auto');
+      expect(csUtils.getInfo(doc, new Position(2, 33))!.attrs.linenums).toBe(false);
       expect(csUtils.getInfo(doc, new Position(3, 33))!.attrs.linenums).toBe(42);
 
       expect(csUtils.getInfo(doc, new Position(5, 23))!.attrs.linenums).toBe(false);
       expect(csUtils.getInfo(doc, new Position(6, 23))!.attrs.linenums).toBe(true);
-      expect(csUtils.getInfo(doc, new Position(7, 23))!.attrs.linenums).toBe('auto');
+      expect(csUtils.getInfo(doc, new Position(7, 23))!.attrs.linenums).toBe(false);
       expect(csUtils.getInfo(doc, new Position(8, 23))!.attrs.linenums).toBe(42);
     });
 

@@ -7,7 +7,7 @@ import {fileSystem as fs} from '../shared/file-system';
 import {logger} from '../shared/logger';
 import {padStart, unlessCancelledFactory} from '../shared/utils';
 import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
-import {codeSnippetUtils, ICodeSnippetInfo} from './code-snippet-utils';
+import {codeSnippetUtils, ICodeSnippetInfo, ILinenums} from './code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from './docregion-extractor';
 
 
@@ -16,7 +16,6 @@ export interface ICodeSnippetInfoWithFilePath extends ICodeSnippetInfo {
 }
 
 export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, DefinitionProvider, HoverProvider {
-  public static readonly AUTO_LINENUM_THRESHOLD = 10;
   public static readonly COMPLETION_TRIGGER_CHARACTERS = ['=', '"', '\''];
   private readonly csInfoPerCompletionList = new WeakMap<CompletionItem, ICodeSnippetInfoWithFilePath>();
 
@@ -108,7 +107,7 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
       return null;
     }
 
-    const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums, drInfo.contents);
+    const firstLinenum = this.getFirstLinenum(csInfo.attrs.linenums);
 
     const headerStr = !csInfo.attrs.header ? '' : `_${csInfo.attrs.header}_\n\n---\n`;
     const codeStr = this.withLinenums(drInfo.contents, firstLinenum);
@@ -211,9 +210,8 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
     return (!examplePath || !(await fs.exists(examplePath))) ? null : examplePath;
   }
 
-  private getFirstLinenum(linenums: 'auto' | boolean | number, lines: string[]): number {
+  private getFirstLinenum(linenums: ILinenums): number {
     switch (linenums) {
-      case 'auto': return (lines.length > CodeSnippetIntellisenseProvider.AUTO_LINENUM_THRESHOLD) ? 1 : -1;
       case false: return -1;
       case true: return 1;
       default: return linenums;

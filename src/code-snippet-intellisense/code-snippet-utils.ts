@@ -8,7 +8,7 @@ export enum CodeSnippetType {
   NgdocTag,
 }
 
-export type ILinenums = 'auto' | boolean | number;
+export type ILinenums = boolean | number;
 
 export interface ICodeSnippetAttrInfo {
   header: string | null;
@@ -234,10 +234,10 @@ export class CodeSnippetUtils {
   }
 
   private normalizeLinenums(rawAttrValue: string | null): ILinenums {
-    return (rawAttrValue === 'false') ?
-      false : (rawAttrValue === 'true') ?
-      true : (rawAttrValue === null) || isNaN(rawAttrValue as any) ?
-      'auto' :
+    return (rawAttrValue === 'true') ?
+      true : (rawAttrValue === 'false') ?
+      false : (rawAttrValue === null) || isNaN(rawAttrValue as any) ?
+      false :
       parseInt(rawAttrValue, 10);
   }
 

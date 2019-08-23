@@ -791,116 +791,38 @@ describe('CodeSnippetIntellisenseProvider', () => {
         `));
       });
 
-      it('should include line numbers if `attrs.linenums === \'auto\'` and lines exceed `AUTO_LINENUM_THRESHOLD`',
-        async () => {
-          mockCodeSnippetInfo.attrs.linenums = 'auto';
-          mockDocregionInfo.contents = [
-            'line 1',
-            'line 2',
-            'line 3',
-            'line 4',
-            'line 5',
-            'line 6',
-            'line 7',
-            'line 8',
-            'line 9',
-            'line 10',
-            'line 11',
-          ];
+      it('should not include line numbers if `attrs.linenums === false`', async () => {
+        mockCodeSnippetInfo.attrs.linenums = false;
+        mockDocregionInfo.contents = [
+          'line 1',
+          'line 2',
+          'line 3',
+          'line 4',
+          'line 5',
+          'line 6',
+          'line 7',
+          'line 8',
+          'line 9',
+          'line 10',
+          'line 11',
+        ];
 
-          expect(mockDocregionInfo.contents.length).
-            toBeGreaterThan(CodeSnippetIntellisenseProvider.AUTO_LINENUM_THRESHOLD);
-          expect((await provideHover())!.contents).toBe(stripIndentation(`
-            \`\`\`qux
-             1. line 1
-             2. line 2
-             3. line 3
-             4. line 4
-             5. line 5
-             6. line 6
-             7. line 7
-             8. line 8
-             9. line 9
-            10. line 10
-            11. line 11
-            \`\`\`
-          `));
-        },
-      );
-
-      // tslint:disable-next-line: max-line-length
-      it('should not include line numbers if `attrs.linenums === \'auto\'` and lines do not exceed `AUTO_LINENUM_THRESHOLD`',
-        async () => {
-          mockCodeSnippetInfo.attrs.linenums = 'auto';
-          mockDocregionInfo.contents = [
-            'line 1',
-            'line 2',
-            'line 3',
-            'line 4',
-            'line 5',
-            'line 6',
-            'line 7',
-            'line 8',
-            'line 9',
-            'line 10',
-          ];
-
-          expect(mockDocregionInfo.contents.length).
-            toBeLessThanOrEqual(CodeSnippetIntellisenseProvider.AUTO_LINENUM_THRESHOLD);
-          expect((await provideHover())!.contents).toBe(stripIndentation(`
-            \`\`\`qux
-            line 1
-            line 2
-            line 3
-            line 4
-            line 5
-            line 6
-            line 7
-            line 8
-            line 9
-            line 10
-            \`\`\`
-          `));
-        },
-      );
-
-      // tslint:disable-next-line: max-line-length
-      it('should not include line numbers if `attrs.linenums === false` (even if lines exceed `AUTO_LINENUM_THRESHOLD`)',
-        async () => {
-          mockCodeSnippetInfo.attrs.linenums = false;
-          mockDocregionInfo.contents = [
-            'line 1',
-            'line 2',
-            'line 3',
-            'line 4',
-            'line 5',
-            'line 6',
-            'line 7',
-            'line 8',
-            'line 9',
-            'line 10',
-            'line 11',
-          ];
-
-          expect(mockDocregionInfo.contents.length).
-            toBeGreaterThan(CodeSnippetIntellisenseProvider.AUTO_LINENUM_THRESHOLD);
-          expect((await provideHover())!.contents).toBe(stripIndentation(`
-            \`\`\`qux
-            line 1
-            line 2
-            line 3
-            line 4
-            line 5
-            line 6
-            line 7
-            line 8
-            line 9
-            line 10
-            line 11
-            \`\`\`
-          `));
-        },
-      );
+        expect((await provideHover())!.contents).toBe(stripIndentation(`
+          \`\`\`qux
+          line 1
+          line 2
+          line 3
+          line 4
+          line 5
+          line 6
+          line 7
+          line 8
+          line 9
+          line 10
+          line 11
+          \`\`\`
+        `));
+      });
     });
   });
 
