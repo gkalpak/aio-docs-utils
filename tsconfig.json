@@ -4,7 +4,7 @@
     "target": "es2015",
     "outDir": "out/",
     "lib": [
-      "es6"
+      "es2015"
     ],
     "sourceMap": true,
     "rootDir": "src/",
@@ -13,8 +13,7 @@
     "importHelpers": true,
     "newLine": "lf"
   },
-  "exclude": [
-    ".vscode-test/",
-    "node_modules/"
+  "include": [
+    "src/"
   ]
 }

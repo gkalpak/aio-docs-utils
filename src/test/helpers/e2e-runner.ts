@@ -68,6 +68,7 @@ async function _main([versionSpec]: string[]): Promise<void> {
     const extensionDevelopmentPath = ROOT_DIR;
     const extensionTestsPath = TESTS_PATH;
     const launchArgs = [
+      join(ROOT_DIR, 'test-fixtures/test-project'),
       '--disable-extensions',
     ];
 
