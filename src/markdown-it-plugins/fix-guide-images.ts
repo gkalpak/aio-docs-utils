@@ -13,8 +13,9 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
     return `${g1}${rewrittenUrl}`;
   };
 
-  const fallbackRender: MarkdownIt.TokenRender = (tokens, idx, options, env, self) => self.render(tokens, idx, options);
-  const rendererRules = md.renderer.rules;
+  const rendererRules = md.renderer.rules as {[name: string]: MarkdownIt.FixedTokenRender};
+  const fallbackRender: MarkdownIt.FixedTokenRender =
+    (tokens, idx, options, env, self) => self.render(tokens, idx, options);
 
   // HTML block/inline render. (Example: `<img src="..." />`)
   ['html_block', 'html_inline'].forEach(ruleName => {

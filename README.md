@@ -66,13 +66,27 @@ The extension enhances the generated previews of documentation Markdown files (m
 
 #### Fix URLs to local images
 
-Due to how the [angular.io](https://angular.io/) build system works, the local images referenced in guides will be served from a `generated/images/` directory in production. During development, images are located in the `aio/content/images/` directory (from where they are copied to `aio/src/generated/images/` and from there to `aio/dist/generated/`). The extension fixes the URLs of such images in Markdown previews, so that they point to the correct image files on disk and thus correctly show up in the preview.
+Due to how the [angular.io](https://angular.io/) build system works, the local images referenced in guides will be served from a `generated/images/` directory in production. During development, images are located in the `aio/content/images/` directory (from where they are copied to `aio/src/generated/images/` and from there to `aio/dist/generated/`).
+
+The extension fixes the URLs of such images in Markdown previews, so that they point to the correct image files on disk and thus correctly show up in the preview.
 
 _Before the fix:_
 ![Fix image URLs in Markdown preview](img/md-preview_image.before.png)
 
 _After the fix:_
 ![Fix image URLs in Markdown preview](img/md-preview_image.after.png)
+
+#### Fix code snippets display
+
+Code snippets are included in guides as `<code-example>` elements or `<code-tabs>` with one or more `<code-pane>` elements (for tabbed code snippets). In guide previews, these unknown HTML elements are not shown at all, making the preview a bit misleading.
+
+The extension transforms these elements in Markdown previews, so that they are shown as code blocks (with appropriate formatting to improve readability).
+
+_Before the fix:_
+![Fix code snippets in Markdown preview](img/md-preview_code-snippet.before.png)
+
+_After the fix:_
+![Fix code snippets in Markdown preview](img/md-preview_code-snippet.after.png)
 
 ## Releases
 
@@ -124,11 +138,26 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Add e2e tests.
 - Consider using `webpack` for start-up time (and overall perf?) improvement.
   (References: https://medium.com/@fabiospampinato/why-i-wrote-33-vscode-extensions-and-how-i-manage-them-cb61df05e154, https://code.visualstudio.com/updates/v1_29#_bundling-extensions)
-- Investigate switching from AppVeyor to Travis for testing on Windows (once https://travis-ci.community/t/windows-instances-hanging-before-install/250 has been resolved).
-- Alternatively, investigate switching from AppVeyor/Travis to CircleCI for testing on all platforms.
+- Investigate switching from Travis+AppVeyor to CircleCI for testing on all platforms.
+- Release (minor?).
+
+- Add e2e tests.
+- Investigate possible `fixGuideCodeSnippetsPlugin()` improvements:
+  - Improvement 1: Parse and show snippet info (header, path, region, etc.).
+    - Investigate parsing snippets (without file info).
+      - Make `CodeSnippetUtils#getInfo()` (`getInfoHtml()`?) more easily reusable.
+    - Replace current `<pre></pre>` code block with a more structured representation of the parsed info.
+  - Improvement 2: Show snippet content (requires containing document?).
+    - Investigate getting doc from active editor or open editor (matched by code snippet opening tag) and parsing snippets fully (with content). E.g.:
+      - Modify `CodeSnippetUtils` to be able to extract info directly from content (instead of `TextDocument` + `Position`).
+      - Use `window.activeTextEditor.document.fileName` to resolve the example path.
+        _Ideally, this would need to be matched against the correct provider so that the example path could be resolved correctly (and also skip work for non-matching Markdown files)._
+        _For extra confirmation, I could use the opening tag string and search for it in the active document._
+          _(Do I need to deal with formatting (e.g. whitespace)?)_
+      - Extract the code snippet attributes and content and show them in the Markdown preview.
+        _This is very similar to `CodeSnippetIntellisenseProvider#provideHover()`. Investigate reuse opportunities._
 - Investigate/Add ability to preview app in `WebView > iframe`. E.g.:
   ```ts
   const panel = window.createWebviewPanel('foo', 'Hello, world!', ViewColumn.Active, {

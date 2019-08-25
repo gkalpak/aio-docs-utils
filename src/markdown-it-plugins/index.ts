@@ -1,8 +1,10 @@
 import * as MarkdownIt from 'markdown-it';
+import {fixGuideCodeSnippetsPlugin} from './fix-guide-code-snippets';
 import {fixGuideImagesPlugin} from './fix-guide-images';
 
 
 const PLUGINS = [
+  fixGuideCodeSnippetsPlugin,
   fixGuideImagesPlugin,
 ];
 

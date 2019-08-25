@@ -19,14 +19,14 @@ describe('markdown-it-plugins', () => {
     it('should register all plugins', () => {
       extendMarkdownIt(mockMarkdownIt);
 
-      expect(useSpy).toHaveBeenCalledTimes(1);
+      expect(useSpy).toHaveBeenCalledTimes(2);
       expect(useSpy).toHaveBeenCalledWith(fixGuideImagesPlugin);
     });
 
     it('should return the final `MarkdownIt` instance', () => {
       const finalInstance = extendMarkdownIt(mockMarkdownIt) as MockMarkdownIt;
 
-      expect(finalInstance.generation).toBe(2);
+      expect(finalInstance.generation).toBe(3);
       expect(finalInstance).toBe(useSpy.calls.mostRecent().returnValue);
     });
   });
