@@ -38,7 +38,7 @@
     "~~lint-code": "tslint --project tsconfig.json",
     "~~lint-meta": "node scripts/check-vscode-version",
     "~~test-e2e": "gkcu-run \"node out/test/helpers/e2e-runner \\${*:min-supported}\"",
-    "~~test-unit": "node out/test/helpers/jasmine-runner",
+    "~~test-unit": "node out/test/run-tests-unit",
     "~~test-unit-watch": "watch \"npm run ~~test-unit\" out/ --wait 1"
   },
   "engines": {

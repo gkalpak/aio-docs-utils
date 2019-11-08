@@ -1,28 +1,15 @@
-#!/usr/bin/env node
+// Imports
 import Jasmine = require('jasmine');
 import 'source-map-support/register';
 import {IJasmineRunner} from './jasmine-typings';
 import {bold, cyan, green, red, symbols} from './string-utils';
 
 
-type OnCompleteCb = (passed: boolean) => void;
-type TestType = 'e2e' | 'unit';
+// Types
+export type TestType = 'e2e' | 'unit';
 
-export const runE2e = (testDir: string): Promise<boolean> => runTests('e2e', testDir);
-export const runUnit = (testDir: string): Promise<boolean> => runTests('unit', testDir);
-
-// Main
-if (require.main === module) {
-  _main();
-}
-
-// Helpers
-function _main(): void {
-  const {resolve} = require('path');
-  runUnit(resolve(`${__dirname}/..`));
-}
-
-function runTests(testType: TestType, testDir: string): Promise<boolean> {
+// Exports
+export const runTests = (testType: TestType, testDir: string): Promise<boolean> => {
   // `vscode` APIs are only provided when running tests through VSCode (i.e. e2e tests).
   // For "standalone" unit tests, we need to mock them.
   if (testType === 'unit') {
@@ -41,8 +28,9 @@ function runTests(testType: TestType, testDir: string): Promise<boolean> {
     console.log(cyan(bold(`Running ${testType} tests...`)));
     runner.execute();
   });
-}
+};
 
+// Helpers
 function loadConfig(specDir: string, runner: IJasmineRunner): void {
   runner.loadConfig({
     random: true,
@@ -53,7 +41,7 @@ function loadConfig(specDir: string, runner: IJasmineRunner): void {
   });
 }
 
-function setUpReporting(testType: TestType, runner: IJasmineRunner, cb: OnCompleteCb): void {
+function setUpReporting(testType: TestType, runner: IJasmineRunner, cb: (passed: boolean) => void): void {
   let pending = '';
 
   if (testType === 'e2e') {
@@ -80,9 +68,10 @@ function setUpReporting(testType: TestType, runner: IJasmineRunner, cb: OnComple
       pending = '';
     }
 
+    const capitalizedTestType = testType[0].toUpperCase() + testType.slice(1);
     console.log(passed ?
-      green(bold(`${symbols.CHECK_MARK} All tests passed.`)) :
-      red(bold(`${symbols.X_MARK} Some tests failed.`)));
+      green(bold(`${symbols.CHECK_MARK} ${capitalizedTestType} tests passed.`)) :
+      red(bold(`${symbols.X_MARK} ${capitalizedTestType} tests failed.`)));
 
     cb(passed);
   });

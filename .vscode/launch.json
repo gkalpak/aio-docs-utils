@@ -23,7 +23,7 @@
       "name": "Extension Tests (unit) - DEBUG",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/out/test/helpers/jasmine-runner",
+      "program": "${workspaceFolder}/out/test/run-tests-unit",
       "stopOnEntry": true,
       "preLaunchTask": "npm: build",
     },
@@ -35,7 +35,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/",
+        "--extensionTestsPath=${workspaceFolder}/out/test/run-tests-e2e",
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js",

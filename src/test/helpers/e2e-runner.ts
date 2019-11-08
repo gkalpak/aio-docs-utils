@@ -56,7 +56,7 @@ interface ILsLReturnType extends Stats {
 // Constants
 const MAX_STORED_VERSIONS = 5;
 const ROOT_DIR = resolve(`${__dirname}/../../..`);
-const TEST_DIR = join(ROOT_DIR, 'out/test');
+const TESTS_PATH = join(ROOT_DIR, 'out/test/run-tests-e2e');
 const VSCODE_TEST_DIR = join(ROOT_DIR, '.vscode-test');
 
 // Run
@@ -66,7 +66,7 @@ _main(process.argv.slice(2));
 async function _main([versionSpec]: string[]): Promise<void> {
   try {
     const extensionDevelopmentPath = ROOT_DIR;
-    const extensionTestsPath = TEST_DIR;
+    const extensionTestsPath = TESTS_PATH;
     const launchArgs = [
       '--disable-extensions',
     ];
