@@ -1,5 +1,5 @@
 import * as MarkdownIt from 'markdown-it';
-import {fixGuideImagesPlugin, IMG_URL_PREFIX} from '../../../markdown-it-plugins/fix-guide-images';
+import {fixGuideImagesPlugin} from '../../../markdown-it-plugins/fix-guide-images';
 import {logger} from '../../../shared/logger';
 import {isNgProjectWatcher} from '../../../shared/workspace-folder-watcher';
 import {stripIndentation} from '../../helpers/string-utils';
@@ -79,54 +79,59 @@ describe('fixGuideImagesPlugin()', () => {
 
   function runTests(mdGenerator: IImageMarkdownGenerator, imgMatcher: (url: string) => RegExp): void {
     it('should rewrite image URLs pointing to `generated/images/`', () => {
-      const url = 'generated/images/foo/bar.png';
-      const input = mdGenerator(url);
+      const urlSuffix = 'images/foo/bar.png';
+      const inputUrl = `generated/${urlSuffix}`;
+      const input = mdGenerator(inputUrl);
       const output = md.render(input);
 
-      expect(output).not.toMatch(imgMatcher(url));
-      expect(output).toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}`));
+      expect(output).not.toMatch(imgMatcher(inputUrl));
+      expect(output).toMatch(imgMatcher(`../${urlSuffix}`));
     });
 
     it('should not rewrite image URLs pointing to other directories', () => {
-      const url = 'not-generated/images/foo/bar.png';
-      const input = mdGenerator(url);
+      const urlSuffix = 'images/foo/bar.png';
+      const inputUrl = `not-generated/${urlSuffix}`;
+      const input = mdGenerator(inputUrl);
       const output = md.render(input);
 
-      expect(output).toMatch(imgMatcher(url));
-      expect(output).not.toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}`));
+      expect(output).toMatch(imgMatcher(inputUrl));
+      expect(output).not.toMatch(imgMatcher(`../${urlSuffix}`));
     });
 
     it('should rewrite all occurrences', () => {
-      const url = 'generated/images/foo/bar.png';
-      const input = mdGenerator(`${url}.1`) + mdGenerator(`${url}.2`);
+      const urlSuffix = 'images/foo/bar.png';
+      const inputUrl = `generated/${urlSuffix}`;
+      const input = mdGenerator(`${inputUrl}.1`) + mdGenerator(`${inputUrl}.2`);
       const output = md.render(input);
 
-      expect(output).not.toMatch(imgMatcher(`${url}.1`));
-      expect(output).not.toMatch(imgMatcher(`${url}.2`));
-      expect(output).toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}.1`));
-      expect(output).toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}.2`));
+      expect(output).not.toMatch(imgMatcher(`${inputUrl}.1`));
+      expect(output).not.toMatch(imgMatcher(`${inputUrl}.2`));
+      expect(output).toMatch(imgMatcher(`../${urlSuffix}.1`));
+      expect(output).toMatch(imgMatcher(`../${urlSuffix}.2`));
     });
 
     it('should log rewrites', () => {
-      const url = 'generated/images/foo/bar.png';
-      const input = mdGenerator(`${url}.1`) + mdGenerator(`${url}.2`);
+      const urlSuffix = 'images/foo/bar.png';
+      const inputUrl = `generated/${urlSuffix}`;
+      const input = mdGenerator(`${inputUrl}.1`) + mdGenerator(`${inputUrl}.2`);
       md.render(input);
 
       expect(logSpy.calls.allArgs()).toEqual([
-        [`Rewriting image URL in Markdown preview: ${url}.1 --> ${IMG_URL_PREFIX}${url}.1`],
-        [`Rewriting image URL in Markdown preview: ${url}.2 --> ${IMG_URL_PREFIX}${url}.2`],
+        [`Rewriting image URL in Markdown preview: ${inputUrl}.1 --> ../${urlSuffix}.1`],
+        [`Rewriting image URL in Markdown preview: ${inputUrl}.2 --> ../${urlSuffix}.2`],
       ]);
     });
 
     it('should not rewrite image URLs if `isNgProjectWatcher.matches` is false', () => {
       matchesGetSpy.and.returnValue(false);
 
-      const url = 'generated/images/foo/bar.png';
-      const input = mdGenerator(url);
+      const urlSuffix = 'images/foo/bar.png';
+      const inputUrl = `generated/${urlSuffix}`;
+      const input = mdGenerator(inputUrl);
       const output = md.render(input);
 
-      expect(output).toMatch(imgMatcher(url));
-      expect(output).not.toMatch(imgMatcher(`${IMG_URL_PREFIX}${url}`));
+      expect(output).toMatch(imgMatcher(inputUrl));
+      expect(output).not.toMatch(imgMatcher(`../${urlSuffix}`));
     });
   }
 });

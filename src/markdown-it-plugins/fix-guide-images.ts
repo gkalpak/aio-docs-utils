@@ -3,14 +3,14 @@ import {logger} from '../shared/logger';
 import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 
 
-export const IMG_URL_PREFIX = '../../src/';
-
 export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
-  const imgReMd = /(\/)(generated\/images\/.+)$/;
-  const imgReHtml = /(<img +src=["']?)(generated\/images\/[^"' >]+)/g;
+  const imgReMd = /(\/)generated\/(images\/.+)$/;
+  const imgReHtml = /(<img +src=["']?)generated\/(images\/[^"' >]+)/g;
   const imgReplacer = (m: string, g1: string, g2: string) => {
-    logger.log(`Rewriting image URL in Markdown preview: ${g2} --> ${IMG_URL_PREFIX}${g2}`);
-    return `${g1}${IMG_URL_PREFIX}${g2}`;
+    const originalUrl = `generated/${g2}`;
+    const rewrittenUrl = `../${g2}`;
+    logger.log(`Rewriting image URL in Markdown preview: ${originalUrl} --> ${rewrittenUrl}`);
+    return `${g1}${rewrittenUrl}`;
   };
 
   const fallbackRender: MarkdownIt.TokenRender = (tokens, idx, options, env, self) => self.render(tokens, idx, options);

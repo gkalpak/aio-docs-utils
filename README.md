@@ -66,7 +66,7 @@ The extension enhances the generated previews of documentation Markdown files (m
 
 #### Fix URLs to local images
 
-Due to how the [angular.io](https://angular.io/) build system works, the local images referenced in guides will be served from a `generated/images/` directory in production. During development, images are (usually) located in the `aio/src/generated/images/` directory. The extension fixes the URLs of such images in Markdown previews, so that they point to the correct image files on disk and thus correctly show up in the preview.
+Due to how the [angular.io](https://angular.io/) build system works, the local images referenced in guides will be served from a `generated/images/` directory in production. During development, images are located in the `aio/content/images/` directory (from where they are copied to `aio/src/generated/images/` and from there to `aio/dist/generated/`). The extension fixes the URLs of such images in Markdown previews, so that they point to the correct image files on disk and thus correctly show up in the preview.
 
 _Before the fix:_
 ![Fix image URLs in Markdown preview](img/md-preview_image.before.png)
