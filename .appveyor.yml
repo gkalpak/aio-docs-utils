@@ -14,6 +14,7 @@ environment:
   matrix:
     - NODEJS_VERSION: "8"
     - NODEJS_VERSION: "10"
+    - NODEJS_VERSION: "12"
     - NODEJS_VERSION: ""  # For latest version.
 
 
