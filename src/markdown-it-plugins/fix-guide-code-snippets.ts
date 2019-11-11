@@ -22,7 +22,7 @@ export const fixGuideCodeSnippetsPlugin = (md: MarkdownIt): void => {
       replacer: (m: string, g1: string, g2: string, g3: string, g4: string) => {
         const rewrittenHtml =
           `${g1}<pre>&lt;${g2}${rewriteAttrs(g3, g1)}&gt;\n` +
-            processCodeTabsContent(g4.replace(/\s+$/, '')) +
+            processCodeTabsContent(g4) +
           `${g1}&lt;/${g2}&gt;</pre>`;
         logRewrite(m, rewrittenHtml);
         return rewrittenHtml;

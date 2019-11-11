@@ -376,7 +376,7 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
         `)}`,
       ],
       ['Rewriting code-snippet HTML in Markdown preview: </code-example> --> &lt;/code-example&gt;</pre>'],
-    ], `inline HTML (${generatorDesc})`);
+    ], `<code-example> inline HTML (${generatorDesc})`);
 
     logSpy.calls.reset();
 
@@ -396,7 +396,31 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
           </code-example>
         `)}</pre>`,
       ],
-    ], `block HTML (${generatorDesc})`);
+    ], `<code-example> block HTML (${generatorDesc})`);
+
+    logSpy.calls.reset();
+
+    md.render(mdGenerator(stripIndentation(`
+      <code-tabs>
+        <code-pane path="/path/to/samp.le.3" header="Sample 3">
+        </code-pane>
+      </code-tabs>
+    `)));
+
+    expect(logSpy.calls.allArgs()).toEqual([
+      [
+        'Rewriting code-snippet HTML in Markdown preview: ' +
+        '<code-tabs>\\n  <code-pane path="/path/to/samp.le.3" header="Sample 3">\\n  </code-pane>\\n</code-tabs> --> ' +
+        `<pre>${transformForOutput(`
+          <code-tabs>
+            <code-pane
+                header="Sample 3"
+                path="/path/to/samp.le.3">
+            </code-pane>
+          </code-tabs>
+        `)}</pre>`,
+      ],
+    ], `<code-tabs> block HTML (${generatorDesc})`);
   });
 
   // Helpers
