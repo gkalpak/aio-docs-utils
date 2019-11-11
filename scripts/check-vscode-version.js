@@ -2,10 +2,20 @@
 
 // Imports
 const semver = require('semver');
+/** @type IPackageJson */
 const pkg = require('../package.json');
 
+
+// Types
+/**
+ * @typedef IPackageJson
+ * @property {Record<string, string | undefined>} devDependencies
+ * @property {Record<string, string | undefined>} engines
+ */
+
 // Run
-const expectedVersion = semver.minVersion(pkg.engines.vscode).version;
+const expectedSemverVersion = pkg.engines.vscode && semver.minVersion(pkg.engines.vscode);
+const expectedVersion = expectedSemverVersion && expectedSemverVersion.version;
 const actualVersion = pkg.devDependencies['@types/vscode'];
 
 if (actualVersion !== expectedVersion) {
