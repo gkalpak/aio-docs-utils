@@ -36,7 +36,7 @@ export class MockOutputChannel {
   constructor(public readonly name: string) {
   }
 
-  public appendLine(value: string): void {
+  public appendLine(_value: string): void {
     return;
   }
 

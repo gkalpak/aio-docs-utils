@@ -50,7 +50,7 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
 
   codeSnippetGenerators.forEach(({desc: generatorDesc, extraIndentation, generator: mdGenerator}) => {
     // Helpers
-    const assertNotTransformed = (inputSnippet: string, ...outputSnippets: string[]) => {
+    const assertNotTransformed = (inputSnippet: string) => {
       const snippet = stripIndentation(inputSnippet);
       const input = mdGenerator(snippet);
       const output = md.render(input);

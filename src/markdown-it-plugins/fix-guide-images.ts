@@ -6,7 +6,7 @@ import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
   const imgReMd = /(\/)generated\/(images\/.+)$/;
   const imgReHtml = /(<img +src=["']?)generated\/(images\/[^"' >]+)/g;
-  const imgReplacer = (m: string, g1: string, g2: string) => {
+  const imgReplacer = (_m: string, g1: string, g2: string) => {
     const originalUrl = `generated/${g2}`;
     const rewrittenUrl = `../${g2}`;
     logger.log(`Rewriting image URL in Markdown preview: ${originalUrl} --> ${rewrittenUrl}`);
@@ -15,7 +15,7 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
 
   const rendererRules = md.renderer.rules as {[name: string]: MarkdownIt.FixedTokenRender};
   const fallbackRender: MarkdownIt.FixedTokenRender =
-    (tokens, idx, options, env, self) => self.render(tokens, idx, options);
+    (tokens, idx, options, _env, self) => self.render(tokens, idx, options);
 
   // HTML block/inline render. (Example: `<img src="..." />`)
   ['html_block', 'html_inline'].forEach(ruleName => {

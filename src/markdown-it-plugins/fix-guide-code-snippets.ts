@@ -43,7 +43,7 @@ export const fixGuideCodeSnippetsPlugin = (md: MarkdownIt): void => {
 
   const rendererRules = md.renderer.rules as {[name: string]: MarkdownIt.FixedTokenRender};
   const fallbackRender: MarkdownIt.FixedTokenRender =
-    (tokens, idx, options, env, self) => self.render(tokens, idx, options);
+    (tokens, idx, options, _env, self) => self.render(tokens, idx, options);
 
   // HTML block render.
   const originalHtmlBlockRender = rendererRules.html_block || fallbackRender;
@@ -90,7 +90,7 @@ function logRewrite(oldHtml: string, newHtml: string): void {
     `Rewriting code-snippet HTML in Markdown preview: ${escapeNl(oldHtml.trim())} --> ${escapeNl(newHtml.trim())}`);
 }
 
-function processCodePane(m: string, g1: string, g2: string, g3: string, g4: string): string {
+function processCodePane(_m: string, g1: string, g2: string, g3: string, g4: string): string {
   g4 = g4.replace(/\s+$/, '');
   const rewrittenHtml =
     `${g1}&lt;${g2}${rewriteAttrs(g3, g1)}&gt;\n` +
