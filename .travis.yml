@@ -7,7 +7,6 @@ sudo: false
 
 language: node_js
 node_js:
-  - 8
   - 10
   - 12
   - node
@@ -24,8 +23,7 @@ before_install:
     fi
 
 install:
-  # Run `npm install`, if `npm ci` fails, to work around old npm versions' not supporting `npm ci`.
-  - npm ci || npm install;
+  - npm ci;
 
 script:
   - npm run test-all-versions;
