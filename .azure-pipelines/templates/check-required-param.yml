@@ -1,0 +1,19 @@
+parameters:
+  name: ''
+  value: ''
+
+steps:
+  # Ensure `parameters.name` is specified.
+  - bash: |
+      if [ "${{ parameters.name }}" = "" ]; then
+        echo "##vso[task.logissue type=error;]Missing required template parameter 'name'."
+        echo "##vso[task.complete result=Failed;]"
+      fi
+    displayName: 'Check required parameter: name'
+  # Check required parameter.
+  - bash: |
+      if [ "${{ parameters.value }}" = "" ]; then
+        echo "##vso[task.logissue type=error;]Missing required template parameter '${{ parameters.name }}'."
+        echo "##vso[task.complete result=Failed;]"
+      fi
+    displayName: 'Check required parameter: ${{ parameters.name }}'

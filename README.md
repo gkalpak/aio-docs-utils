@@ -9,13 +9,17 @@ A [VSCode](https://code.visualstudio.com/) extension providing a set of simple u
 </sub>
 <br />
 
-[![Build status (Linux, macOS)](https://badgen.net/travis/gkalpak/aio-docs-utils/master?icon=travis&label=Build+status+(Linux,+macOS))](https://travis-ci.org/gkalpak/aio-docs-utils/branches)
-&emsp;
-[![Build status (Windows)](https://badgen.net/appveyor/ci/gkalpak/aio-docs-utils/master?icon=appveyor&label=Build+status+(Windows))](https://ci.appveyor.com/project/gkalpak/aio-docs-utils/branch/master)
-&emsp;
-[![Latest version](https://vsmarketplacebadge.apphb.com/version-short/gkalpak.aio-docs-utils.svg?color=blue&label=Latest+version&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=gkalpak.aio-docs-utils)
-&emsp;
-[![Project license](https://badgen.net/github/license/gkalpak/aio-docs-utils?emoji=1&label=📄+Project+license)](https://github.com/gkalpak/aio-docs-utils/tree/master/LICENSE.txt)
+<div align="center">
+
+  [![Latest version](https://vsmarketplacebadge.apphb.com/version-short/gkalpak.aio-docs-utils.svg?color=blue&label=Latest+version&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=gkalpak.aio-docs-utils)
+  &emsp;
+  <sub>
+    [![Build status](https://badgen.net/azure-pipelines/gkalpak/aio-docs-utils/1/master?emoji=1&label=🏗️+Build+status&scale=1.33)](https://gkalpak.visualstudio.com/aio-docs-utils/_build/latest?definitionId=1&branchName=master)
+  </sub>
+  &emsp;
+  [![Project license](https://badgen.net/github/license/gkalpak/aio-docs-utils?emoji=1&label=📄+Project+license)](https://github.com/gkalpak/aio-docs-utils/tree/master/LICENSE.txt)
+
+</div>
 
 ## Features
 
@@ -137,9 +141,6 @@ _These **will** be recognized:_
 ## TODO
 
 Things I want to (but won't necessarily) do:
-
-- Investigate switching from Travis+AppVeyor to CircleCI for testing on all platforms.
-- Release (minor?).
 
 - Add e2e tests.
 - Investigate possible `fixGuideCodeSnippetsPlugin()` improvements:

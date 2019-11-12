@@ -1,0 +1,87 @@
+trigger:
+  branches:
+    include:
+      - 'master'
+  tags:
+    include:
+      - '*'
+
+variables:
+  - template: 'templates/vars.yml'
+
+
+stages:
+
+  - stage: 'Test1'
+    displayName: 'Test on Linux'
+    dependsOn: []
+    jobs:
+      - template: 'templates/test-on-platform.yml'
+        parameters:
+          imageName: '${{ variables.imageNameLinux }}'
+
+  - stage: 'Test2'
+    displayName: 'Test on macOS'
+    dependsOn: []
+    jobs:
+      - template: 'templates/test-on-platform.yml'
+        parameters:
+          imageName: '${{ variables.imageNameMac }}'
+
+  - stage: 'Test3'
+    displayName: 'Test on Windows'
+    dependsOn: []
+    jobs:
+      - template: 'templates/test-on-platform.yml'
+        parameters:
+          imageName: '${{ variables.imageNameWindows }}'
+
+
+  - stage: 'Deploy'
+    dependsOn:
+      - 'Test1'
+      - 'Test2'
+      - 'Test3'
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    jobs:
+
+      - job: 'DeployGitHub'
+        displayName: 'Create GitHub release'
+        pool:
+          vmImage: '${{ variables.imageNameLinux }}'
+        steps:
+          # Install dependencies.
+          - template: 'templates/install-deps.yml'
+            parameters:
+              nodeVersion: '${{ variables.nodeVersionLatest }}'
+          # Package extension
+          - script: 'npm run vsce-package'
+            displayName: 'Package extension'
+          # Create Github release.
+          - task: 'GitHubRelease@1'
+            displayName: 'Create GitHub release'
+            inputs:
+              action: 'create'
+              repositoryName: '$(Build.Repository.Name)'
+              target: '$(Build.SourceVersion)'
+              tagSource: 'gitTag'
+              assets: '$(System.DefaultWorkingDirectory)/*.vsix'
+              changeLogType: 'commitBased'
+              changeLogCompareToRelease: 'lastNonDraftRelease'
+              gitHubConnection: 'aio-docs-utils/release/azure-devops'
+
+      - job: 'DeployMarketplace'
+        displayName: 'Publish to marketplace'
+        pool:
+          vmImage: '${{ variables.imageNameLinux }}'
+        steps:
+          # Install dependencies.
+          - template: 'templates/install-deps.yml'
+            parameters:
+              nodeVersion: '${{ variables.nodeVersionLatest }}'
+          # Publish to marketplace.
+          # WARNING: Using `--silent` to prevent npm from logging the value of `$VSCE_ACCESS_TOKEN`.
+          - script: 'npm run vsce-publish --silent -- --pat $VSCE_ACCESS_TOKEN'
+            displayName: 'Publish to marketplace'
+            env:
+              VSCE_ACCESS_TOKEN: '$(VSCE_ACCESS_TOKEN)'

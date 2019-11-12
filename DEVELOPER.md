@@ -30,7 +30,7 @@ The following npm scripts can be used for packaging and publishing a new version
 - `npm run vsce-package`: Package the current code into a `.vsix` file. These files can be used for offline installation, privately sharing the extension, or [manually publishing](https://marketplace.visualstudio.com/manage/publishers) a new version.
 - `npm run vsce-publish [-- --pat <PAT>]`: Publish the current code of the extension as a new version. Publishing requires authentication, e.g. by passing a [VSTS](https://visualstudio.microsoft.com/team-services) **Personal Access Token (PAT)**. See [here](https://code.visualstudio.com/docs/extensions/publish-extension) for more details.
 
-_Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `deploy` section in [.travis.yml](.travis.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `release` npm script._
+_Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `Deploy` stage in [.azure-pipelines/config.yml](.azure-pipelines/config.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `release` npm script._
 
 _This extension is published under the [gkalpak](https://dev.azure.com/gkalpak) Azure DevOps organization as publisher [gkalpak](https://marketplace.visualstudio.com/manage/publishers/gkalpak)._
 

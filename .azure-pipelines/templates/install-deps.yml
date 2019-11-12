@@ -1,0 +1,23 @@
+parameters:
+  nodeVersion: ''
+
+steps:
+  # Check required parameters.
+  - template: 'check-required-param.yml'
+    parameters:
+      name: 'nodeVersion'
+      value: '${{ parameters.nodeVersion }}'
+  # Install Node.js.
+  - task: 'UseNode@1'
+    displayName: 'Install Node.js v${{ parameters.nodeVersion }}'
+    inputs:
+      version: '${{ parameters.nodeVersion }}'
+      checkLatest: true
+  # Log Node.js/npm versions
+  - script: |
+      node --print "'node v' + process.versions.node"
+      node --print "'npm  v' + child_process.execSync('npm --version')"
+    displayName: 'Log Node.js/npm versions'
+  # Install dependencies.
+  - script: 'npm ci'
+    displayName: 'Install dependencies'

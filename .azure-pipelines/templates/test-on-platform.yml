@@ -1,0 +1,36 @@
+parameters:
+  imageName: ''
+
+jobs:
+  - job:
+    variables:
+      - template: 'vars.yml'
+    strategy:
+      matrix:
+        'Test with Node.js v${{ variables.nodeVersionLatest2 }} (${{ parameters.imageName }})':
+          nodeVersion: '${{ variables.nodeVersionLatest2 }}'
+        'Test with Node.js v${{ variables.nodeVersionLatest1 }} (${{ parameters.imageName }})':
+          nodeVersion: '${{ variables.nodeVersionLatest1 }}'
+        'Test with Node.js v${{ variables.nodeVersionLatest }} (${{ parameters.imageName }})':
+          nodeVersion: '${{ variables.nodeVersionLatest }}'
+    pool:
+      vmImage: '${{ parameters.imageName }}'
+    steps:
+      # Check required parameters.
+      - template: 'check-required-param.yml'
+        parameters:
+          name: 'imageName'
+          value: '${{ parameters.imageName }}'
+      # Install dependencies.
+      - template: 'install-deps.yml'
+        parameters:
+          nodeVersion: '$(nodeVersion)'
+      # Start Xvfb.
+      - script: '/usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &'
+        displayName: 'Start Xvfb'
+        condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+      # Run tests.
+      - script: 'npm run test-all-versions'
+        displayName: 'Run tests'
+        env:
+          DISPLAY: ':99.0'

@@ -98,7 +98,7 @@ The _subject_ sub-section contains a succinct description of the change, additio
 _Header_ examples:
 
 - `cfg(package): clean up output directory before building`
-- `ci(travis): run tests on latest Node.js`
+- `ci(Azure-DevOps): run tests on latest Node.js`
 - `docs(contributing): add commit message guidelines`
 - `feat(CodeSnipperIntellisense): improve code highlighting on hover`
 - `fix(code-snippet-intellisense): support single-quoted attributes`
