@@ -1,10 +1,11 @@
-.vscode/**
-.vscode-test/**
-out/test/**
+.vscode/
+.vscode-test/
+img/raw/
+out/test/
 out/**/*.map
-scripts/**
-src/**
-test-fixtures/**
+scripts/
+src/
+test-fixtures/
 
 *.log
 .appveyor.yml

@@ -138,8 +138,6 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Consider using `webpack` for start-up time (and overall perf?) improvement.
-  (References: https://medium.com/@fabiospampinato/why-i-wrote-33-vscode-extensions-and-how-i-manage-them-cb61df05e154, https://code.visualstudio.com/updates/v1_29#_bundling-extensions)
 - Investigate switching from Travis+AppVeyor to CircleCI for testing on all platforms.
 - Release (minor?).
 
