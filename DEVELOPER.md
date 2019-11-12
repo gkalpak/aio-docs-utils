@@ -15,11 +15,11 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 - `npm run build`: Compile the source code (including tests), using the TypeScript compiler.
 - `npm run build-watch`: Watch the source code (including tests) and re-build whenever something changes.
 
-- `npm run lint`: Lint the source code (including tests), using [tslint](https://palantir.github.io/tslint/).
+- `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [tslint](https://palantir.github.io/tslint), [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
 - `npm run test-unit`: Run unit tests.
 - `npm run test-e2e [-- <version>]`: Run e2e tests against the specified VSCode version (or the minimum supported version, if `<version>` is not specified). Possible values for `<version>` are: `insiders`, `min-supported`, `stable` or `<X>.<Y>.<Z>`<br />
   ([Note about e2e testing](#e2e-limitation).)
-- `npm run test`/`npm test`: Lint the source code (including tests) and run unit and e2e tests.
+- `npm run test`/`npm test`: Lint the source code and run unit and e2e tests.
 - `npm run test-all-versions`: Same as `npm test`, but runs e2e tests against both the minimum supported and the latest available version.
 
 - `npm run dev`: Watch the source code (including tests) and re-build and run unit tests whenever something changes. Useful during development.
@@ -32,7 +32,7 @@ The following npm scripts can be used for packaging and publishing a new version
 
 _Normally, the tasks of packaging, creating GitHub releases, and publishing to the marketplace are handled automatically on CI (see the `deploy` section in [.travis.yml](.travis.yml) for more info). Project maintainers only have to create and push a tagged commit, e.g. using the `release` npm script._
 
-_This extension is published under the [gkalpak](https://dev.azure.com/gkalpak) Azure DevOps organization._
+_This extension is published under the [gkalpak](https://dev.azure.com/gkalpak) Azure DevOps organization as publisher [gkalpak](https://marketplace.visualstudio.com/manage/publishers/gkalpak)._
 
 For a full list of available npm scripts, see [package.json](package.json).
 

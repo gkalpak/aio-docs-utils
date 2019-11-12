@@ -18,7 +18,7 @@
     "clean-out": "node --eval \"require('shelljs/global'); set('-e'); rm('-rf', 'out/');\"",
     "predev": "npm run build || true",
     "dev": "run-p ~~build-watch ~~test-unit-watch",
-    "lint": "run-s ~~lint-meta ~~lint-code",
+    "lint": "run-s ~~lint-infra ~~lint-code",
     "prerelease": "npm test",
     "release": "gkcu-run \"npm version \\${*:patch}\"",
     "pretest": "npm run build",
@@ -36,7 +36,7 @@
     "~~build": "tsc --project ./",
     "~~build-watch": "npm run ~~build -- --watch",
     "~~lint-code": "tslint --project tsconfig.json",
-    "~~lint-meta": "tsc --project scripts/ && node scripts/check-vscode-version",
+    "~~lint-infra": "tsc --project scripts/ && node scripts/check-vscode-version",
     "~~test-e2e": "gkcu-run \"node out/test/helpers/e2e-runner \\${*:min-supported}\"",
     "~~test-unit": "node out/test/run-tests-unit",
     "~~test-unit-watch": "watch \"npm run ~~test-unit\" out/ --wait 1"
