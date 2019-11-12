@@ -1,6 +1,18 @@
+####################################################################################################
+# WARNING
+#
+# Secrets are _not_ automatically filtered when targeting Windows on Travis CI ([known issues][1]).
+# Make sure no secrets are used in scripts executed on Windows (e.g. no deployments).
+# See also [Recommendations on how to avoid leaking secrets to build logs][2].
+#
+# [1]: https://travis-ci.community/t/current-known-issues-please-read-this-before-posting-a-new-topic/264
+# [2]: https://docs.travis-ci.com/user/best-practices-security/#recommendations-on-how-to-avoid-leaking-secrets-to-build-logs
+####################################################################################################
+
 os:
   - linux
   - osx
+  - windows
 
 dist: trusty
 sudo: false
@@ -16,6 +28,14 @@ cache:
     - .vscode-test/  # Local `.vscode-test/` directory
     - "$HOME/.npm/"  # Global npm cache.
 
+jobs:
+  allow_failures:
+    # Running e2e tests currently fails on Windows with `Exit code: 3221225781`.
+    # (Sample job: https://travis-ci.org/gkalpak/aio-docs-utils/jobs/610835900)
+    - os: windows
+
+
+# Test
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       export DISPLAY=":99.0";
@@ -23,14 +43,17 @@ before_install:
     fi
 
 install:
-  - npm ci;
+  # The default cache is different on Windows, so ensure the same directory is used on all
+  # platforms. (Reference: https://docs.npmjs.com/files/folders.html#cache)
+  - npm ci --cache $HOME/.npm/;
 
 script:
   - npm run test-all-versions;
 
 
+# Deploy
 before_deploy:
- - npm run vsce-package;
+  - npm run vsce-package;
 
 deploy:
   # Create a GitHub release.
