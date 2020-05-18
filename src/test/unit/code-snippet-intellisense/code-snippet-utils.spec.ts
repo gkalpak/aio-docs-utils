@@ -132,6 +132,43 @@ describe('CodeSnippetUtils', () => {
       });
     });
 
+    it('should detect multi-line code snippets with whitespace-only content between tags', () => {
+      withBothQuotes(q => {
+        const doc = createTextDocument(quote(q, `
+          <code-example path=%foo%>
+
+
+          </code-example>
+          <code-example path=%bar%>
+
+            Non-whitespace content
+
+          </code-example>
+          ${EOF_MARKER}
+          0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+                    012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+        `));
+
+        expect(csUtils.getInfo(doc, new Position(0,  0))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(0, 10))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(0, 15))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(1,  0))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(2,  0))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(3,  0))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(3, 10))).toEqual(jasmine.any(Object));
+        expect(csUtils.getInfo(doc, new Position(3, 14))).toEqual(jasmine.any(Object));
+
+        expect(csUtils.getInfo(doc, new Position(3, 15))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(4,  0))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(4, 10))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(5,  0))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(6, 10))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(7,  0))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(8,  0))).toBeNull();
+        expect(csUtils.getInfo(doc, new Position(8, 10))).toBeNull();
+      });
+    });
+
     it('should recognize known attributes of code snippet elements on a line', () => {
       withBothQuotes(q => {
         const doc = createTextDocument(quote(q, `
@@ -293,6 +330,31 @@ describe('CodeSnippetUtils', () => {
       expect(csUtils.getInfo(doc, new Position(6, 22))!.raw).toEqual(expectedRawInfo2);
       expect(csUtils.getInfo(doc, new Position(7,  5))!.raw).toEqual(expectedRawInfo2);
       expect(csUtils.getInfo(doc, new Position(7, 12))!.raw).toEqual(expectedRawInfo2);
+    });
+
+    it('should extract raw info from multi-line code snippets with whitespace-only content between tags', () => {
+      const doc = createTextDocument(`
+        line before
+        text before <code-example path="foo">
+
+
+                    </code-example> text after
+        line after
+        ${EOF_MARKER}
+        0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+      `);
+      const expectedRawInfo: ICodeSnippetRawInfo<CodeSnippetType.HtmlTag> = {
+        contents: '<code-example path="foo">\n\n\n            </code-example>',
+        endPos: new Position(4, 27),
+        startPos: new Position(1, 12),
+        type: CodeSnippetType.HtmlTag,
+      };
+
+      expect(csUtils.getInfo(doc, new Position(1, 17))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(2,  0))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(3,  5))!.raw).toEqual(expectedRawInfo);
+      expect(csUtils.getInfo(doc, new Position(3, 22))!.raw).toEqual(expectedRawInfo);
     });
 
     // `getAttrInfo()`

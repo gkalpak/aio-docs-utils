@@ -207,7 +207,7 @@ export class CodeSnippetUtils {
   }
 
   private isMiddleLine(line: string): boolean {
-    return this.HAS_ATTR_RE.test(line);
+    return this.HAS_ATTR_RE.test(line) || (line.trim() === '');
   }
 
   private isOpenLine(line: string, beforeIdx: number): string | null {
