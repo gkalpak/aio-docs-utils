@@ -5,7 +5,7 @@ import {
   CodeSnippetIntellisenseProvider, ICodeSnippetInfoWithFilePath,
 } from '../../../code-snippet-intellisense/code-snippet-intellisense-provider';
 import {
-  codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetRawInfo,
+  codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetRawInfo, ICodeSnippetInfo,
 } from '../../../code-snippet-intellisense/code-snippet-utils';
 import {DocregionExtractor, IDocregionInfo} from '../../../code-snippet-intellisense/docregion-extractor';
 import {fileSystem as fs} from '../../../shared/file-system';
@@ -56,7 +56,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
       deExtractSpy = jasmine.createSpy('extract').and.returnValue(null);
       getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').and.
-        returnValue(Promise.resolve({extract: deExtractSpy}));
+        returnValue(Promise.resolve({extract: deExtractSpy} as unknown as DocregionExtractor));
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
@@ -127,7 +127,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
       deGetAvailableNamesSpy = jasmine.createSpy('getAvailableNames').and.returnValue([]);
       getDocregionExtractorSpy = spyOn(csip, 'getDocregionExtractor').and.
-        returnValue(Promise.resolve({getAvailableNames: deGetAvailableNamesSpy}));
+        returnValue(Promise.resolve({getAvailableNames: deGetAvailableNamesSpy} as unknown as DocregionExtractor));
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
@@ -180,7 +180,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       getInfoSpy = spyOn(codeSnippetUtils, 'getInfo').and.returnValue({
         attrs: {path: 'file/pat.h'},
         raw: {contents: '<code-snippet></code-snippet>'},
-      });
+      } as unknown as ICodeSnippetInfo);
     });
 
     it('should delegate to `CodeSnippetUtils.getInfo()`', async () => {

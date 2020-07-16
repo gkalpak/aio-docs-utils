@@ -47,6 +47,6 @@ export const isNgProjectWatcher = new WorkspaceFolderWatcher('isAngularProject',
 });
 
 // Helpers
-function allExist(stats: Array<FileStat | null>): stats is FileStat[] {
+function allExist(stats: (FileStat | null)[]): stats is FileStat[] {
   return stats.every(s => s !== null);
 }

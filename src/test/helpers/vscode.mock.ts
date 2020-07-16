@@ -1,7 +1,7 @@
 // tslint:disable: max-classes-per-file
 
 // Variables
-export const workspaceOnDidChangeWorkspaceFoldersListeners: Array<() => any> = [];
+export const workspaceOnDidChangeWorkspaceFoldersListeners: (() => any)[] = [];
 
 // Classes
 export class MockDisposable {
