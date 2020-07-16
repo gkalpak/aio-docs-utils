@@ -1,10 +1,11 @@
 import * as MarkdownIt from 'markdown-it';
+import * as MarkdownItRenderer from 'markdown-it/lib/renderer';
 import {logger} from '../shared/logger';
 import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 
 
 export const fixGuideCodeSnippetsPlugin = (md: MarkdownIt): void => {
-  const htmlBlockReplacers: Array<{re: RegExp, replacer: (...args: string[]) => string}> = [
+  const htmlBlockReplacers: {re: RegExp, replacer: (...args: string[]) => string}[] = [
     {
       re: /( *)<(code-example)(|\s[^>]*)>(?: *\n)*([^<]*)<\/\2>/g,
       replacer: (m: string, g1: string, g2: string, g3: string, g4: string) => {
@@ -29,7 +30,7 @@ export const fixGuideCodeSnippetsPlugin = (md: MarkdownIt): void => {
       },
     },
   ];
-  const htmlInlineReplacers: Array<{re: RegExp, replacer: (...args: string[]) => string}> = [
+  const htmlInlineReplacers: {re: RegExp, replacer: (...args: string[]) => string}[] = [
     {
       re: /^<((\/?)code-(?:example|tabs))(|\s[^>]*)>$/g,
       replacer: (m: string, g1: string, g2: string, g3: string) => {
@@ -41,9 +42,9 @@ export const fixGuideCodeSnippetsPlugin = (md: MarkdownIt): void => {
     },
   ];
 
-  const rendererRules = md.renderer.rules as {[name: string]: MarkdownIt.FixedTokenRender};
-  const fallbackRender: MarkdownIt.FixedTokenRender =
-    (tokens, idx, options, _env, self) => self.render(tokens, idx, options);
+  const rendererRules = md.renderer.rules;
+  const fallbackRender: MarkdownItRenderer.RenderRule =
+    (tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options);
 
   // HTML block render.
   const originalHtmlBlockRender = rendererRules.html_block || fallbackRender;

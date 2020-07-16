@@ -1,4 +1,5 @@
 import * as MarkdownIt from 'markdown-it';
+import * as MarkdownItRenderer from 'markdown-it/lib/renderer';
 import {logger} from '../shared/logger';
 import {isNgProjectWatcher} from '../shared/workspace-folder-watcher';
 
@@ -13,9 +14,9 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
     return `${g1}${rewrittenUrl}`;
   };
 
-  const rendererRules = md.renderer.rules as {[name: string]: MarkdownIt.FixedTokenRender};
-  const fallbackRender: MarkdownIt.FixedTokenRender =
-    (tokens, idx, options, _env, self) => self.render(tokens, idx, options);
+  const rendererRules = md.renderer.rules;
+  const fallbackRender: MarkdownItRenderer.RenderRule =
+    (tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options);
 
   // HTML block/inline render. (Example: `<img src="..." />`)
   ['html_block', 'html_inline'].forEach(ruleName => {
@@ -37,7 +38,7 @@ export const fixGuideImagesPlugin = (md: MarkdownIt): void => {
   rendererRules.image = (tokens, idx, options, env, self) => {
     if (isNgProjectWatcher.matches) {
       const token = tokens[idx];
-      const srcAttr = token.attrs[token.attrIndex('src')];
+      const srcAttr = token.attrs && token.attrs[token.attrIndex('src')];
 
       if (srcAttr) {
         srcAttr[1] = srcAttr[1].replace(imgReMd, imgReplacer);

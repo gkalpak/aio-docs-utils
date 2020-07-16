@@ -36,7 +36,8 @@ describe('extension', () => {
 
     it('should show an ephemeral message in the status bar', () => {
       const mockDisposable: Disposable = {} as any;
-      const setStatusBarMessageSpy = spyOn(window, 'setStatusBarMessage').and.returnValue(mockDisposable);
+      const setStatusBarMessageSpy: jasmine.Spy<(text: string, hideAfterTimeout: number) => Disposable> =
+        spyOn(window, 'setStatusBarMessage').and.returnValue(mockDisposable);
 
       activate(mockContext);
 
