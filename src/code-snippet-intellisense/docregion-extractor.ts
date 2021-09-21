@@ -103,7 +103,8 @@ export class DocregionExtractor {
             const region = regions.get(name)!;
             region.rawRanges.push(newRange);
             if (plaster) {
-              region.rawContents.push(plaster);
+              const indent = startRegion[0].split(/\S/, 1)[0];
+              region.rawContents.push(indent + plaster);
             }
           }
         });

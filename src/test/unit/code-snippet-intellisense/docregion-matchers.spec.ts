@@ -456,6 +456,11 @@ describe('docregionMatchers', () => {
 });
 
 describe('getDocregionMatchers()', () => {
+  it('should return `hashComment` matcher for CONF files', () => {
+    expect(getDocregionMatcher('conf')).toBe(docregionMatchers.hashComment);
+    expect(getDocregionMatcher('CONF')).toBe(docregionMatchers.hashComment);
+  });
+
   it('should return `blockComment` matcher for CSS files', () => {
     expect(getDocregionMatcher('css')).toBe(docregionMatchers.blockComment);
     expect(getDocregionMatcher('CSS')).toBe(docregionMatchers.blockComment);
@@ -487,6 +492,16 @@ describe('getDocregionMatchers()', () => {
   it('should return `inlineComment` matcher for JADE files', () => {
     expect(getDocregionMatcher('jade')).toBe(docregionMatchers.inlineComment);
     expect(getDocregionMatcher('JADE')).toBe(docregionMatchers.inlineComment);
+  });
+
+  it('should return `inlineComment` matcher for JSON files', () => {
+    expect(getDocregionMatcher('json')).toBe(docregionMatchers.inlineComment);
+    expect(getDocregionMatcher('JSON')).toBe(docregionMatchers.inlineComment);
+  });
+
+  it('should return `inlineComment` matcher for JSON.ANNOTATED files', () => {
+    expect(getDocregionMatcher('json.annotated')).toBe(docregionMatchers.inlineComment);
+    expect(getDocregionMatcher('JSON.ANNOTATED')).toBe(docregionMatchers.inlineComment);
   });
 
   it('should return `inlineComment` matcher for PUG files', () => {

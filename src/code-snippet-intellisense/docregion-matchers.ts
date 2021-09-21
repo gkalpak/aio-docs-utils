@@ -80,19 +80,22 @@ export const docregionMatchers = {
 
 export const getDocregionMatcher = (fileType: string): IDocregionMatcher => {
   switch (fileType.toLowerCase()) {
-    case 'css':
-      return docregionMatchers.blockComment;
-
+    case 'conf':
     case 'sh':
     case 'yaml':
     case 'yml':
       return docregionMatchers.hashComment;
+
+    case 'css':
+      return docregionMatchers.blockComment;
 
     case 'html':
     case 'svg':
       return docregionMatchers.htmlComment;
 
     case 'jade':
+    case 'json':
+    case 'json.annotated':
     case 'pug':
       return docregionMatchers.inlineComment;
 

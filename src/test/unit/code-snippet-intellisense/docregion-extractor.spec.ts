@@ -131,6 +131,30 @@ describe('DocregionExtractor', () => {
       ]);
     });
 
+    it('should preserve the indentation for the docplaster', () => {
+      const extractor = createDocregionExtractor('foo', stripIndentation(`
+        mock#docregion
+        line 1
+        mock#enddocregion
+          line 2
+            mock#docregion
+              line 3
+            mock#enddocregion
+          line 4
+        mock#docregion
+          line 5
+        mock#enddocregion
+      `));
+
+      expect(extractor.extract().contents).toEqual([
+        'line 1',
+        '    mock#. . .',
+        '      line 3',
+        'mock#. . .',
+        '  line 5',
+      ]);
+    });
+
     it('should use the specified docplaster (from that point onwards)', () => {
       const extractor = createDocregionExtractor('foo', stripIndentation(`
         mock#docregion
