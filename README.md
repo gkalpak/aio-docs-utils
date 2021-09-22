@@ -142,7 +142,11 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
+- Switch from TSLint to ESLint for linting + update docs (e.g. `DEVELOPER.md`).
+- Switch to `webpack` + update docs (e.g. `DEVELOPER.md`).
+- Make it a [web extension](https://code.visualstudio.com/api/extension-guides/web-extensions) + update docs (e.g. `DEVELOPER.md`).
 - Add e2e tests.
+- Consider adding a shortcut for opening `http://localhost:4200/` inside the editor to preview the app (using the built-in `simpleBrowser.show` command).
 - Investigate possible `fixGuideCodeSnippetsPlugin()` improvements:
   - Improvement 1: Parse and show snippet info (header, path, region, etc.).
     - Investigate parsing snippets (without file info).
@@ -157,38 +161,4 @@ Things I want to (but won't necessarily) do:
           _(Do I need to deal with formatting (e.g. whitespace)?)_
       - Extract the code snippet attributes and content and show them in the Markdown preview.
         _This is very similar to `CodeSnippetIntellisenseProvider#provideHover()`. Investigate reuse opportunities._
-- Investigate/Add ability to preview app in `WebView > iframe`. E.g.:
-  ```ts
-  const panel = window.createWebviewPanel('foo', 'Hello, world!', ViewColumn.Active, {
-    enableScripts: true,
-    retainContextWhenHidden: true,
-  });
-  panel.webview.html = `
-    <!DOCTYPE html>
-    <html>
-
-      <head>
-        <style>
-          html, body {
-            margin: 0;
-            overflow: hidden;
-            padding: 0;
-          }
-
-          iframe {
-            border: none;
-            height: 100vh;
-            width: 100vw;
-          }
-        </style>
-      </head>
-
-      <body>
-        <iframe src="http://localhost:4200/"></iframe>
-      </body>
-
-    </html>
-  `;
-  ```
-  (References: https://code.visualstudio.com/api/extension-guides/webview)
 - Refactor `CodeSnippetUtils` into separate (independently unit-testable) "parsers" for different types of tags (`HtmlTag`, `NgdocTag`, etc.), that would return `ICodeSnippetRawInfo` and `ICodeSnippetAttrInfo`.
