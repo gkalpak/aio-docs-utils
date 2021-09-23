@@ -15,7 +15,7 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 - `npm run build`: Compile the source code (including tests), using the TypeScript compiler.
 - `npm run build-watch`: Watch the source code (including tests) and re-build whenever something changes.
 
-- `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [tslint](https://palantir.github.io/tslint), [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
+- `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [ESLint](https://eslint.org/), [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
 - `npm run test-unit`: Run unit tests.
 - `npm run test-e2e [-- <version>]`: Run e2e tests against the specified VSCode version (or the minimum supported version, if `<version>` is not specified). Possible values for `<version>` are: `insiders`, `min-supported`, `stable` or `<X>.<Y>.<Z>`<br />
   ([Note about e2e testing](#e2e-limitation).)

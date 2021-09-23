@@ -351,7 +351,6 @@ describe('CodeSnippetIntellisenseProvider', () => {
     });
 
     it('should return true if currently editing `region` attribute\'s value', () => {
-      // tslint:disable: object-literal-sort-keys
       const editingPositionsPerLine: {[lineText: string]: number[]} = {
         'before <foo bar="bar" region="" baz="baz"> after': [29, 30],
         'before <foo bar="bar" region="qux" baz="baz"> after': [29, 30, 31, 32],
@@ -364,7 +363,6 @@ describe('CodeSnippetIntellisenseProvider', () => {
         // 23456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
         //         012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       };
-      // tslint:enable: object-literal-sort-keys
 
       Object.keys(editingPositionsPerLine).forEach(lineText => {
         const positions = editingPositionsPerLine[lineText].map(charIdx => new Position(42, charIdx));
@@ -376,7 +374,6 @@ describe('CodeSnippetIntellisenseProvider', () => {
     });
 
     it('should return false if not currently editing `region` attribute\'s value', () => {
-      // tslint:disable: object-literal-sort-keys
       const editingPositionsPerLine: {[lineText: string]: number[]} = {
         'before <foo bar="bar" region="" baz="baz"> after': [0, 5, 18, 25, 28, 31, 33, 38, 45],
         'before <foo noregion="" no-region=""> after': [21, 22, 34, 35],
@@ -388,7 +385,6 @@ describe('CodeSnippetIntellisenseProvider', () => {
         // 23456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
         //         012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       };
-      // tslint:enable: object-literal-sort-keys
 
       Object.keys(editingPositionsPerLine).forEach(lineText => {
         const positions = editingPositionsPerLine[lineText].map(charIdx => new Position(42, charIdx));
@@ -402,8 +398,8 @@ describe('CodeSnippetIntellisenseProvider', () => {
     it('should not get confused by different quotemarks', () => {
       [8, 9, 10, 11, 12, 13].forEach(charIdx => {
         const pos = new Position(42, charIdx);
-        expect(isInRegionAttribute(` region="q'u'x"`, pos)).toBe(true);
-        expect(isInRegionAttribute(` region='q"u"x'`, pos)).toBe(true);
+        expect(isInRegionAttribute(` region="q'u'x"`, pos)).toBe(true);  // eslint-disable-line quotes
+        expect(isInRegionAttribute(` region='q"u"x'`, pos)).toBe(true);  // eslint-disable-line quotes
         //                          012345678911111
         //                                    01234
       });

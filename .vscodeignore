@@ -9,6 +9,6 @@ src/
 test-fixtures/
 
 *.log
+.eslintrc.json
 .gitignore
 tsconfig.json
-tslint.json

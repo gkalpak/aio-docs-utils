@@ -3,12 +3,12 @@ import {CancellationToken} from 'vscode';
 
 
 export const asPromised = <T = any>(
-    fn: (...args: any[]) => void,
-    context: any = null): ((...args: any[]) => Promise<T>) =>
-  (...args) => new Promise((resolve, reject) => {
-    const cb = (err: any, value: T) => err ? reject(err) : resolve(value);
-    fn.apply(context, args.concat(cb));
-  });
+  fn: (...args: any[]) => void,
+  context: any = null): ((...args: any[]) => Promise<T>) =>
+    (...args) => new Promise((resolve, reject) => {
+      const cb = (err: any, value: T) => err ? reject(err) : resolve(value);
+      fn.apply(context, args.concat(cb));
+    });
 
 export const kebabToCamelCase = (input: string): string =>
   input.replace(/-([a-z])/g, (_, g1) => g1.toUpperCase());
@@ -25,8 +25,8 @@ export const padStart = (input: string, len: number, padStr = ' '): string => {
 };
 
 export const unlessCancelledFactory = (token: CancellationToken) =>
-  <TInput, TOutput>(fn: (input: TInput) => TOutput | Promise<TOutput>) =>
-    (input: TInput) => {
+  <TInput, TOutput>(fn: (_input: TInput) => TOutput | Promise<TOutput>) =>
+    (input: TInput): TOutput | Promise<TOutput> => {
       if (token.isCancellationRequested) {
         throw new Error('Cancelled.');
       }

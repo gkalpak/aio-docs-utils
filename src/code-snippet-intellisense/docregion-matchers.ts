@@ -1,4 +1,4 @@
-// tslint:disable: max-classes-per-file
+/* eslint-disable max-classes-per-file */
 
 export interface IDocregionMatcher {
   regionStartRe: RegExp;

@@ -20,7 +20,7 @@ const actualVersion = pkg.devDependencies['@types/vscode'];
 
 if (actualVersion !== expectedVersion) {
   console.error(
-    `Expected the version of \`@types/vscode\` to be '${expectedVersion}' (the minimum supported one), but it is ` +
-    `'${actualVersion}'.\n`);
+      `Expected the version of \`@types/vscode\` to be '${expectedVersion}' (the minimum supported one), but it is ` +
+      `'${actualVersion}'.\n`);
   process.exit(1);
 }

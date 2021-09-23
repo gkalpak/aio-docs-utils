@@ -88,7 +88,7 @@ function escapeNl(input: string): string {
 
 function logRewrite(oldHtml: string, newHtml: string): void {
   logger.log(
-    `Rewriting code-snippet HTML in Markdown preview: ${escapeNl(oldHtml.trim())} --> ${escapeNl(newHtml.trim())}`);
+      `Rewriting code-snippet HTML in Markdown preview: ${escapeNl(oldHtml.trim())} --> ${escapeNl(newHtml.trim())}`);
 }
 
 function processCodePane(_m: string, g1: string, g2: string, g3: string, g4: string): string {

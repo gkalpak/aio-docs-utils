@@ -1,5 +1,5 @@
 import {Disposable, window} from 'vscode';
-// tslint:disable-next-line: no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const {displayName, name} = require('../../package.json');
 
 export class Logger implements Disposable {

@@ -1,0 +1,34 @@
+{
+  "env": {
+    "node": false
+  },
+  "extends": [
+    "../.eslintrc.json",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "rules": {
+    // TODO(gkalpak): Enable this rule and fix violations.
+    "@typescript-eslint/explicit-member-accessibility": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": true
+        }
+      }
+    ],
+    // TODO(gkalpak): Enable this rule and fix violations.
+    "@typescript-eslint/no-explicit-any": "off",
+    // TODO(gkalpak): Enable this rule and fix violations.
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", {"argsIgnorePattern": "^_"}]
+  }
+}

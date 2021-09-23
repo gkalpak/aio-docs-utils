@@ -109,6 +109,8 @@ function debugMessage(msg: string): void {
 
 function getMinSupportedVersion(): string {
   debugMessage('Getting minimum supported version...');
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   let {engines: {vscode: version}} = require(`${ROOT_DIR}/package.json`);
 
   // Replace leading symbols (e.g. `^`, `~`, `>=`).
@@ -152,6 +154,7 @@ function resolveVersion(versionSpec = 'stable'): string {
         throw new Error(`Unsupported version format (${versionSpec}). ` +
                         'Expected one of: insiders, min-supported, stable or <X>.<Y>.<Z>');
       }
+      // Falls through.
     case 'stable':
     case 'insiders':
       return versionSpec;

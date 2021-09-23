@@ -236,9 +236,9 @@ export class CodeSnippetUtils {
   private normalizeLinenums(rawAttrValue: string | null): ILinenums {
     return (rawAttrValue === 'true') ?
       true : (rawAttrValue === 'false') ?
-      false : (rawAttrValue === null) || isNaN(rawAttrValue as any) ?
-      false :
-      parseInt(rawAttrValue, 10);
+        false : (rawAttrValue === null) || isNaN(rawAttrValue as any) ?
+          false :
+          parseInt(rawAttrValue, 10);
   }
 
   private parseNgdocAttrs(attrsStr: string): IParsedNgdocAttrs {

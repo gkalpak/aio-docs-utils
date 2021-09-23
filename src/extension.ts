@@ -5,7 +5,7 @@ import {logger} from './shared/logger';
 import {isNgProjectWatcher} from './shared/workspace-folder-watcher';
 
 
-// tslint:disable-next-line: no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const {displayName} = require('../package.json');
 const features = [
   CodeSnippetIntellisenseFeature,
@@ -15,7 +15,6 @@ export function activate(context: ExtensionContext): {extendMarkdownIt: typeof e
   context.subscriptions.push(logger);
   context.subscriptions.push(isNgProjectWatcher);
 
-  // tslint:disable-next-line: variable-name
   features.forEach(Feature => Feature.activate(context));
   context.subscriptions.push(window.setStatusBarMessage(`${displayName} activated.`, 5000));
 

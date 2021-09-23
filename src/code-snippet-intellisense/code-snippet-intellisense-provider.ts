@@ -51,13 +51,14 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
           insertText = `"${insertText}"`;
           break;
         case '"':
-        case '\'':
+        case '\'': {
           const line = doc.lineAt(pos.line);
           const nextChar = line.text[pos.character];
           if (nextChar !== ctx.triggerCharacter) {
             insertText = insertText + ctx.triggerCharacter;
           }
           break;
+        }
         default:
           break;
       }

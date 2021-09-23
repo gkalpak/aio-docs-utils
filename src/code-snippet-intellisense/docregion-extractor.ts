@@ -36,7 +36,7 @@ export class DocregionExtractor {
 
   public extract(docregion?: ''): IDocregionInfo;
   public extract(docregion: string): IDocregionInfo | null;
-  public extract(docregion: string = ''): IDocregionInfo | null {
+  public extract(docregion = ''): IDocregionInfo | null {
     // Retrieve the specified region, post-process (if not already post-processed), and return it.
     const regions = this.getRegions();
     let regionInfo = regions.get(docregion);
@@ -152,7 +152,7 @@ export class DocregionExtractor {
   }
 
   private isProvisional(info: IProvisionalDocregionInfo | IDocregionInfo): info is IProvisionalDocregionInfo {
-    return info.hasOwnProperty('rawContents');
+    return Object.prototype.hasOwnProperty.call(info, 'rawContents');
   }
 
   private leftAlign(lines: string[]): string[] {

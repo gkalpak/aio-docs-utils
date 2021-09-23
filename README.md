@@ -142,7 +142,6 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Switch from TSLint to ESLint for linting + update docs (e.g. `DEVELOPER.md`).
 - Switch to `webpack` + update docs (e.g. `DEVELOPER.md`).
 - Make it a [web extension](https://code.visualstudio.com/api/extension-guides/web-extensions) + update docs (e.g. `DEVELOPER.md`).
 - Add e2e tests.

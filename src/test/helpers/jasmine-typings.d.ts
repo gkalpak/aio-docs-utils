@@ -34,5 +34,6 @@ export interface IJasmineRunner extends Jasmine {
 }
 
 export interface IJasmineTimer {
+  // eslint-disable-next-line @typescript-eslint/no-misused-new
   new(): IJasmineTimer;
 }

@@ -1,0 +1,47 @@
+{
+  "env": {
+    "es2020": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "root": true,
+  "rules": {
+    "arrow-parens": ["error", "as-needed"],
+    "dot-location": ["error", "object"],
+    "indent": ["error", 2, {
+      "CallExpression": {"arguments": 2},
+      "FunctionDeclaration": {"parameters": 2},
+      "FunctionExpression": {"parameters": 2},
+      "SwitchCase": 1
+    }],
+    "linebreak-style": ["error", "unix"],
+    "max-classes-per-file": ["error", 2],
+    "max-len": ["error", 120],
+    "no-console": "off",
+    "no-multiple-empty-lines": ["error", {"max": 2, "maxBOF": 0, "maxEOF": 0}],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "fdescribe",
+        "message": "Focused test suites are disallowed."
+      },
+      {
+        "name": "fit",
+        "message": "Focused tests are disallowed."
+      },
+      {
+        "name": "xdescribe",
+        "message": "Skipped test suites are disallowed."
+      },
+      {
+        "name": "xit",
+        "message": "Skipped tests are disallowed."
+      }
+    ],
+    "no-unused-vars": ["error", {"argsIgnorePattern": "^_"}],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"]
+  }
+}

@@ -71,81 +71,81 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
     describe(`(with ${generatorDesc})`, () => {
       it('should rewrite single-line `<code-example>` occurrences', () => {
         assertTransformed(
-          `
-            <code-example header="Sample" path="/path/to/samp.le"></code-example>
-          `, `
-            <code-example
-                header="Sample"
-                path="/path/to/samp.le">
-            </code-example>
-          `);
+            `
+              <code-example header="Sample" path="/path/to/samp.le"></code-example>
+            `, `
+              <code-example
+                  header="Sample"
+                  path="/path/to/samp.le">
+              </code-example>
+            `);
       });
 
       it('should rewrite multi-line `<code-example>` occurrences', () => {
         assertTransformed(
-          `
-            <code-example header="Sample"
-                path="/path/to/samp.le"
-              region="sample-region"></code-example>
-          `, `
-            <code-example
-                header="Sample"
-                path="/path/to/samp.le"
-                region="sample-region">
-            </code-example>
-          `);
+            `
+              <code-example header="Sample"
+                  path="/path/to/samp.le"
+                region="sample-region"></code-example>
+            `, `
+              <code-example
+                  header="Sample"
+                  path="/path/to/samp.le"
+                  region="sample-region">
+              </code-example>
+            `);
       });
 
       it('should correctly handle a line-break before the closing `</code-example>` tag', () => {
         assertTransformed(
-          `
-            <code-example path="/path/to/samp.le">
-            </code-example>
-          `, `
-            <code-example
-                path="/path/to/samp.le">
-            </code-example>
-          `);
+            `
+              <code-example path="/path/to/samp.le">
+              </code-example>
+            `, `
+              <code-example
+                  path="/path/to/samp.le">
+              </code-example>
+            `);
       });
 
       it('should order `<code-example>` attributes alphabetically', () => {
         assertTransformed(
-          `
-            <code-example path="/path/to/samp.le" region="sample-region" header="Sample">
-            </code-example>
-          `, `
-            <code-example
-                header="Sample"
-                path="/path/to/samp.le"
-                region="sample-region">
-            </code-example>
-          `);
+            `
+              <code-example path="/path/to/samp.le" region="sample-region" header="Sample">
+              </code-example>
+            `, `
+              <code-example
+                  header="Sample"
+                  path="/path/to/samp.le"
+                  region="sample-region">
+              </code-example>
+            `);
       });
 
       it('should rewrite all `<code-example>` occurrences', () => {
         assertTransformed(
-          `
-            <code-example path="/path/to/samp.le.1" region="sample-region-1" header="Sample 1">
-            </code-example>
-            A line between.
-            <code-example
-              path="/path/to/samp.le.2"
-                region="sample-region-2"
-                  header="Sample 2"
-                    ></code-example>
-          `, `
-            <code-example
-                header="Sample 1"
-                path="/path/to/samp.le.1"
-                region="sample-region-1">
-            </code-example>
-          `, `
-            <code-example
-                header="Sample 2"
+            `
+              <code-example path="/path/to/samp.le.1" region="sample-region-1" header="Sample 1">
+              </code-example>
+              A line between.
+              <code-example
                 path="/path/to/samp.le.2"
-                region="sample-region-2">
-            </code-example>
-          `);
+                  region="sample-region-2"
+                    header="Sample 2"
+                      ></code-example>
+            `, `
+              <code-example
+                  header="Sample 1"
+                  path="/path/to/samp.le.1"
+                  region="sample-region-1">
+              </code-example>
+            `, `
+              <code-example
+                  header="Sample 2"
+                  path="/path/to/samp.le.2"
+                  region="sample-region-2">
+              </code-example>
+            `);
       });
 
       it('should not rewrite `<code-example>` occurrences if `isNgProjectWatcher.matches` is false', () => {
@@ -169,110 +169,110 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
 
       it('should correctly handle content inside a `<code-example>`', () => {
         assertTransformed(
-          `
-            <code-example path="/path/to/samp.le">
-              class Foo {
-                bar = true;
-              }
-            </code-example>
-          `, `
-            <code-example
-                path="/path/to/samp.le">
-              class Foo {
-                bar = true;
-              }
-            </code-example>
-          `);
+            `
+              <code-example path="/path/to/samp.le">
+                class Foo {
+                  bar = true;
+                }
+              </code-example>
+            `, `
+              <code-example
+                  path="/path/to/samp.le">
+                class Foo {
+                  bar = true;
+                }
+              </code-example>
+            `);
       });
 
       it('should rewrite `<code-tabs>` with single-line `<code-pane>` occurrences', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              <code-pane header="Sample 1" path="/path/to/samp.le.1"></code-pane>
-              <code-pane header="Sample 2" path="/path/to/samp.le.2"></code-pane>
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  header="Sample 1"
-                  path="/path/to/samp.le.1">
-              </code-pane>
-              <code-pane
-                  header="Sample 2"
-                  path="/path/to/samp.le.2">
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                <code-pane header="Sample 1" path="/path/to/samp.le.1"></code-pane>
+                <code-pane header="Sample 2" path="/path/to/samp.le.2"></code-pane>
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    header="Sample 1"
+                    path="/path/to/samp.le.1">
+                </code-pane>
+                <code-pane
+                    header="Sample 2"
+                    path="/path/to/samp.le.2">
+                </code-pane>
+              </code-tabs>
+            `);
       });
 
       it('should rewrite `<code-tabs>` with multi-line `<code-pane>` occurrences', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              <code-pane header="Sample 1"
-                  path="/path/to/samp.le.1"
-                region="sample-region-1"></code-pane>
-              <code-pane header="Sample 2" path="/path/to/samp.le.2" region="sample-region-2">
-              </code-pane>
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  header="Sample 1"
-                  path="/path/to/samp.le.1"
-                  region="sample-region-1">
-              </code-pane>
-              <code-pane
-                  header="Sample 2"
-                  path="/path/to/samp.le.2"
-                  region="sample-region-2">
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                <code-pane header="Sample 1"
+                    path="/path/to/samp.le.1"
+                  region="sample-region-1"></code-pane>
+                <code-pane header="Sample 2" path="/path/to/samp.le.2" region="sample-region-2">
+                </code-pane>
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    header="Sample 1"
+                    path="/path/to/samp.le.1"
+                    region="sample-region-1">
+                </code-pane>
+                <code-pane
+                    header="Sample 2"
+                    path="/path/to/samp.le.2"
+                    region="sample-region-2">
+                </code-pane>
+              </code-tabs>
+            `);
       });
 
       it('should order `<code-pane>` attributes alphabetically', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              <code-pane path="/path/to/samp.le" region="sample-region" header="Sample">
-              </code-pane>
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  header="Sample"
-                  path="/path/to/samp.le"
-                  region="sample-region">
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                <code-pane path="/path/to/samp.le" region="sample-region" header="Sample">
+                </code-pane>
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    header="Sample"
+                    path="/path/to/samp.le"
+                    region="sample-region">
+                </code-pane>
+              </code-tabs>
+            `);
       });
 
       it('should rewrite all `<code-tabs` occurrences', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              <code-pane path="/path/to/samp.le.1"></code-pane>
-            </code-tabs>
-            A line between.
-            <code-tabs>
-              <code-pane path="/path/to/samp.le.2"></code-pane>
-                </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  path="/path/to/samp.le.1">
-              </code-pane>
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  path="/path/to/samp.le.2">
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                <code-pane path="/path/to/samp.le.1"></code-pane>
+              </code-tabs>
+              A line between.
+              <code-tabs>
+                <code-pane path="/path/to/samp.le.2"></code-pane>
+                  </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    path="/path/to/samp.le.1">
+                </code-pane>
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    path="/path/to/samp.le.2">
+                </code-pane>
+              </code-tabs>
+            `);
       });
 
       it('should not rewrite `<code-tabs>` occurrences if `isNgProjectWatcher.matches` is false', () => {
@@ -300,58 +300,58 @@ describe('fixGuideCodeSnippetsPlugin()', () => {
 
       it('should correctly handle content inside a `<code-pane>`', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              <code-pane path="/path/to/samp.le.1">
-                class Foo {
-                  bar = true;
-                }
-              </code-pane>
-              <code-pane
-                  path="/path/to/samp.le.2">
-                class Foo {
-                  bar = true;
-                }
-              </code-pane>
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  path="/path/to/samp.le.1">
-                class Foo {
-                  bar = true;
-                }
-              </code-pane>
-              <code-pane
-                  path="/path/to/samp.le.2">
-                class Foo {
-                  bar = true;
-                }
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                <code-pane path="/path/to/samp.le.1">
+                  class Foo {
+                    bar = true;
+                  }
+                </code-pane>
+                <code-pane
+                    path="/path/to/samp.le.2">
+                  class Foo {
+                    bar = true;
+                  }
+                </code-pane>
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    path="/path/to/samp.le.1">
+                  class Foo {
+                    bar = true;
+                  }
+                </code-pane>
+                <code-pane
+                    path="/path/to/samp.le.2">
+                  class Foo {
+                    bar = true;
+                  }
+                </code-pane>
+              </code-tabs>
+            `);
       });
 
       it('should ignore `<code-tabs>` content other than `<code-pane>` occurrences', () => {
         assertTransformed(
-          `
-            <code-tabs>
-              Not a code-pane.
-              <code-pane path="/path/to/samp.le.1"></code-pane>
-              Not a code-pane either.
-              <code-pane path="/path/to/samp.le.2"></code-pane>
-              Still not a code-pane.
-            </code-tabs>
-          `, `
-            <code-tabs>
-              <code-pane
-                  path="/path/to/samp.le.1">
-              </code-pane>
-              <code-pane
-                  path="/path/to/samp.le.2">
-              </code-pane>
-            </code-tabs>
-          `);
+            `
+              <code-tabs>
+                Not a code-pane.
+                <code-pane path="/path/to/samp.le.1"></code-pane>
+                Not a code-pane either.
+                <code-pane path="/path/to/samp.le.2"></code-pane>
+                Still not a code-pane.
+              </code-tabs>
+            `, `
+              <code-tabs>
+                <code-pane
+                    path="/path/to/samp.le.1">
+                </code-pane>
+                <code-pane
+                    path="/path/to/samp.le.2">
+                </code-pane>
+              </code-tabs>
+            `);
       });
     });
   });

@@ -4,7 +4,7 @@ import {logger} from './logger';
 
 export class BaseFeature implements Disposable {
   public static activate(context: ExtensionContext): void {
-    // tslint:disable-next-line: variable-name
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const Feature = this;
     logger.log(`Activating ${Feature.name}...`);
 
