@@ -10,15 +10,6 @@ export type TestType = 'e2e' | 'unit';
 
 // Exports
 export const runTests = (testType: TestType, testDir: string): Promise<boolean> => {
-  // `vscode` APIs are only provided when running tests through VSCode (i.e. e2e tests).
-  // For "standalone" unit tests, we need to mock them.
-  if (testType === 'unit') {
-    const mock = require('mock-require');  // eslint-disable-line @typescript-eslint/no-var-requires
-    const {mockVscode} = require('./vscode.mock');  // eslint-disable-line @typescript-eslint/no-var-requires
-
-    mock('vscode', mockVscode);
-  }
-
   return new Promise(resolve => {
     const runner = new Jasmine({projectBaseDir: testDir});
 

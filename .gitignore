@@ -1,6 +1,6 @@
 /.vscode-test/
+/dist/
 /node_modules/
-/out/
 
 *.log
 *.vsix

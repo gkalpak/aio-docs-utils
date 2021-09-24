@@ -125,33 +125,31 @@ export class MockWorkspaceFolder {
   }
 }
 
-// Exports
-export const mockVscode = {
-  FileType: MockFileType,
-  Hover: MockHover,
-  Location: MockLocation,
-  MarkdownString: MockMarkdownString,
-  Position: MockPosition,
-  Range: MockRange,
-  Uri: MockUri,
-  WorkspaceFolder: MockWorkspaceFolder,
+// Mock exports
+export const FileType = MockFileType;
+export const Hover = MockHover;
+export const Location = MockLocation;
+export const MarkdownString = MockMarkdownString;
+export const Position = MockPosition;
+export const Range = MockRange;
+export const Uri = MockUri;
+export const WorkspaceFolder = MockWorkspaceFolder;
 
-  languages: {
-    registerCompletionItemProvider: noop,
-    registerDefinitionProvider: noop,
-    registerHoverProvider: noop,
+export const languages = {
+  registerCompletionItemProvider: noop,
+  registerDefinitionProvider: noop,
+  registerHoverProvider: noop,
+};
+export const window = {
+  createOutputChannel: mockCreateOutputChannel,
+  setStatusBarMessage: noop,
+};
+export const workspace = {
+  fs: {
+    readFile: notImplemented,
+    stat: notImplemented,
   },
-  window: {
-    createOutputChannel: mockCreateOutputChannel,
-    setStatusBarMessage: noop,
-  },
-  workspace: {
-    fs: {
-      readFile: notImplemented,
-      stat: notImplemented,
-    },
-    onDidChangeWorkspaceFolders: mockOnDidChangeWorkspaceFolders,
-  },
+  onDidChangeWorkspaceFolders: mockOnDidChangeWorkspaceFolders,
 };
 
 // Helpers
