@@ -5,21 +5,30 @@
   "tasks": [
     {
       "label": "npm: build",
-      "type": "npm",
-      "script": "build",
-      "problemMatcher": "$tsc",
       "group": {
         "kind": "build",
         "isDefault": true,
       },
+      "type": "npm",
+      "script": "build",
+      "isBackground": false,
+      "problemMatcher": "$ts-webpack",
+    },
+    {
+      "label": "npm: build-prod",
+      "group": "build",
+      "type": "npm",
+      "script": "build-prod",
+      "isBackground": false,
+      "problemMatcher": "$ts-webpack",
     },
     {
       "label": "npm: build-watch",
+      "group": "build",
       "type": "npm",
       "script": "build-watch",
-      "problemMatcher": "$tsc-watch",
       "isBackground": true,
-      "group": "build",
+      "problemMatcher": "$ts-webpack-watch",
     },
   ],
 }

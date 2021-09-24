@@ -1,9 +1,9 @@
 .azure-pipelines/
 .vscode/
 .vscode-test/
+dist/test/
+dist/**/*.map
 img/raw/
-out/test/
-out/**/*.map
 scripts/
 src/
 test-fixtures/

@@ -3,6 +3,7 @@
 ## Overview
 
 The project is mainly written in [TypeScript](https://www.typescriptlang.org/).
+[Webpack](https://webpack.js.org/) is used for bundling.
 [Jasmine](https://jasmine.github.io/) is used for running the tests.
 [Node.js](https://nodejs.org/)/[npm](https://www.npmjs.com/) are used for managing dependencies and running [scripts](#npm-scripts) (for building, testing, publishing, etc.).
 
@@ -12,10 +13,11 @@ Since this is a [VSCode](https://code.visualstudio.com/) extension, there are so
 
 Here is a list of npm scripts, that can be used for building and testing the project locally:
 
-- `npm run build`: Compile the source code (including tests), using the TypeScript compiler.
+- `npm run build`: Compile the source code (including tests), using the Webpack.
+- `npm run build-prod`: Compile the source code (including tests) in production mode (producing more optimized code).
 - `npm run build-watch`: Watch the source code (including tests) and re-build whenever something changes.
 
-- `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [ESLint](https://eslint.org/), [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
+- `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [ESLint](https://eslint.org/), the [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
 - `npm run test-unit`: Run unit tests.
 - `npm run test-e2e [-- <version>]`: Run e2e tests against the specified VSCode version (or the minimum supported version, if `<version>` is not specified). Possible values for `<version>` are: `insiders`, `min-supported`, `stable` or `<X>.<Y>.<Z>`<br />
   ([Note about e2e testing](#e2e-limitation).)
@@ -38,14 +40,15 @@ For a full list of available npm scripts, see [package.json](package.json).
 
 ## <a name="vscode-tasks"></a>VSCode tasks
 
-Here is a list of VSCode tasks (defined in [tasks.json](.vscode/tasks.json), that can be useful during local development:
+Here is a list of VSCode tasks (defined in [tasks.json](.vscode/tasks.json)), that can be useful during local development:
 
 - `npm: build`: Run `npm build`.
+- `npm: build-prod`: Run `npm build-prod`.
 - `npm: build-watch`: Run `npm build-watch`.
 
 ## <a name="vscode-launch-configs"></a>VSCode launch configurations
 
-Here is a list of VSCode launch configurations (defined in [launch.json](.vscode/launch.json), that can be useful during local development:
+Here is a list of VSCode launch configurations (defined in [launch.json](.vscode/launch.json)), that can be useful during local development:
 
 - `Extension`: Launch a new VSCode instance with the extension loaded.
 - `Extension Tests (unit) - DEBUG`: Run the unit tests in "debug" mode. Useful for debugging unexpectedly failing tests.

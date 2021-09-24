@@ -2,21 +2,20 @@
   "compilerOptions": {
     "importHelpers": true,
     "lib": [
-      "es2015"
+      "es2015",
     ],
     "module": "commonjs",
     "newLine": "lf",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outDir": "out/",
     "rootDir": "src/",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2015"
+    "target": "es2015",
   },
   "include": [
-    "src/"
-  ]
+    "src/",
+  ],
 }

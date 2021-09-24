@@ -11,7 +11,7 @@ set('-e');
 /**
  * ## Usage:
  * ```
- * node out/test/helpers/e2e-runner <code-version>
+ * node dist/test/helpers/e2e-runner <code-version>
  * ```
  *
  *   Where:
@@ -56,7 +56,7 @@ interface ILsLReturnType extends Stats {
 // Constants
 const MAX_STORED_VERSIONS = 5;
 const ROOT_DIR = resolve(`${__dirname}/../../..`);
-const TESTS_PATH = join(ROOT_DIR, 'out/test/run-tests-e2e');
+const TESTS_PATH = join(ROOT_DIR, 'dist/test/run-tests-e2e');
 const VSCODE_TEST_DIR = join(ROOT_DIR, '.vscode-test');
 
 // Run
@@ -111,7 +111,7 @@ function getMinSupportedVersion(): string {
   debugMessage('Getting minimum supported version...');
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  let {engines: {vscode: version}} = require(`${ROOT_DIR}/package.json`);
+  let {engines: {vscode: version}} = require('../../../package.json');
 
   // Replace leading symbols (e.g. `^`, `~`, `>=`).
   version = version.replace(/^\D+/, '');
