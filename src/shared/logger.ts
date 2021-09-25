@@ -6,7 +6,7 @@ export class Logger implements Disposable {
   private channel = window.createOutputChannel(displayName);
 
   public dispose(): void {
-    this.log(`Disposing ${this.constructor.name}...`);
+    this.log('Disposing Logger...');
     this.channel.dispose();
   }
 

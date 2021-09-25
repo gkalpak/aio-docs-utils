@@ -23,7 +23,7 @@ export class WorkspaceFolderWatcher implements Disposable {
   }
 
   public toString(): string {
-    return `${this.constructor.name}(${this.id})`;
+    return `WorkspaceFolderWatcher(${this.id})`;
   }
 
   protected async updateMatches(): Promise<void> {

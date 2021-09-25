@@ -60,7 +60,7 @@ describe('WorkspaceFolderWatcher', () => {
 
   describe('toString()', () => {
     it('should return a string representation that includes the ID', () => {
-      expect(watcher.toString()).toBe('TestWorkspaceFolderWatcher(testWatcher)');
+      expect(watcher.toString()).toBe('WorkspaceFolderWatcher(testWatcher)');
     });
   });
 
