@@ -1,12 +1,11 @@
 import {ExtensionContext, window} from 'vscode';
+import {displayName} from '../package.json';
 import {CodeSnippetIntellisenseFeature} from './code-snippet-intellisense';
 import {extendMarkdownIt} from './markdown-it-plugins';
 import {logger} from './shared/logger';
 import {isNgProjectWatcher} from './shared/workspace-folder-watcher';
 
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const {displayName} = require('../package.json');
 const features = [
   CodeSnippetIntellisenseFeature,
 ];
