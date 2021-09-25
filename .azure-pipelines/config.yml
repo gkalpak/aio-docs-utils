@@ -68,7 +68,7 @@ stages:
               assets: '$(System.DefaultWorkingDirectory)/*.vsix'
               changeLogType: 'commitBased'
               changeLogCompareToRelease: 'lastNonDraftRelease'
-              gitHubConnection: 'aio-docs-utils/release/azure-devops'
+              gitHubConnection: 'github.com_gkalpak'
 
       - job: 'DeployMarketplace'
         displayName: 'Publish to marketplace'
