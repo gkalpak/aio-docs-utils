@@ -54,6 +54,7 @@ const baseConfig = {
     },
     mainFields: ['module', 'main'],
   },
+  stats: 'minimal',
   target: 'node',
 };
 
