@@ -22,9 +22,9 @@ const baseConfig = {
   context: __dirname,
   devtool: 'nosources-source-map',
   externals: {
+    '@vscode/test-electron': 'commonjs @vscode/test-electron',
     jasmine: 'commonjs jasmine',
     vscode: 'commonjs vscode',
-    'vscode-test': 'commonjs vscode-test',
   },
   mode: 'none',
   module: {

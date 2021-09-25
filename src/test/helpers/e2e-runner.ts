@@ -1,8 +1,8 @@
 // Imports
+import {downloadAndUnzipVSCode, runTests} from '@vscode/test-electron';
 import {Stats, utimesSync} from 'fs';
 import {dirname, join, resolve} from 'path';
 import {ls, rm, set} from 'shelljs';
-import {downloadAndUnzipVSCode, runTests} from 'vscode-test';
 import {cyan, yellow} from './string-utils';
 
 set('-e');
