@@ -27,9 +27,9 @@ class BlockCommentDocregionMatcher implements IDocregionMatcher {
  * E.g.: TypeScript, JavaScript
  */
 class MixedCommentDocregionMatcher extends BlockCommentDocregionMatcher {
-  public readonly regionStartRe = /^\s*\/\/\s*#docregion\s*(.*)$/;
-  public readonly regionEndRe = /^\s*\/\/\s*#enddocregion\s*(.*)$/;
-  public readonly plasterRe = /^\s*\/\/\s*#docplaster\s*(.*)$/;
+  public override readonly regionStartRe = /^\s*\/\/\s*#docregion\s*(.*)$/;
+  public override readonly regionEndRe = /^\s*\/\/\s*#enddocregion\s*(.*)$/;
+  public override readonly plasterRe = /^\s*\/\/\s*#docplaster\s*(.*)$/;
 }
 
 /**
@@ -37,7 +37,7 @@ class MixedCommentDocregionMatcher extends BlockCommentDocregionMatcher {
  * E.g.: Pug
  */
 class InlineCommentDocregionMatcher extends MixedCommentDocregionMatcher {
-  public createPlasterComment(plaster: string): string {
+  public override createPlasterComment(plaster: string): string {
     return `// ${plaster}`;
   }
 }

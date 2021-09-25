@@ -5,7 +5,7 @@ import {CodeSnippetIntellisenseProvider} from './code-snippet-intellisense-provi
 
 
 export class CodeSnippetIntellisenseFeature extends BaseFeature {
-  protected static readonly _displayName = 'CodeSnippetIntellisenseFeature';
+  protected static override readonly _displayName = 'CodeSnippetIntellisenseFeature';
 
   constructor() {
     super();

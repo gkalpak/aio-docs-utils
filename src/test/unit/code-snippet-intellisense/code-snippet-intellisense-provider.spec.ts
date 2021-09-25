@@ -927,18 +927,19 @@ describe('CodeSnippetIntellisenseProvider', () => {
       super(extractPathPrefixRe);
     }
 
-    public extractDocregionInfo(
+    public override extractDocregionInfo(
         csInfo: ICodeSnippetInfoWithFilePath,
         token: CancellationToken,
     ): Promise<IDocregionInfo | null> {
       return super.extractDocregionInfo(csInfo, token);
     }
 
-    public extractDocregionNames(csInfo: ICodeSnippetInfoWithFilePath, token: CancellationToken): Promise<string[]> {
+    public override extractDocregionNames(
+        csInfo: ICodeSnippetInfoWithFilePath, token: CancellationToken): Promise<string[]> {
       return super.extractDocregionNames(csInfo, token);
     }
 
-    public getCodeSnippetInfo(
+    public override getCodeSnippetInfo(
         doc: TextDocument,
         pos: Position,
         action: string,
@@ -946,11 +947,11 @@ describe('CodeSnippetIntellisenseProvider', () => {
       return super.getCodeSnippetInfo(doc, pos, action);
     }
 
-    public getDocregionExtractor(filePath: string, token: CancellationToken): Promise<DocregionExtractor> {
+    public override getDocregionExtractor(filePath: string, token: CancellationToken): Promise<DocregionExtractor> {
       return super.getDocregionExtractor(filePath, token);
     }
 
-    public isInRegionAttribute(doc: TextDocument, pos: Position): boolean {
+    public override isInRegionAttribute(doc: TextDocument, pos: Position): boolean {
       return super.isInRegionAttribute(doc, pos);
     }
   }

@@ -435,7 +435,7 @@ describe('DocregionExtractor', () => {
 
   // Helpers
   class TestDocregionExtractor extends DocregionExtractor {
-    public getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
+    public override getRegions(): Map<string, IProvisionalDocregionInfo | IDocregionInfo> {
       return super.getRegions();
     }
   }

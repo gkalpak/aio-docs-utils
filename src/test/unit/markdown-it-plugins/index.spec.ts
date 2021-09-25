@@ -38,7 +38,7 @@ class MockMarkdownIt extends MarkdownIt {
     super();
   }
 
-  public use(...args: IMarkdownItUseParams): this {
+  public override use(...args: IMarkdownItUseParams): this {
     return new MockMarkdownIt(this.generation + 1, [...this.plugins, args[0]]) as this;
   }
 }

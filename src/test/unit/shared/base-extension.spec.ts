@@ -57,9 +57,9 @@ describe('BaseFeature', () => {
 
   // Helpers
   class TestFeature extends BaseFeature {
-    protected static readonly _displayName = 'TestFeature';
+    protected static override readonly _displayName = 'TestFeature';
 
-    public disposables: Disposable[] = [];
+    public override disposables: Disposable[] = [];
 
     constructor() {
       super();

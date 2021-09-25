@@ -104,7 +104,7 @@ describe('WorkspaceFolderWatcher', () => {
   class TestWorkspaceFolderWatcher extends WorkspaceFolderWatcher {
     public updateMatchesSpy: jasmine.Spy | undefined;
 
-    public updateMatches(): ReturnType<WorkspaceFolderWatcher['updateMatches']> {
+    public override updateMatches(): ReturnType<WorkspaceFolderWatcher['updateMatches']> {
       if (!this.updateMatchesSpy) {
         this.updateMatchesSpy = jasmine.createSpy('updateMatches');
       }

@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "lib": [
       "es2015",
     ],
     "module": "commonjs",
     "newLine": "lf",
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitOverride": true,
     "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
