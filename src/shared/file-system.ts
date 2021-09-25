@@ -1,4 +1,5 @@
 // Imports
+import {Buffer} from 'buffer';
 import {FileStat as VscodeFileStat, FileType, Uri, workspace} from 'vscode';
 
 

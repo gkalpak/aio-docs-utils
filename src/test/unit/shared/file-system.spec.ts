@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer';
 import {FileStat as VscodeFileStat, FileType, Uri, workspace} from 'vscode';
 import {FileStat, FileSystem, fileSystem} from '../../../shared/file-system';
 import {reversePromise} from '../../helpers/test-utils';

@@ -6,7 +6,7 @@
 	"version": "0.2.0",
   "configurations": [
     {
-      "name": "Extension",
+      "name": "Extension (desktop)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -19,6 +19,22 @@
         "${workspaceFolder}/dist/extension.js",
       ],
       "preLaunchTask": "npm: build-watch",
+    },
+    {
+      "name": "Extension (web)",
+      "type": "pwa-extensionHost",
+      "debugWebWorkerHost": true,
+      "request": "launch",
+      "args": [
+        "${workspaceFolder}/test-fixtures/test-project/",
+        "--disable-extensions",
+        "--extensionDevelopmentKind=web",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+      ],
+      "outFiles": [
+        "${workspaceFolder}/dist/extension-web.js",
+      ],
+      "preLaunchTask": "npm: build-watch"
     },
     {
       "name": "Extension Tests (unit) - DEBUG",

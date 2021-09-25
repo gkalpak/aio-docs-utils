@@ -23,6 +23,10 @@ A [VSCode](https://code.visualstudio.com/) extension providing a set of simple u
 
 ## Features
 
+> **NOTE:**<br />
+> This extension offers experimental support for [VSCode for the web](https://code.visualstudio.com/api/extension-guides/web-extensions) (i.e. the in-browser version of VSCode, as seen on [github.dev](https://github.dev/) for example).<br />
+> <sub>If you find that a feature is not working properly on the web, please [file an issue](https://github.com/gkalpak/aio-docs-utils/issues/new).</sub>
+
 ### Code snippet utilities
 
 The extension provides features that are useful for viewing and authoring code snippets (with source code extracted from standalone apps) in [Angular](https://github.com/angular/angular) API docs and guides.
@@ -142,8 +146,10 @@ _These **will** be recognized:_
 
 Things I want to (but won't necessarily) do:
 
-- Make it a [web extension](https://code.visualstudio.com/api/extension-guides/web-extensions) + update docs (e.g. `DEVELOPER.md`).
 - Add e2e tests.
+- Run e2e (and unit?) tests in a browser environment.
+  Instructions: https://code.visualstudio.com/api/extension-guides/web-extensions#test-your-web-extension<br />
+  (NOTE: The in-browser tests might be affected by [Issue 133399](https://github.com/microsoft/vscode/issues/133399).)
 - Consider adding a shortcut for opening `http://localhost:4200/` inside the editor to preview the app (using the built-in `simpleBrowser.show` command).
 - Investigate possible `fixGuideCodeSnippetsPlugin()` improvements:
   - Improvement 1: Parse and show snippet info (header, path, region, etc.).

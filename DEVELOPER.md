@@ -20,7 +20,7 @@ Here is a list of npm scripts, that can be used for building and testing the pro
 - `npm run lint`: Lint the source code (including tests, infrastructure, configs, etc.), using tools such as [ESLint](https://eslint.org/), the [TypeScript compiler](https://www.typescriptlang.org/) and custom [Node.js](https://nodejs.org/) scripts.
 - `npm run test-unit`: Run unit tests.
 - `npm run test-e2e [-- <version>]`: Run e2e tests against the specified VSCode version (or the minimum supported version, if `<version>` is not specified). Possible values for `<version>` are: `insiders`, `min-supported`, `stable` or `<X>.<Y>.<Z>`<br />
-  ([Note about e2e testing](#e2e-limitation).)
+  ([Note about e2e testing](#e2e-limitation) and [note about testing for the web](#testing-for-web).)
 - `npm run test`/`npm test`: Lint the source code and run unit and e2e tests.
 - `npm run test-all-versions`: Same as `npm test`, but runs e2e tests against both the minimum supported and the latest available version.
 
@@ -51,9 +51,16 @@ Here is a list of VSCode tasks (defined in [tasks.json](.vscode/tasks.json)), th
 Here is a list of VSCode launch configurations (defined in [launch.json](.vscode/launch.json)), that can be useful during local development:
 
 - `Extension`: Launch a new VSCode instance with the extension loaded.
+- `Extension (web)`: Launch a new VSCode instance with the extension loaded but using a [web extension host](https://code.visualstudio.com/api/extension-guides/web-extensions#test-your-web-extension-in-vs-code-running-on-desktop).<br />
+  ([Note about testing for the web](#testing-for-web).)
 - `Extension Tests (unit) - DEBUG`: Run the unit tests in "debug" mode. Useful for debugging unexpectedly failing tests.
-- `Extension Tests (e2e)`: Launch a new VSCode instance with the extension loaded and run the e2e tests against that. ([Note about e2e testing](#e2e-limitation).)
+- `Extension Tests (e2e)`: Launch a new VSCode instance with the extension loaded and run the e2e tests against that.<br />
+   ([Note about e2e testing](#e2e-limitation).)
 
 ---
 <a name="e2e-limitation"></a>_**Note about e2e testing**_<br />
 _Due to a [VSCode limitation](https://code.visualstudio.com/api/working-with-extensions/testing-extension#using-insiders-version-for-extension-development), depending on your VSCode version and/or installation mode (global vs per user), it might not be possible to run the extension e2e tests from the command line (via `npm run test-e2e`), if another instance of VSCode is already running. If that is the case, either close all instances of VSCode first, use the relevant [launch configuration](#vscode-launch-configs) from an already running VSCode instance, or run the tests on a different VSCode version (via `npm run test-e2e -- <some-version>`)._
+
+<a name="testing-for-web"></a>_**Note about testing for the web**_<br />
+_Due to the complexity of running in-browser tests and the low impact (given that there are currently no e2e tests), there are not automated tests that run in a browser environment. For the time being, the extension can be manually tested using the `Extension (web)` [launch configuration](https://code.visualstudio.com/api/extension-guides/web-extensions#test-your-web-extension-in-vs-code-running-on-desktop)._<br />
+_(Also, keep in mind that there is currently an issue with contributed `markdown-it` plugins: https://github.com/microsoft/vscode/issues/133399)_
