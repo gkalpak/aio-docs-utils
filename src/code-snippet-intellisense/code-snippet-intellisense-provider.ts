@@ -1,4 +1,3 @@
-import {parse} from 'path';
 import {
   CancellationToken, CompletionContext, CompletionItem, CompletionItemProvider, Definition, DefinitionProvider, Hover,
   HoverProvider, Location, MarkdownString, Position, ProviderResult, Range, TextDocument, Uri,
@@ -189,7 +188,7 @@ export class CodeSnippetIntellisenseProvider implements CompletionItemProvider, 
   }
 
   protected getDocregionExtractor(filePath: string, token: CancellationToken): Promise<DocregionExtractor> {
-    const fileType = parse(filePath).ext.slice(1);
+    const fileType = /(?<=[^\\/]\.)[^.\\/]*$|$/.exec(filePath)![0];
     const unlessCancelled = unlessCancelledFactory(token);
 
     return fs.readFile(filePath).

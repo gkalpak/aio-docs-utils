@@ -35,15 +35,20 @@ export class WorkspaceFolderWatcher implements Disposable {
 }
 
 export const isNgProjectWatcher = new WorkspaceFolderWatcher('isAngularProject', async folder => {
-  const landmarkUris = [
-    folder.uri.with({path: `${folder.uri.path}/aio/content`}),
-    folder.uri.with({path: `${folder.uri.path}/packages`}),
-    folder.uri.with({path: `${folder.uri.path}/package.json`}),
-  ];
-  const landmarkStats = await Promise.all(landmarkUris.map(u => fs.stat(u).catch(() => null)));
+  try {
+    const landmarkUris = [
+      folder.uri.with({path: `${folder.uri.path}/aio/content`}),
+      folder.uri.with({path: `${folder.uri.path}/packages`}),
+      folder.uri.with({path: `${folder.uri.path}/package.json`}),
+    ];
+    const landmarkStats = await Promise.all(landmarkUris.map(u => fs.stat(u).catch(() => null)));
 
-  return allExist(landmarkStats) && landmarkStats[0].isDirectory() && landmarkStats[1].isDirectory() &&
-    landmarkStats[2].isFile() && JSON.parse(await fs.readFile(landmarkUris[2])).name === 'angular-srcs';
+    return allExist(landmarkStats) && landmarkStats[0].isDirectory() && landmarkStats[1].isDirectory() &&
+      landmarkStats[2].isFile() && JSON.parse(await fs.readFile(landmarkUris[2])).name === 'angular-srcs';
+  } catch (err) {
+    logger.error((err instanceof Error) && err.stack || err);
+    return false;
+  }
 });
 
 // Helpers

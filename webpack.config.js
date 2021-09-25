@@ -46,9 +46,28 @@ const baseConfig = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
+    // See https://webpack.js.org/configuration/resolve/#resolvefallback.
+    fallback: {
+      buffer: require.resolve('buffer'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+    },
     mainFields: ['module', 'main'],
   },
   target: 'node',
+};
+
+/** @type BaseConfiguration */
+const baseWebConfig = {
+  ...baseConfig,
+  target: 'webworker',
+  externals: {
+    vscode: 'commonjs vscode',
+  },
+  resolve: {
+    ...baseConfig.resolve,
+    mainFields: ['browser', ...(baseConfig.resolve.mainFields || [])],
+  },
 };
 
 /** @type Configuration */
@@ -57,6 +76,15 @@ const extensionConfig = {
   name: 'extension',
   entry: {
     extension: './src/extension.ts',
+  },
+};
+
+/** @type Configuration */
+const extensionWebConfig = {
+  ...baseWebConfig,
+  name: 'extensionWeb',
+  entry: {
+    'extension-web': './src/extension.ts',
   },
 };
 
@@ -97,6 +125,7 @@ const testsE2eConfig = {
 // Exports
 module.exports = [
   extensionConfig,
+  extensionWebConfig,
   testsUnitConfig,
   testsE2eConfig,
 ];
