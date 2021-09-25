@@ -14,14 +14,12 @@ export class CodeSnippetIntellisenseFeature extends BaseFeature {
     this.registerIntellisenseProvider(/^.*([\\/])aio\1content\1/i, {
       language: 'markdown',
       pattern: '**/aio/content/**',
-      scheme: 'file',
     });
 
     // Register `CodeSnippetIntellisenseProvider` for API docs.
     this.registerIntellisenseProvider(/^.*([\\/])packages\1/i, {
       language: 'typescript',
       pattern: '**/packages/**',
-      scheme: 'file',
     });
   }
 

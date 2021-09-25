@@ -58,11 +58,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
       expect(defSelector).toBe(cplSelector);
       expect(defProvider).toBe(cplProvider);
 
-      expect(cplSelector).toEqual({
-        language: 'markdown',
-        pattern: '**/aio/content/**',
-        scheme: 'file',
-      });
+      expect(cplSelector).toEqual({language: 'markdown', pattern: '**/aio/content/**'});
       expect(cplProvider).toEqual(jasmine.any(CodeSnippetIntellisenseProvider));
       expect(cplTriggerChars).toEqual(CodeSnippetIntellisenseProvider.COMPLETION_TRIGGER_CHARACTERS);
 
@@ -86,11 +82,7 @@ describe('CodeSnippetIntellisenseFeature', () => {
       expect(defSelector).toBe(cplSelector);
       expect(defProvider).toBe(cplProvider);
 
-      expect(cplSelector).toEqual({
-        language: 'typescript',
-        pattern: '**/packages/**',
-        scheme: 'file',
-      });
+      expect(cplSelector).toEqual({language: 'typescript', pattern: '**/packages/**'});
       expect(cplProvider).toEqual(jasmine.any(CodeSnippetIntellisenseProvider));
       expect(cplTriggerChars).toEqual(CodeSnippetIntellisenseProvider.COMPLETION_TRIGGER_CHARACTERS);
 
@@ -106,8 +98,8 @@ describe('CodeSnippetIntellisenseFeature', () => {
 
     it('should log a message for the registered intellisense providers', () => {
       const docSelectors: DocumentSelector[] = [
-        {language: 'markdown', pattern: '**/aio/content/**', scheme: 'file'},
-        {language: 'typescript', pattern: '**/packages/**', scheme: 'file'},
+        {language: 'markdown', pattern: '**/aio/content/**'},
+        {language: 'typescript', pattern: '**/packages/**'},
       ];
       const logMessages = docSelectors.
         map(selector => `Registered intellisense provider for: ${JSON.stringify(selector)}`);
