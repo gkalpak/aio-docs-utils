@@ -72,10 +72,13 @@ export class MockRange {
 }
 
 export class MockTextDocument {
+  public get fileName(): string { return this.uri.fsPath; }
   public get lineCount(): number { return this.lines.length; }
+  public readonly uri: MockUri;
   private readonly lines: string[] = this.contents.split('\n');
 
-  constructor(private readonly contents: string, public readonly fileName = '/angular/aio/content/guide.md') {
+  constructor(private readonly contents: string, path = '/angular/aio/content/guide.md') {
+    this.uri = MockUri.file(path);
   }
 
   public lineAt(index: number): MockTextLine {
@@ -105,14 +108,20 @@ export class MockTextLine {
 }
 
 export class MockUri {
-  public static file(path: string): MockUri {
-    return new MockUri(path);
-  }
+  public get fsPath(): string { return this.path; }
 
   private constructor(public readonly path: string) {
   }
 
+  public static file(path: string): MockUri {
+    return new MockUri(path);
+  }
+
   public with(change: {path: string}): MockUri {
+    if ((typeof change.path !== 'string') || (Object.keys(change).length > 1)) {
+      throw new Error('`MockUri#with()` only supports changing `path`.');
+    }
+
     return new MockUri(change.path);
   }
 }

@@ -24,22 +24,18 @@ export class FileStat implements VscodeFileStat {
 
 // A facade to abstract file-system operations to be able to operate on both local and remote files.
 export class FileSystem {
-  public exists(pathOrUri: string | Uri): Promise<boolean> {
-    return this.stat(pathOrUri).then(() => true, () => false);
+  public exists(uri: Uri): Promise<boolean> {
+    return this.stat(uri).then(() => true, () => false);
   }
 
-  public async readFile(pathOrUri: string | Uri): Promise<string> {
-    const bytes = await workspace.fs.readFile(this.getUri(pathOrUri));
+  public async readFile(uri: Uri): Promise<string> {
+    const bytes = await workspace.fs.readFile(uri);
     return Buffer.from(bytes).toString('utf8');
   }
 
-  public async stat(pathOrUri: string | Uri): Promise<FileStat> {
-    const stats = await workspace.fs.stat(this.getUri(pathOrUri));
+  public async stat(uri: Uri): Promise<FileStat> {
+    const stats = await workspace.fs.stat(uri);
     return new FileStat(stats);
-  }
-
-  private getUri(pathOrUri: string | Uri): Uri {
-    return (typeof pathOrUri === 'string') ? Uri.file(pathOrUri) : pathOrUri;
   }
 }
 

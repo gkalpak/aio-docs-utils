@@ -159,7 +159,7 @@ Things I want to (but won't necessarily) do:
   - Improvement 2: Show snippet content (requires containing document?).
     - Investigate getting doc from active editor or open editor (matched by code snippet opening tag) and parsing snippets fully (with content). E.g.:
       - Modify `CodeSnippetUtils` to be able to extract info directly from content (instead of `TextDocument` + `Position`).
-      - Use `window.activeTextEditor.document.fileName` to resolve the example path.
+      - Use `window.activeTextEditor.document.uri` to resolve the example path.
         _Ideally, this would need to be matched against the correct provider so that the example path could be resolved correctly (and also skip work for non-matching Markdown files)._
         _For extra confirmation, I could use the opening tag string and search for it in the active document._
           _(Do I need to deal with formatting (e.g. whitespace)?)_

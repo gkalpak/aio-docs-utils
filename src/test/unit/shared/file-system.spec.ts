@@ -57,27 +57,26 @@ describe('FileSystem', () => {
     beforeEach(() => statSpy = spyOn(wfs, 'stat').and.returnValue(Promise.resolve(mockStat)));
 
     it('should call `workspace.fs.stat()` under the hood', async () => {
-      await fs.exists('foo.txt');
-      expect(statSpy).toHaveBeenCalledWith(Uri.file('foo.txt'));
+      const testUri = Uri.file('foo.txt');
+      await fs.exists(testUri);
+
+      expect(statSpy).toHaveBeenCalledWith(testUri);
     });
 
     it('should return a promise', async () => {
-      const promise = fs.exists('foo.txt');
+      const promise = fs.exists(Uri.file('foo.txt'));
 
       expect(promise).toEqual(jasmine.any(Promise));
       await promise;
     });
 
     it('should resolve the promise with `true` if `workspace.fs.stat()` completes successfully', async () => {
-      expect(await fs.exists('foo.txt')).toBe(true);
-      expect(await fs.exists(Uri.file('bar.txt'))).toBe(true);
+      expect(await fs.exists(Uri.file('foo.txt'))).toBe(true);
     });
 
     it('should resolve the promise with `false` if `workspace.fs.stat()` completes with error', async () => {
       statSpy.and.returnValue(Promise.reject('Does not exist.'));
-
-      expect(await fs.exists('foo.txt')).toBe(false);
-      expect(await fs.exists(Uri.file('bar.txt'))).toBe(false);
+      expect(await fs.exists(Uri.file('foo.txt'))).toBe(false);
     });
   });
 
@@ -90,27 +89,26 @@ describe('FileSystem', () => {
     });
 
     it('should delegate to `workspace.fs.readFile()`', async () => {
-      await fs.readFile('foo.txt');
-      expect(readFileSpy).toHaveBeenCalledWith(Uri.file('foo.txt'));
+      const testUri = Uri.file('foo.txt');
+      await fs.readFile(testUri);
+
+      expect(readFileSpy).toHaveBeenCalledWith(testUri);
     });
 
     it('should return a promise', async () => {
-      const promise = fs.readFile('foo.txt');
+      const promise = fs.readFile(Uri.file('foo.txt'));
 
       expect(promise).toEqual(jasmine.any(Promise));
       await promise;
     });
 
     it('should resolve the promise if `workspace.fs.readFile()` completes successfully', async () => {
-      expect(await fs.readFile('foo.txt')).toBe('Test content.');
-      expect(await fs.readFile(Uri.file('bar.txt'))).toBe('Test content.');
+      expect(await fs.readFile(Uri.file('foo.txt'))).toBe('Test content.');
     });
 
     it('should reject the promise if `workspace.fs.readFile()` completes with error', async () => {
       readFileSpy.and.returnValue(Promise.reject('Test error.'));
-
-      expect(await reversePromise(fs.readFile('foo.txt'))).toBe('Test error.');
-      expect(await reversePromise(fs.readFile(Uri.file('bar.txt')))).toBe('Test error.');
+      expect(await reversePromise(fs.readFile(Uri.file('foo.txt')))).toBe('Test error.');
     });
   });
 
@@ -121,27 +119,26 @@ describe('FileSystem', () => {
     beforeEach(() => statSpy = spyOn(wfs, 'stat').and.returnValue(Promise.resolve(mockStat)));
 
     it('should delegate to `workspace.fs.stat()`', async () => {
-      await fs.stat('foo.txt');
-      expect(statSpy).toHaveBeenCalledWith(Uri.file('foo.txt'));
+      const testUri = Uri.file('foo.txt');
+      await fs.stat(testUri);
+
+      expect(statSpy).toHaveBeenCalledWith(testUri);
     });
 
     it('should return a promise', async () => {
-      const promise = fs.stat('foo.txt');
+      const promise = fs.stat(Uri.file('foo.txt'));
 
       expect(promise).toEqual(jasmine.any(Promise));
       await promise;
     });
 
     it('should resolve the promise if `workspace.fs.stat()` completes successfully', async () => {
-      expect(await fs.stat('foo.txt')).toEqual(new FileStat(mockStat));
-      expect(await fs.stat(Uri.file('bar.txt'))).toEqual(new FileStat(mockStat));
+      expect(await fs.stat(Uri.file('foo.txt'))).toEqual(new FileStat(mockStat));
     });
 
     it('should reject the promise if `workspace.fs.stat()` completes with error', async () => {
       statSpy.and.returnValue(Promise.reject('Test error.'));
-
-      expect(await reversePromise(fs.stat('foo.txt'))).toBe('Test error.');
-      expect(await reversePromise(fs.stat(Uri.file('bar.txt')))).toBe('Test error.');
+      expect(await reversePromise(fs.stat(Uri.file('foo.txt')))).toBe('Test error.');
     });
   });
 });

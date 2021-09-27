@@ -2,7 +2,7 @@ import {
   CancellationToken, CompletionContext, CompletionItem, Hover, Location, MarkdownString, Position, TextDocument, Uri,
 } from 'vscode';
 import {
-  CodeSnippetIntellisenseProvider, ICodeSnippetInfoWithFilePath,
+  CodeSnippetIntellisenseProvider, ICodeSnippetInfoWithFileUri,
 } from '../../../code-snippet-intellisense/code-snippet-intellisense-provider';
 import {
   codeSnippetUtils, ICodeSnippetAttrInfo, ICodeSnippetRawInfo, ICodeSnippetInfo,
@@ -37,7 +37,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('extractDocregionInfo()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let mockCancellationToken: CancellationToken;
     let deExtractSpy: jasmine.Spy;
     let getDocregionExtractorSpy: jasmine.Spy;
@@ -49,7 +49,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
     beforeEach(() => {
       mockCodeSnippetInfo = {
         attrs: {region: 'mock-region'} as ICodeSnippetAttrInfo,
-        file: {path: '/examples/file/pat.h'},
+        file: {uri: Uri.file('/examples/file/pat.h')},
         raw: {} as ICodeSnippetRawInfo,
       };
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
@@ -61,7 +61,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
       await extractDocregionInfo();
-      expect(getDocregionExtractorSpy).toHaveBeenCalledWith('/examples/file/pat.h', mockCancellationToken);
+      expect(getDocregionExtractorSpy).toHaveBeenCalledWith(mockCodeSnippetInfo.file.uri, mockCancellationToken);
     });
 
     it('should extract the docregions from the example file', async () => {
@@ -108,7 +108,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('extractDocregionNames()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let mockCancellationToken: CancellationToken;
     let deGetAvailableNamesSpy: jasmine.Spy;
     let getDocregionExtractorSpy: jasmine.Spy;
@@ -120,7 +120,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
     beforeEach(() => {
       mockCodeSnippetInfo = {
         attrs: {region: 'mock-region'} as ICodeSnippetAttrInfo,
-        file: {path: '/examples/file/pat.h'},
+        file: {uri: Uri.file('/examples/file/pat.h')},
         raw: {} as ICodeSnippetRawInfo,
       };
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
@@ -132,7 +132,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
       await extractDocregionNames();
-      expect(getDocregionExtractorSpy).toHaveBeenCalledWith('/examples/file/pat.h', mockCancellationToken);
+      expect(getDocregionExtractorSpy).toHaveBeenCalledWith(mockCodeSnippetInfo.file.uri, mockCancellationToken);
     });
 
     it('should extract the docregion names from the example file', async () => {
@@ -193,14 +193,15 @@ describe('CodeSnippetIntellisenseProvider', () => {
       expect(result).toEqual(jasmine.objectContaining(getInfoResult));
     });
 
-    it('should detect the example file path (based on its `extractPathPrefixRe`', async () => {
+    it('should detect the example file path (based on its `extractPathPrefixRe`)', async () => {
       const doc: TextDocument = new MockTextDocument('some text') as any;
       const pos = new Position(0, 0);
-      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
-      const expectedPath = '/angular/aio/content/examples/file/pat.h';
+      const expectedUri = Uri.file('/angular/aio/content/examples/file/pat.h');
 
-      expect(existsSpy).toHaveBeenCalledWith(expectedPath);
-      expect(result!.file).toEqual({path: expectedPath});
+      const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
+
+      expect(existsSpy).toHaveBeenCalledWith(expectedUri);
+      expect(result!.file).toEqual({uri: expectedUri});
     });
 
     it('should log its progress', async () => {
@@ -248,7 +249,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       const result = await csip.getCodeSnippetInfo(doc, pos, 'Doing stuff');
 
       expect(result).toBeNull();
-      expect(existsSpy).toHaveBeenCalledWith('/angular/aio/content/examples/file/pat.h');
+      expect(existsSpy).toHaveBeenCalledWith(Uri.file('/angular/aio/content/examples/file/pat.h'));
       expect(logSpy.calls.allArgs()).toEqual([
         ['Doing stuff for \'/angular/aio/content/guide.md:4:2\'...'],
         ['  Detected code snippet: <code-snippet></code-snippet>'],
@@ -257,17 +258,17 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('getDocregionExtractor()', () => {
-    let mockFilePath: string;
+    let mockFileUri: Uri;
     let mockCancellationToken: CancellationToken;
     let deForSpy: jasmine.Spy;
     let readFileSpy: jasmine.Spy;
 
     // Helpers
-    const getDocregionExtractor = (filePath = mockFilePath, token = mockCancellationToken) =>
-      csip.getDocregionExtractor(filePath, token);
+    const getDocregionExtractor = (fileUri = mockFileUri, token = mockCancellationToken) =>
+      csip.getDocregionExtractor(fileUri, token);
 
     beforeEach(() => {
-      mockFilePath = '/examples/file/pat.h';
+      mockFileUri = Uri.file('/examples/file/pat.h');
       mockCancellationToken = {isCancellationRequested: false} as CancellationToken;
 
       deForSpy = spyOn(DocregionExtractor, 'for');
@@ -276,7 +277,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
 
     it('should retrieve the example file\'s contents', async () => {
       await getDocregionExtractor();
-      expect(readFileSpy).toHaveBeenCalledWith('/examples/file/pat.h');
+      expect(readFileSpy).toHaveBeenCalledWith(Uri.file('/examples/file/pat.h'));
     });
 
     it('should get an appropriate `DocregionExtractor` for the example file', async () => {
@@ -407,7 +408,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('provideCompletionItems()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let getCodeSnippetInfoSpy: jasmine.Spy;
     let isInRegionAttributeSpy: jasmine.Spy;
     let extractDocregionNamesSpy: jasmine.Spy;
@@ -421,7 +422,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
     ) => csip.provideCompletionItems(doc, pos, token, ctx);
 
     beforeEach(() => {
-      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
+      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFileUri;
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       isInRegionAttributeSpy = spyOn(csip, 'isInRegionAttribute').and.returnValue(true);
@@ -584,7 +585,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('provideDefinition()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let getCodeSnippetInfoSpy: jasmine.Spy;
     let extractDocregionInfoSpy: jasmine.Spy;
 
@@ -594,7 +595,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
         csip.provideDefinition(doc, pos, token);
 
     beforeEach(() => {
-      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
+      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFileUri;
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
@@ -634,32 +635,28 @@ describe('CodeSnippetIntellisenseProvider', () => {
     });
 
     it('should resolve to a list of `Location`s, based on the docregion info ranges', async () => {
-      const mockPath = '/examples/file/pat.h';
+      const mockExampleUri = Uri.file('/examples/file/pat.h');
       const mockRanges = [
         new MockRange(0, 1, 2, 3),
         new MockRange(1, 3, 3, 7),
         new MockRange(2, 4, 4, 2),
       ];
-      const mockUri = {} as Uri;
 
-      mockCodeSnippetInfo.file = {path: mockPath};
+      mockCodeSnippetInfo.file = {uri: mockExampleUri};
       extractDocregionInfoSpy.and.returnValue(Promise.resolve({ranges: mockRanges}));
-      const uriFileSpy = spyOn(Uri, 'file').and.returnValue(mockUri);
 
       const result = await provideDefinition();
 
-      expect(uriFileSpy).toHaveBeenCalledTimes(1);
-      expect(uriFileSpy).toHaveBeenCalledWith('/examples/file/pat.h');
       expect(result).toEqual([
-        new MockLocation(mockUri, mockRanges[0]),
-        new MockLocation(mockUri, mockRanges[1]),
-        new MockLocation(mockUri, mockRanges[2]),
+        new MockLocation(mockExampleUri, mockRanges[0]),
+        new MockLocation(mockExampleUri, mockRanges[1]),
+        new MockLocation(mockExampleUri, mockRanges[2]),
       ] as Location[]);
     });
   });
 
   describe('provideHover()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let getCodeSnippetInfoSpy: jasmine.Spy;
     let extractDocregionInfoSpy: jasmine.Spy;
 
@@ -669,7 +666,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
         csip.provideHover(doc, pos, token);
 
     beforeEach(() => {
-      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFilePath;
+      mockCodeSnippetInfo = {} as ICodeSnippetInfoWithFileUri;
 
       getCodeSnippetInfoSpy = spyOn(csip, 'getCodeSnippetInfo').and.returnValue(Promise.resolve(mockCodeSnippetInfo));
       extractDocregionInfoSpy = spyOn(csip, 'extractDocregionInfo').and.returnValue(Promise.resolve(null));
@@ -823,7 +820,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
   });
 
   describe('resolveCompletionItem()', () => {
-    let mockCodeSnippetInfo: ICodeSnippetInfoWithFilePath;
+    let mockCodeSnippetInfo: ICodeSnippetInfoWithFileUri;
     let extractDocregionInfoSpy: jasmine.Spy;
 
     // Helpers
@@ -839,7 +836,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
           region: 'original-region',
         } as ICodeSnippetAttrInfo,
         file: {
-          path: '/file/path',
+          uri: Uri.file('/file/path'),
         },
         raw: {
           contents: 'Test contents.',
@@ -878,7 +875,7 @@ describe('CodeSnippetIntellisenseProvider', () => {
       expect(extractDocregionInfoSpy).toHaveBeenCalledWith(jasmine.any(Object), mockToken);
       expect(extractDocregionInfoSpy.calls.argsFor(0)[0]).toEqual({
         attrs: jasmine.objectContaining({path: '/attrs/path'}),
-        file: {path: '/file/path'},
+        file: {uri: Uri.file('/file/path')},
         raw: {contents: 'Test contents.'},
       });
     });
@@ -928,14 +925,14 @@ describe('CodeSnippetIntellisenseProvider', () => {
     }
 
     public override extractDocregionInfo(
-        csInfo: ICodeSnippetInfoWithFilePath,
+        csInfo: ICodeSnippetInfoWithFileUri,
         token: CancellationToken,
     ): Promise<IDocregionInfo | null> {
       return super.extractDocregionInfo(csInfo, token);
     }
 
     public override extractDocregionNames(
-        csInfo: ICodeSnippetInfoWithFilePath, token: CancellationToken): Promise<string[]> {
+        csInfo: ICodeSnippetInfoWithFileUri, token: CancellationToken): Promise<string[]> {
       return super.extractDocregionNames(csInfo, token);
     }
 
@@ -943,12 +940,12 @@ describe('CodeSnippetIntellisenseProvider', () => {
         doc: TextDocument,
         pos: Position,
         action: string,
-    ): Promise<ICodeSnippetInfoWithFilePath | null> {
+    ): Promise<ICodeSnippetInfoWithFileUri | null> {
       return super.getCodeSnippetInfo(doc, pos, action);
     }
 
-    public override getDocregionExtractor(filePath: string, token: CancellationToken): Promise<DocregionExtractor> {
-      return super.getDocregionExtractor(filePath, token);
+    public override getDocregionExtractor(fileUri: Uri, token: CancellationToken): Promise<DocregionExtractor> {
+      return super.getDocregionExtractor(fileUri, token);
     }
 
     public override isInRegionAttribute(doc: TextDocument, pos: Position): boolean {
